@@ -372,6 +372,17 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     return;
 }
 
+int find_disjoint_ele(int *disjoint, int x)
+{
+    return x == disjoint[x] ? x : (disjoint[x] = find_disjoint_ele(disjoint, x));
+}
+
+void merge_disjoint_ele(int *disjoint, int x, int y)
+{
+    disjoint[find_disjoint_ele(x)] = find_disjoint_ele(y);
+    return;
+}
+
 struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     struct adj_multinode *sides_set[UDGraph->side_num];
@@ -390,4 +401,12 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         }
     }
     heap_sort(sides_set, (int)UDGraph->side_num);
+    int disjoint[NODE_NUM];
+    for (int count = 0; count < NODE_NUM; count++)
+        disjoint[count] = count;
+    for (size_t e = 0; e < UDGraph->side_num; e++)
+    {
+        if (find_disjoint_ele(disjoint, sides_set[e]->i_node) != find_disjoint_ele(disjoint, sides_set[e]->j_node))
+            merge_disjoint_ele(disjoint, sides_set[e]->i_node, sides_set[e]->j_node);
+    }
 }
