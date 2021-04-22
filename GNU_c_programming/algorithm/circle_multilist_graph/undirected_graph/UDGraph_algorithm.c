@@ -112,7 +112,7 @@ static struct UDGraph_node *extract_min_binomial_node(struct binomial_heap *heap
     return min->node;
 }
 
-static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, const struct UDGraph_node *cand)
+static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct UDGraph_node *const cand)
 {
     struct binomial_node *new_node = (struct binomial_node *)malloc(sizeof(struct binomial_node));
     memset(new_node, 0, sizeof(struct binomial_node));
