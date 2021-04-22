@@ -55,11 +55,11 @@ int64_t* get_union(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t
 
 int64_t* get_intersec(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t len2)
 {
-    int64_t tmp1[len1], tmp2[len2], arr3[len1 + len2];
-    size_t i, j, k;
+    size_t i, j, k = len1 < len2 ? len1 : len2;
+    int64_t tmp1[len1], tmp2[len2], arr3[k];
     memcpy(tmp1, arr1, len1 * sizeof(int64_t));
     memcpy(tmp2, arr2, len2 * sizeof(int64_t));
-    memset(arr3, 0, len1 + len2);
+    memset(arr3, 0, k * sizeof(int64_t));
     /* sort tmp1 from small to large */
     for ( size_t depth = 1; depth < len1; depth <<= 1 )
     for ( size_t left = 0; left < len1; left += depth )
