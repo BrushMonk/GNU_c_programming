@@ -372,21 +372,15 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     return;
 }
 
-int find_disjt_ele(int *disjt_set, struct UDGraph_node *node)
+int find_disjt_ele(int *disjt_set, int node_id)
 {
-    if (disjt_set[node->node_id] == node->node_id)
-        return node->node_id;
+    if (disjt_set[node_id] == node_id)
+        return node_id;
     else
     {
-        disjt_set[node->node_id] = find_disjt_ele(disjt_set, node);
-        return disjt_set[node->node_id];
+        disjt_set[node_id] = find_disjt_ele(disjt_set, node_id);
+        return disjt_set[node_id];
     }
-}
-
-void merge_disjt_ele(int *disjt_set, struct UDGraph_node *node1, struct UDGraph_node *node2)
-{
-    disjt_set[find_disjt_ele(disjt_set, node1)] = find_disjt_ele(disjt_set, node2);
-    return;
 }
 
 struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
@@ -419,18 +413,14 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         nodes_set[v]->node_id = v;
         disjt_set[v] = v;
     }
-    struct UDGraph_node *MST_root;
+    struct UDGraph_node *MST_root = nodes_set[sides_set[0]->i_node];
+    MST_root->parent_id = -1;
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
-        if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node]) == find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]))
+        if (find_disjt_ele(disjt_set, sides_set[e]->i_node) == find_disjt_ele(disjt_set, sides_set[e]->j_node))
             continue;
         else
         {
-            if (e == 0)
-            {
-                MST_root = nodes_set[sides_set[e]->i_node];
-                MST_root->parent_id = -1;
-            }
             if (disjt_set[sides_set[e]->j_node] == MST_root->node_id)
             {
                 nodes_set[sides_set[e]->i_node]->dist = sides_set[e]->weight;
@@ -443,7 +433,8 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
                 nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
                 insert_leaf_in_UDGraph_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
             }
-            merge_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+            /* merge j_node to the set that i_node is belong to */
+            disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];
         }
     }
     return MST_root;
