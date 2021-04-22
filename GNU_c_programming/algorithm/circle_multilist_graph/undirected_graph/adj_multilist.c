@@ -74,7 +74,7 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
             free(tmp);
         }
     }
-    memset(UDGraph->closest_adj, 0 , NODE_NUM * 8UL);
+    memset(UDGraph->closest_adj, 0, NODE_NUM * 8UL);
     UDGraph->side_num = 0;
     return;
 }

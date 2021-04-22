@@ -55,8 +55,8 @@ static void delete_all_sides_in_DGraph(struct DGraph_info *DGraph)
             free(tmp);
         }
     }
-    free(DGraph->closest_inadj);
-    free(DGraph->closest_outadj);
+    memset(DGraph->closest_inadj, 0, NODE_NUM * 8UL);
+    memset(DGraph->closest_outadj, 0, NODE_NUM * 8UL);
     DGraph->side_num = 0;
     return;
 }
@@ -141,5 +141,5 @@ int delete_a_dirc_side_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
 
 struct DGraph_info *Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
 {
-    
+
 }
