@@ -419,16 +419,32 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         nodes_set[v]->node_id = v;
         disjt_set[v] = v;
     }
+    struct UDGraph_node *MST_root;
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
-        if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node]) != find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]))
+        if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node]) == find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]))
+            continue;
+        else
         {
-            merge_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
             if (e == 0)
-                nodes_set[sides_set[e]->i_node]->parent_id = -1;
-            nodes_set[sides_set[e]->j_node]->dist = sides_set[e]->weight;
-            nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
-            insert_leaf_in_UDGraph_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+            {
+                MST_root = nodes_set[sides_set[e]->i_node];
+                MST_root->parent_id = -1;
+            }
+            if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]) == MST_root->node_id)
+            {
+                nodes_set[sides_set[e]->i_node]->dist = sides_set[e]->weight;
+                nodes_set[sides_set[e]->i_node]->parent_id = sides_set[e]->j_node;
+                insert_leaf_in_UDGraph_node(nodes_set[sides_set[e]->j_node], nodes_set[sides_set[e]->i_node]);
+            }
+            else
+            {
+                nodes_set[sides_set[e]->j_node]->dist = sides_set[e]->weight;
+                nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
+                insert_leaf_in_UDGraph_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+            }
+            merge_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
         }
     }
+    return MST_root;
 }
