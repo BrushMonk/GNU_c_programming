@@ -372,13 +372,13 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     return;
 }
 
-int find_disjt_ele(int *disjt_set, int node_id)
+int find_disjt_root(int *disjt_set, int node_id)
 {
     if (disjt_set[node_id] == node_id)
         return node_id;
     else
     {
-        disjt_set[node_id] = find_disjt_ele(disjt_set, node_id);
+        disjt_set[node_id] = find_disjt_root(disjt_set, node_id);
         return disjt_set[node_id];
     }
 }
@@ -417,7 +417,7 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     MST_root->parent_id = -1;
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
-        if (find_disjt_ele(disjt_set, sides_set[e]->i_node) == find_disjt_ele(disjt_set, sides_set[e]->j_node))
+        if (find_disjt_root(disjt_set, sides_set[e]->i_node) == find_disjt_root(disjt_set, sides_set[e]->j_node))
             continue;
         else
         {

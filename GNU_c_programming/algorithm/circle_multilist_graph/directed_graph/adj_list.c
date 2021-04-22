@@ -138,3 +138,8 @@ int delete_a_dirc_side_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
         return 0;
     }
 }
+
+struct DGraph_info *Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
+{
+    
+}
