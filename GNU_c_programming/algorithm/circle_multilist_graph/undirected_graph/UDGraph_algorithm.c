@@ -372,19 +372,26 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     return;
 }
 
-int find_disjt_ele(int *disjt_set, int x)
+int find_disjt_ele(int *disjt_set, struct UDGraph_node *node)
 {
-    return x == disjt_set[x] ? x : (disjt_set[x] = find_disjt_ele(disjt_set, x));
+    if (disjt_set[node->node_id] == node->node_id)
+        return node->node_id;
+    else
+    {
+        disjt_set[node->node_id] = find_disjt_ele(disjt_set, node);
+        return disjt_set[node->node_id];
+    }
 }
 
-void merge_disjt_ele(int *disjt_set, int x, int y)
+void merge_disjt_ele(int *disjt_set, struct UDGraph_node *node1, struct UDGraph_node *node2)
 {
-    disjoint[find_disjt_ele(disjt_set, x)] = find_disjt_ele(disjt_set, y);
+    disjt_set[find_disjt_ele(disjt_set, node1)] = find_disjt_ele(disjt_set, node2);
     return;
 }
 
 struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
+    /* a set made up of all UDGraph sides in order from small to great */
     struct adj_multinode *sides_set[UDGraph->side_num];
     struct adj_multinode *cur;
     for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->side_num; v++)
@@ -401,12 +408,27 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         }
     }
     heap_sort(sides_set, (int)UDGraph->side_num);
+    /* a set made up of all UDGraph nodes */
+    struct UDGraph_node *nodes_set[NODE_NUM];
+    /* disjoint set of node id */
     int disjt_set[NODE_NUM];
-    for (int count = 0; count < NODE_NUM; count++)
-        disjt_set[count] = count;
+    for (int v = 0; v < NODE_NUM; v++)
+    {
+        nodes_set[v] = (struct UDGraph_node *)malloc(sizeof(struct UDGraph_node));
+        memset(nodes_set[v], 0, sizeof(struct UDGraph_node));
+        nodes_set[v]->node_id = v;
+        disjt_set[v] = v;
+    }
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
-        if (find_disjt_ele(disjt_set, sides_set[e]->i_node) != find_disjt_ele(disjt_set, sides_set[e]->j_node))
-            merge_disjt_ele(disjt_set, sides_set[e]->i_node, sides_set[e]->j_node);
+        if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node]) != find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]))
+        {
+            merge_disjt_ele(disjt_set, nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+            if (e == 0)
+                nodes_set[sides_set[e]->i_node]->parent_id = -1;
+            nodes_set[sides_set[e]->j_node]->dist = sides_set[e]->weight;
+            nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
+            insert_leaf_in_UDGraph_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+        }
     }
 }
