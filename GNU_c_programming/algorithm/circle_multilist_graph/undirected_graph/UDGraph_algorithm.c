@@ -431,7 +431,7 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
                 MST_root = nodes_set[sides_set[e]->i_node];
                 MST_root->parent_id = -1;
             }
-            if (find_disjt_ele(disjt_set, nodes_set[sides_set[e]->j_node]) == MST_root->node_id)
+            if (disjt_set[sides_set[e]->j_node] == MST_root->node_id)
             {
                 nodes_set[sides_set[e]->i_node]->dist = sides_set[e]->weight;
                 nodes_set[sides_set[e]->i_node]->parent_id = sides_set[e]->j_node;
