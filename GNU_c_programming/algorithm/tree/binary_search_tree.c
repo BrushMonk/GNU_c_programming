@@ -99,7 +99,8 @@ int delete_a_node_and_fill_from_left_subtree_in_BST(struct bin_node **BST, int32
         return 0;
     }
     /* delete a node who has one subtree */
-    else {
+    else
+    {
         struct bin_node *tmp = cur;
         if (cur->left && prev_of_cur->left == cur)
             prev_of_cur->left = cur->left;
@@ -150,7 +151,8 @@ int delete_a_node_and_fill_from_right_subtree_in_BST(struct bin_node **BST, int3
         return 0;
     }
     /* delete a node who has one subtree */
-    else {
+    else
+    {
         struct bin_node *tmp = cur;
         if (cur->left && prev_of_cur->left == cur)
             prev_of_cur->left = cur->left;
@@ -201,7 +203,8 @@ void the_2nd_preorder_trav_to_BST(struct bin_node **BST)
             push(cur);
             cur = cur->left;
         }
-        else {
+        else
+        {
             cur = popup();
             cur = cur->right;
         }
@@ -223,7 +226,8 @@ void inorder_trav_to_BST(struct bin_node **BST)
             push(cur);
             cur = cur->left;
         }
-        else {
+        else
+        {
             cur = popup();
             printf("%" PRId32"\040", cur->node_id);
             cur = cur->right;
@@ -246,7 +250,8 @@ void postorder_trav_to_BST(struct bin_node **BST)
             push(cur);
             cur = cur->left;
         }
-        else {
+        else
+        {
             /* judge whether the top element in stack has the right subtree
             and whether the top element was ever used before. */
             if (visited == stack[top]->right || stack[top]->right == NULL)
