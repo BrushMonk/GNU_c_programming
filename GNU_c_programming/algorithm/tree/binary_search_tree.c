@@ -234,7 +234,7 @@ void inorder_trav_to_BST(struct bin_node **BST)
 
 void postorder_trav_to_BST(struct bin_node **BST)
 {
-    struct bin_node *cur = *BST, *visited_node = NULL;
+    struct bin_node *cur = *BST, *visited = NULL;
     if (cur == NULL) return;
     while (top != -1 || cur != NULL)
     {
@@ -249,10 +249,10 @@ void postorder_trav_to_BST(struct bin_node **BST)
         else {
             /* judge whether the top element in stack has the right subtree
             and whether the top element was ever used before. */
-            if (visited_node == stack[top]->right || stack[top]->right == NULL)
+            if (visited == stack[top]->right || stack[top]->right == NULL)
             {
-                visited_node = popup();
-                printf("%" PRId32"\040", visited_node->node_id);
+                visited = popup();
+                printf("%" PRId32"\040", visited->node_id);
             }
             /* if it didn't, push the right subtree of the top element into stack. */
             else cur = stack[top]->right;

@@ -372,7 +372,7 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     return;
 }
 
-int find_disjt_root(int *disjt_set, int node_id)
+static int find_disjt_root(int *disjt_set, int node_id)
 {
     if (disjt_set[node_id] == node_id)
         return node_id;

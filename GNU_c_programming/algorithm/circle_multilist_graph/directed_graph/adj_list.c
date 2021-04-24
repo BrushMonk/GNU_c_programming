@@ -38,16 +38,16 @@ static struct adj_node *insert_a_node_in_adj_list(struct adj_node *closest_adj, 
 static void delete_all_sides_in_DGraph(struct DGraph_info *DGraph)
 {
     struct adj_node *cur;
-    for (size_t count = 0; count < NODE_NUM; count++)
+    for (size_t v = 0; v < NODE_NUM; v++)
     {
-        cur = DGraph->closest_inadj[count];
+        cur = DGraph->closest_inadj[v];
         while (cur != NULL)
         {
             struct adj_node *tmp = cur;
             cur = cur->next;
             free(tmp);
         }
-        cur = DGraph->closest_outadj[count];
+        cur = DGraph->closest_outadj[v];
         while (cur != NULL)
         {
             struct adj_node *tmp = cur;
@@ -65,14 +65,14 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_side_info side_list[], s
 {
     DGraph->closest_outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
     DGraph->closest_inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
-    for (size_t count = 0; count < NODE_NUM; count++)
+    for (size_t v = 0; v < NODE_NUM; v++)
     {
-        DGraph->closest_outadj[count] = NULL;
-        DGraph->closest_inadj[count] = NULL;
+        DGraph->closest_outadj[v] = NULL;
+        DGraph->closest_inadj[v] = NULL;
     }
-    for (size_t count = 0; count < side_num; count++)
+    for (size_t v = 0; v < side_num; v++)
     {
-        if (side_list[count].src >= NODE_NUM || side_list[count].dest >= NODE_NUM)
+        if (side_list[v].src >= NODE_NUM || side_list[v].dest >= NODE_NUM)
         {
             fputs("side node_id error. Fail to initialize directed graph!\n", stderr);
             delete_all_sides_in_DGraph(DGraph);
@@ -80,20 +80,20 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_side_info side_list[], s
         }
         /* use weight-ascending order to creat an adjacency list */
         struct adj_node *new_src_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_src_node->node_id = side_list[count].dest;
-        new_src_node->weight = side_list[count].weight;
+        new_src_node->node_id = side_list[v].dest;
+        new_src_node->weight = side_list[v].weight;
         new_src_node->next = NULL;
-        if (DGraph->closest_outadj[side_list[count].src] == NULL)
-            DGraph->closest_outadj[side_list[count].src] = new_src_node;
-        else DGraph->closest_outadj[side_list[count].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[side_list[count].src], new_src_node);
+        if (DGraph->closest_outadj[side_list[v].src] == NULL)
+            DGraph->closest_outadj[side_list[v].src] = new_src_node;
+        else DGraph->closest_outadj[side_list[v].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[side_list[v].src], new_src_node);
         /* use use weight-ascending order to creat a reverse adjacency list */
         struct adj_node *new_dest_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_dest_node->node_id = side_list[count].src;
-        new_dest_node->weight = side_list[count].weight;
+        new_dest_node->node_id = side_list[v].src;
+        new_dest_node->weight = side_list[v].weight;
         new_dest_node->next = NULL;
-        if (DGraph->closest_inadj[side_list[count].dest] == NULL)
-            DGraph->closest_inadj[side_list[count].dest] = new_dest_node;
-        else DGraph->closest_inadj[side_list[count].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[side_list[count].dest], new_dest_node);
+        if (DGraph->closest_inadj[side_list[v].dest] == NULL)
+            DGraph->closest_inadj[side_list[v].dest] = new_dest_node;
+        else DGraph->closest_inadj[side_list[v].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[side_list[v].dest], new_dest_node);
     }
     DGraph->side_num = side_num;
     return 0;
@@ -139,7 +139,21 @@ int delete_a_dirc_side_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
     }
 }
 
+static int find_disjt_root(int *disjt_set, int node_id)
+{
+    if (disjt_set[node_id] == node_id)
+        return node_id;
+    else
+    {
+        disjt_set[node_id] = find_disjt_root(disjt_set, node_id);
+        return disjt_set[node_id];
+    }
+}
+
 struct DGraph_info *Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
 {
-
+    int disjt_set[NODE_NUM];
+    for (int v = 0; v < NODE_NUM; v++)
+        disjt_set[v] = v;
+    int nodeid_stack[NODE_NUM]; int top = -1;
 }
