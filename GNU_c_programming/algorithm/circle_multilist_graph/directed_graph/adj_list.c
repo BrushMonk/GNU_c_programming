@@ -156,4 +156,28 @@ struct DGraph_info *Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
     for (int v = 0; v < NODE_NUM; v++)
         disjt_set[v] = v;
     int nodeid_stack[NODE_NUM]; int top = -1;
+    int timeline[NODE_NUM]; int cur_id = 0;
+    struct adj_node *next_adj = DGraph->closest_outadj[0];
+    while (next_adj != NULL || find_disjt_root(disjt_set, cur_id) != cur_id)
+    {
+        if (next_adj != NULL)
+        {
+            nodeid_stack[++top] = cur_id;
+            timeline[cur_id] = top;
+            cur_id = DGraph->closest_outadj[cur_id]->node_id;
+        }
+        else
+        {
+            next_adj = next_adj->next;
+            if (next_adj == NULL || timeline[next_adj->node_id] <= top)
+            {
+                if (timeline[cur_id] > timeline[next_adj->node_id])
+                    timeline[cur_id] = timeline[next_adj->node_id];
+                else
+                    while (top >= timeline[cur_id])
+                        disjt_set[nodeid_stack[top--]] = cur_id;
+            }
+            else cur_id = next_adj->node_id;
+        }
+    }
 }
