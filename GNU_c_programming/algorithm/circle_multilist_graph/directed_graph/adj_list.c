@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define NODE_NUM 1024
 /* adjacency list node */
 struct adj_node
@@ -150,34 +151,66 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-struct DGraph_info *Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
+void Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
 {
     int disjt_set[NODE_NUM];
     for (int v = 0; v < NODE_NUM; v++)
         disjt_set[v] = v;
-    int nodeid_stack[NODE_NUM]; int top = -1;
-    int timeline[NODE_NUM]; int cur_id = 0;
+    /* traversal stack */
+    int trav_stack[NODE_NUM];
+    /* The top of traversal stack */
+    int top1 = -1;
+    /* The stack of strongly connected component */
+    int str_con[NODE_NUM];
+    /* The top of strongly connected stack */
+    int top2 = -1;
+    /* the number of strongly connected nodes */
+    int count = 1;
+    int timeline[NODE_NUM]; int cur_id = 0, visited;
+    memset(timeline, -1, NODE_NUM * sizeof(int));
     struct adj_node *next_adj = DGraph->closest_outadj[0];
-    while (next_adj != NULL || top != -1)
+    while (next_adj != NULL || top1 != -1)
     {
-        if (next_adj != NULL)
+        if (next_adj != NULL && timeline[next_adj->node_id] == -1)
         {
-            nodeid_stack[++top] = cur_id;
-            timeline[cur_id] = top;
+            trav_stack[++top1] = cur_id;
+            str_con[++top2] = cur_id;
+            timeline[cur_id] = top2;
             cur_id = DGraph->closest_outadj[cur_id]->node_id;
         }
         else
         {
-            next_adj = next_adj->next;
-            if (next_adj == NULL || timeline[next_adj->node_id] <= top)
+            for (next_adj = DGraph->closest_outadj[trav_stack[top1]];
+            timeline[next_adj->node_id] != -1; next_adj = next_adj->next);
+            ;
+            if (next_adj == NULL)
             {
-                if (timeline[cur_id] > timeline[next_adj->node_id])
-                    timeline[cur_id] = timeline[next_adj->node_id];
-                else
-                    while (top >= timeline[cur_id])
-                        disjt_set[nodeid_stack[top--]] = cur_id;
+                visited = trav_stack[top1--];
+                for (struct adj_node *visited_adj = DGraph->closest_outadj[visited];
+                visited_adj != NULL; visited_adj = visited_adj->next)
+                {
+                    if (timeline[visited_adj->node_id] <= top2)
+                    {
+                        if (timeline[visited] > timeline[visited_adj->node_id])
+                        {
+                            timeline[visited] = timeline[visited_adj->node_id];
+                            disjt_set[visited] = visited_adj->node_id;
+                            count++;
+                        }
+                        else
+                        {
+                            fputs("Here is strongly connected component: ", stdout);
+                            for (int i = 0; i < count; i++)
+                                printf("%d ", str_con[top2--]);
+                            putchar('\n');
+                            count = 0;
+                        }
+                    }
+                    else continue;
+                }
             }
             else cur_id = next_adj->node_id;
         }
     }
+    return;
 }
