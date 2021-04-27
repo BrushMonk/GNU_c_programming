@@ -151,7 +151,7 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-void Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
+void Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph, int src)
 {
     int disjt_set[NODE_NUM];
     for (int v = 0; v < NODE_NUM; v++)
@@ -168,7 +168,9 @@ void Tarjan_algorithm_in_DGraph(struct DGraph_info *DGraph)
     int count = 1;
     int timeline[NODE_NUM]; int cur_id = 0, visited;
     memset(timeline, -1, NODE_NUM * sizeof(int));
-    struct adj_node *next_adj = DGraph->closest_outadj[0];
+    struct adj_node *next_adj[NODE_NUM];
+    for (int v = 0; v < NODE_NUM; v++)
+        next_adj[v] = DGraph->closest_outadj[v];
     while (next_adj != NULL || top1 != -1)
     {
         if (next_adj != NULL && timeline[next_adj->node_id] == -1)
