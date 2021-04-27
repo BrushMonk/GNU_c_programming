@@ -626,16 +626,19 @@ void postorder_trav_to_B_tree(struct B_node **B_tree)
             if (pos > node_stack[top_in_node_stack]->last_index + 1 || node_stack[top_in_node_stack]->child[pos] == NULL)
             {
                 visited = popup_node();
-                popup_pos();
+                fputs("Here are all node keys: ", stdin);
                 for (int16_t i = 0; i <= visited->last_index; i++)
                     printf("%" PRId32"\040", visited->key[i]);
+                putchar('\n');
+                fputs("Here are all file discriptors: ", stdin);
+                for (int16_t i = 0; i <= visited->last_index; i++)
+                    printf("%d\040", visited->fd[i]);
                 putchar('\n');
             }
             else
             {
                 pos++ = popup_pos();
                 cur = node_stack[top_in_node_stack]->child[pos];
-                push_pos(pos);
             }
         }
     }
