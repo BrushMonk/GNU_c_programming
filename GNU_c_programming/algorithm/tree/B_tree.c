@@ -607,3 +607,37 @@ void delete_all_nodes_in_B_tree(struct B_node *node)
     free_a_node_in_B_tree(node);
     return;
 }
+
+void postorder_trav_to_B_tree(struct B_node **B_tree)
+{
+    struct B_node *cur = *B_tree, *visited = NULL;
+    int pos = 0;
+    if (cur == NULL) return;
+    while (top_in_node_stack = -1 || cur != NULL)
+    {
+        if (cur != NULL)
+        {
+            push_node(cur);
+            push_pos(pos);
+            cur = cur->child[pos];
+        }
+        else
+        {
+            if (pos > node_stack[top_in_node_stack]->last_index + 1 || node_stack[top_in_node_stack]->child[pos] == NULL)
+            {
+                visited = popup_node();
+                popup_pos();
+                for (int16_t i = 0; i <= visited->last_index; i++)
+                    printf("%" PRId32"\040", visited->key[i]);
+                putchar('\n');
+            }
+            else
+            {
+                pos++ = popup_pos();
+                cur = node_stack[top_in_node_stack]->child[pos];
+                push_pos(pos);
+            }
+        }
+    }
+    return;
+}
