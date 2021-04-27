@@ -167,35 +167,35 @@ void DFS_from_a_node_in_in_DGraph(struct DGraph_info *DGraph, int node_id, int o
 }
 
 /* The stack of strongly connected component */
-static int volatile com_stack[NODE_NUM];
+static int volatile SCC_stack[NODE_NUM];
 /* The top of strongly connected stack */
-static _Atomic(int) com_top = -1;
-int Tarjan_algorithm_from_a_node_in_DGraph(struct DGraph_info *DGraph, int node_id, int orin_tamp, int *disjt_set)
+static _Atomic(int) top_in_SCC_stack = -1;
+int Tarjan_algorithm_from_a_node_in_DGraph(struct DGraph_info *DGraph, int node_id, int orin_time, int *disjt_set)
 {
-    com_stack[++com_top] = node_id;
-    timestamp[node_id] = orin_tamp;
+    SCC_stack[++top_in_SCC_stack] = node_id;
+    timestamp[node_id] = orin_time;
     int cur_id;
     for(struct adj_node *next_adj = DGraph->closest_outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         cur_id = next_adj->node_id;
         if (timestamp[cur_id] == -1)
         {
-            Tarjan_algorithm_from_a_node_in_DGraph(DGraph, cur_id, orin_tamp + 1, disjt_set);
+            Tarjan_algorithm_from_a_node_in_DGraph(DGraph, cur_id, orin_time + 1, disjt_set);
             timestamp[node_id] = timestamp[cur_id] < timestamp[node_id] ? timestamp[cur_id] : timestamp[node_id];
             disjt_set[node_id] = timestamp[cur_id] < timestamp[node_id] ? disjt_set[cur_id] : disjt_set[node_id];
         }
         /* if cur_id is still in stack */
-        else if (timestamp[cur_id] <= com_top)
+        else if (timestamp[cur_id] <= top_in_SCC_stack)
             timestamp[node_id] = timestamp[cur_id] < timestamp[node_id] ? timestamp[cur_id] : timestamp[node_id];
             disjt_set[node_id] = timestamp[cur_id] < timestamp[node_id] ? disjt_set[cur_id] : disjt_set[node_id];
     }
-    if (timestamp[node_id] == orin_tamp)
+    if (timestamp[node_id] == orin_time)
     {
         
         fputs("Here is strongly connected component: ", stdout);
-        while(com_stack[com_top] != node_id)
-            printf("%d ", com_stack[com_top--]);
-        printf("%d\n", com_stack[com_top--]);
+        while(SCC_stack[top_in_SCC_stack] != node_id)
+            printf("%d ", SCC_stack[top_in_SCC_stack--]);
+        printf("%d\n", SCC_stack[top_in_SCC_stack--]);
     }
     return timestamp[node_id];
 }
