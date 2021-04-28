@@ -153,14 +153,14 @@ static int find_disjt_root(int *disjt_set, int node_id)
 
 /* timestamp in the traversal to the whole directed graph */
 static int volatile timestamp[NODE_NUM] = {-1};
-void DFS_from_a_node_in_in_DGraph(struct DGraph_info *DGraph, int node_id, int orin_tamp)
+void DFS_from_a_node_in_in_DGraph(struct DGraph_info *DGraph, int node_id, int orin_time)
 {
-    timestamp[node_id] = orin_tamp;
+    timestamp[node_id] = orin_time;
     struct adj_node *next_adj;
     for(next_adj = DGraph->closest_outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         if (timestamp[next_adj->node_id] == -1)
-            DFS_from_a_node_in_in_DGraph(DGraph, next_adj->node_id, orin_tamp + 1);
+            DFS_from_a_node_in_in_DGraph(DGraph, next_adj->node_id, orin_time + 1);
     }
     if (next_adj != NULL) printf("%d\040", node_id);
     return;
