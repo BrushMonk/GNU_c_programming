@@ -88,7 +88,7 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_
         UDGraph->closest_adj[v] = NULL;
     for (size_t e = 0; e < side_num; e++)
     {
-        if (side_list[e].i_node >= NODE_NUM || sides[e].j_node >= NODE_NUM)
+        if (sides[e].i_node >= NODE_NUM || sides[e].j_node >= NODE_NUM)
         {
             fputs("side node_id error. Fail to initialize undirected graph!\n", stderr);
             delete_all_sides_in_UDGraph(UDGraph);
@@ -175,4 +175,63 @@ int delete_a_undirc_side_in_UDGraph(struct UDGraph_info *UDGraph, int node1, int
         fprintf(stderr, "Fail to delete! Error: No undirected side linking with node %d and %d.\n", node1, node2);
         return -1;
     }
+}
+
+/* a node in undirected tree */
+struct undirc_tree_node
+{   int node_id;
+    int64_t dist;
+    struct undirc_tree_node **next;
+    int parent_id;
+    struct undirc_tree_node *parent;
+    size_t child_num;};
+
+static size_t insert_leaf_in_undirc_tree_node(struct undirc_tree_node *node, struct undirc_tree_node *new_leaf)
+{
+    size_t middle, left = 0, right = node->child_num - 1;
+    while (left <= right)
+    {
+        middle = left + ((right - left) >> 1);
+        if (node->next[middle]->dist == new_leaf->dist)
+            break;
+        else if (node->next[middle]->dist > new_leaf->dist)
+            right = middle - 1;
+        else left = middle + 1;
+    }
+    size_t pos = left > middle ? left : middle;
+    if ((node->next = (struct undirc_tree_node **)realloc(node->next, (node->child_num + 1) * 8UL)) == NULL)
+    {
+        perror("fail to allocate array");
+        exit(EXIT_FAILURE);
+    }
+    for (size_t i = pos; i < node->child_num; i++)
+        node->next[i + 1] = node->next[i];
+    node->next[pos] = new_leaf;
+    new_leaf->parent = node;
+    node->child_num++;
+    return pos;
+}
+
+static void delete_all_nodes_in_undirc_tree(struct undirc_tree_node *node)
+{
+    if (node->child_num == 0)
+    {
+        free(node); return;
+    }
+    for (size_t i = 0; i < node->child_num; i++)
+        delete_all_nodes_in_undirc_tree(node->next[i]);
+    free(node);
+    return;
+}
+
+static struct undirc_tree_node *copy_to_undirc_shortest_list(struct undirc_tree_node *node)
+{
+    struct undirc_tree_node *list_node = (struct undirc_tree_node *)malloc(sizeof(struct undirc_tree_node));
+    memset(list_node, 0, sizeof(struct undirc_tree_node));
+    list_node->next = (struct undirc_tree_node **)malloc(8UL);
+    list_node->child_num = 1;
+    list_node->dist = node->dist;
+    list_node->node_id = node->node_id;
+    list_node->parent_id = node->parent_id;
+    return list_node;
 }
