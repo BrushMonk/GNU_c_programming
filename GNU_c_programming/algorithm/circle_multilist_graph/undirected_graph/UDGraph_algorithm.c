@@ -417,9 +417,7 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     MST_root->parent_id = -1;
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
-        if (find_disjt_root(disjt_set, sides_set[e]->i_node) == find_disjt_root(disjt_set, sides_set[e]->j_node))
-            continue;
-        else
+        if (find_disjt_root(disjt_set, sides_set[e]->i_node) != find_disjt_root(disjt_set, sides_set[e]->j_node))
         {
             if (disjt_set[sides_set[e]->j_node] == MST_root->node_id)
             {
@@ -435,6 +433,19 @@ struct UDGraph_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDG
             }
             /* merge j_node to the set that i_node is belong to */
             disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];
+        }
+    }
+    for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->side_num; v++)
+    {
+        cur = UDGraph->closest_adj[v];
+        while (cur != NULL)
+        {
+            if (cur->ismarked == 1)
+            {
+                cur->ismarked = 0;
+                sides_set[e++] = cur;
+            }
+            cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
     return MST_root;

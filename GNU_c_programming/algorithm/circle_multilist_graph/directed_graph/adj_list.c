@@ -20,7 +20,7 @@ struct DGraph_info
     size_t side_num;
 };
 
-struct dirc_side_info
+struct dirc_side
 {   int src, dest;
     int64_t weight;};
 
@@ -62,7 +62,7 @@ static void delete_all_sides_in_DGraph(struct DGraph_info *DGraph)
     return;
 }
 
-int init_DGraph(struct DGraph_info *DGraph, struct dirc_side_info side_list[], size_t side_num)
+int init_DGraph(struct DGraph_info *DGraph, struct dirc_side sides[], size_t side_num)
 {
     DGraph->closest_outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
     DGraph->closest_inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
@@ -71,9 +71,9 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_side_info side_list[], s
         DGraph->closest_outadj[v] = NULL;
         DGraph->closest_inadj[v] = NULL;
     }
-    for (size_t v = 0; v < side_num; v++)
+    for (size_t e = 0; e < side_num; e++)
     {
-        if (side_list[v].src >= NODE_NUM || side_list[v].dest >= NODE_NUM)
+        if (sides[e].src >= NODE_NUM || sides[e].dest >= NODE_NUM)
         {
             fputs("side node_id error. Fail to initialize directed graph!\n", stderr);
             delete_all_sides_in_DGraph(DGraph);
@@ -81,20 +81,20 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_side_info side_list[], s
         }
         /* use weight-ascending order to creat an adjacency list */
         struct adj_node *new_src_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_src_node->node_id = side_list[v].dest;
-        new_src_node->weight = side_list[v].weight;
+        new_src_node->node_id = sides[e].dest;
+        new_src_node->weight = sides[e].weight;
         new_src_node->next = NULL;
-        if (DGraph->closest_outadj[side_list[v].src] == NULL)
-            DGraph->closest_outadj[side_list[v].src] = new_src_node;
-        else DGraph->closest_outadj[side_list[v].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[side_list[v].src], new_src_node);
+        if (DGraph->closest_outadj[sides[e].src] == NULL)
+            DGraph->closest_outadj[sides[e].src] = new_src_node;
+        else DGraph->closest_outadj[sides[e].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[sides[e].src], new_src_node);
         /* use use weight-ascending order to creat a reverse adjacency list */
         struct adj_node *new_dest_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_dest_node->node_id = side_list[v].src;
-        new_dest_node->weight = side_list[v].weight;
+        new_dest_node->node_id = sides[e].src;
+        new_dest_node->weight = sides[e].weight;
         new_dest_node->next = NULL;
-        if (DGraph->closest_inadj[side_list[v].dest] == NULL)
-            DGraph->closest_inadj[side_list[v].dest] = new_dest_node;
-        else DGraph->closest_inadj[side_list[v].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[side_list[v].dest], new_dest_node);
+        if (DGraph->closest_inadj[sides[e].dest] == NULL)
+            DGraph->closest_inadj[sides[e].dest] = new_dest_node;
+        else DGraph->closest_inadj[sides[e].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[sides[e].dest], new_dest_node);
     }
     DGraph->side_num = side_num;
     return 0;

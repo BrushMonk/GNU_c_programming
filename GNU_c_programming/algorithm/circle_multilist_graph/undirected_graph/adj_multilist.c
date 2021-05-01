@@ -15,10 +15,11 @@ struct UDGraph_info
 {
     /* the closest adjacency node */
     struct adj_multinode **closest_adj;
+    size_t *degree;
     size_t side_num;
 };
 
-struct undirc_side_info
+struct undirc_side
 {   int i_node, j_node;
     int64_t weight;};
 
@@ -79,14 +80,15 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
     return;
 }
 
-int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side_info side_list[], size_t side_num)
+int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_t side_num)
 {
+    UDGraph->degree = (size_t *)malloc(NODE_NUM * sizeof(size_t));
     UDGraph->closest_adj = (struct adj_multinode **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
         UDGraph->closest_adj[v] = NULL;
-    for (size_t v = 0; v < side_num; v++)
+    for (size_t e = 0; e < side_num; e++)
     {
-        if (side_list[v].i_node >= NODE_NUM || side_list[v].j_node >= NODE_NUM)
+        if (side_list[e].i_node >= NODE_NUM || sides[e].j_node >= NODE_NUM)
         {
             fputs("side node_id error. Fail to initialize undirected graph!\n", stderr);
             delete_all_sides_in_UDGraph(UDGraph);
@@ -96,15 +98,17 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side_info side_list
         /* use weight-ascending order to creat an adjacency multilist */
         struct adj_multinode *new_node = (struct adj_multinode *)malloc(sizeof(struct adj_multinode));
         memset(new_node, 0, sizeof(struct adj_multinode));
-        new_node->i_node = side_list[v].i_node;
-        new_node->j_node = side_list[v].j_node;
-        new_node->weight = side_list[v].weight;
-        if (UDGraph->closest_adj[side_list[v].i_node] == NULL)
-            UDGraph->closest_adj[side_list[v].i_node] = new_node;
-        else UDGraph->closest_adj[side_list[v].i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[side_list[v].i_node], new_node);
-        if (UDGraph->closest_adj[side_list[v].j_node] == NULL)
-            UDGraph->closest_adj[side_list[v].j_node] = new_node;
-        else UDGraph->closest_adj[side_list[v].j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[side_list[v].j_node], new_node);
+        new_node->i_node = sides[e].i_node;
+        new_node->j_node = sides[e].j_node;
+        new_node->weight = sides[e].weight;
+        if (UDGraph->closest_adj[sides[e].i_node] == NULL)
+            UDGraph->closest_adj[sides[e].i_node] = new_node;
+        else UDGraph->closest_adj[sides[e].i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[sides[e].i_node], new_node);
+        UDGraph->degree[sides[e].i_node]++;
+        if (UDGraph->closest_adj[sides[e].j_node] == NULL)
+            UDGraph->closest_adj[sides[e].j_node] = new_node;
+        else UDGraph->closest_adj[sides[e].j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[sides[e].j_node], new_node);
+        UDGraph->degree[sides[e].j_node]++;
     }
     UDGraph->side_num = side_num;
     return 0;
