@@ -2,6 +2,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #define NODE_NUM 1024
 /* adjacency multilist node */
 struct adj_multinode
