@@ -6,7 +6,7 @@
 #include "adj_list.c"
 
 struct binomial_node
-{   struct dirc_tree_node *node;
+{   struct tree_node *node;
     size_t degree;
     struct binomial_node *left_child;
     struct binomial_node *parent;
@@ -40,7 +40,7 @@ static struct binomial_node *link_binomial_trees(struct binomial_node *front
     return front;
 }
 
-static struct dirc_tree_node *extract_min_binomial_node(struct binomial_heap *heap)
+static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
 {
     struct binomial_node *min = heap->head, *prev_of_min = NULL;
     struct binomial_node *i;
@@ -102,7 +102,7 @@ static struct dirc_tree_node *extract_min_binomial_node(struct binomial_heap *he
     return min->node;
 }
 
-static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct dirc_tree_node *const cand)
+static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct tree_node *const cand)
 {
     struct binomial_node *new_node = (struct binomial_node *)malloc(sizeof(struct binomial_node));
     memset(new_node, 0, sizeof(struct binomial_node));
@@ -130,7 +130,7 @@ static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct di
 #define DECR_SUCCESS 0
 static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new_dist)
 {
-    struct dirc_tree_node *decr_node = heap->prior_queue[id]->node;
+    struct tree_node *decr_node = heap->prior_queue[id]->node;
     if (decr_node == NULL)
     {
         fprintf(stderr, "No decreased_id %d in binomial_heap.\n", id);
@@ -161,15 +161,15 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
     return DECR_SUCCESS;
 }
 
-static void insert_adj_nodes_in_binomial_heap(const struct dirc_tree_node *node, const struct DGraph_info *DGraph, struct binomial_heap *heap, _Bool flag)
+static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, const struct DGraph_info *DGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
     struct adj_node *next_adj;
     for (next_adj = DGraph->closest_outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         /* candidate inserted into unvisited set */
-        struct dirc_tree_node *cand = (struct dirc_tree_node *)malloc(sizeof(struct dirc_tree_node));
-        memset(cand, 0, sizeof(struct dirc_tree_node));
+        struct tree_node *cand = (struct tree_node *)malloc(sizeof(struct tree_node));
+        memset(cand, 0, sizeof(struct tree_node));
         cand->node_id = next_adj->node_id;
         cand->parent_id = node->node_id;
         cand->dist = next_adj->weight + flag * node->dist;
@@ -194,21 +194,21 @@ static void delete_all_nodes_in_binomial_heap(struct binomial_node *node)
 }
 
 #define DIJKSTRA 1
-struct dirc_tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src, int dest)
+struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src, int dest)
 {
     /* the root of shortest path tree */
-    struct dirc_tree_node *SPT_root;
-    *SPT_root = (struct dirc_tree_node){0};
+    struct tree_node *SPT_root;
+    *SPT_root = (struct tree_node){0};
     /* put src node into SPT as root */
     SPT_root->node_id = src;
     SPT_root->parent_id = -1;
     /* loop current node id */
-    struct dirc_tree_node *cur = SPT_root;
+    struct tree_node *cur = SPT_root;
     /* find the minimum-dist node from binomial heap */
     struct binomial_heap unvisited = (struct binomial_heap){0};
     unvisited.head->node = cur;
-    struct dirc_tree_node *visited[NODE_NUM];
-    memset(visited, 0, NODE_NUM * sizeof(struct dirc_tree_node *));
+    struct tree_node *visited[NODE_NUM];
+    memset(visited, 0, NODE_NUM * sizeof(struct tree_node *));
     while (cur->node_id != dest || unvisited.head != NULL)
     {
         /* find the minimum-dist node from binomial heap */
@@ -216,19 +216,19 @@ struct dirc_tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DG
         insert_adj_nodes_in_binomial_heap(cur, DGraph, &unvisited, DIJKSTRA);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
-            insert_leaf_in_dirc_tree_node(visited[cur->parent_id], cur);
+            insert_leaf_in_tree_node(visited[cur->parent_id], cur);
     }
     delete_all_nodes_in_binomial_heap(unvisited.head);
-    memset(unvisited.prior_queue, 0, NODE_NUM * sizeof(struct dirc_tree_node *));
+    memset(unvisited.prior_queue, 0, NODE_NUM * sizeof(struct tree_node *));
     free(&unvisited); free(visited);
     if (cur->node_id != dest)
     {
         delete_all_nodes_in_dirc_tree(SPT_root);
         return SPT_root = NULL;
     }
-    /* copy dirc_tree_node to shortest_list */
-    struct dirc_tree_node *list_node, *last;
-    for (struct dirc_tree_node *i = cur; i != NULL; i = i->parent)
+    /* copy tree_node to shortest_list */
+    struct tree_node *list_node, *last;
+    for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
         list_node = copy_to_dirc_shortest_list(i);
         if (last != NULL)
@@ -243,21 +243,21 @@ struct dirc_tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DG
 }
 
 #define PRIM 0
-struct dirc_tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src)
+struct tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src)
 {
     /* the root of minimum spanning tree */
-    struct dirc_tree_node *MST_root;
-    *MST_root = (struct dirc_tree_node){0};
+    struct tree_node *MST_root;
+    *MST_root = (struct tree_node){0};
     /* put src node into SPT as root */
     MST_root->node_id = src;
     MST_root->parent_id = -1;
     /* loop current node id */
-    struct dirc_tree_node *cur = MST_root;
+    struct tree_node *cur = MST_root;
     /* find the minimum-dist node from binomial heap */
     struct binomial_heap unvisited = (struct binomial_heap){0};
     unvisited.head->node = cur;
-    struct dirc_tree_node *visited[NODE_NUM];
-    memset(visited, 0, NODE_NUM * sizeof(struct dirc_tree_node *));
+    struct tree_node *visited[NODE_NUM];
+    memset(visited, 0, NODE_NUM * sizeof(struct tree_node *));
     while (unvisited.head != NULL)
     {
         /* find the minimum-dist node from binomial heap */
@@ -265,7 +265,7 @@ struct dirc_tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph
         insert_adj_nodes_in_binomial_heap(cur, DGraph, &unvisited, PRIM);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
-            insert_leaf_in_dirc_tree_node(visited[cur->parent_id], cur);
+            insert_leaf_in_tree_node(visited[cur->parent_id], cur);
     }
     free(&unvisited); free(visited);
     return MST_root;

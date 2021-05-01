@@ -6,7 +6,7 @@
 #include "adj_multilist.c"
 
 struct binomial_node
-{   struct undirc_tree_node *node;
+{   struct tree_node *node;
     size_t degree;
     struct binomial_node *left_child;
     struct binomial_node *parent;
@@ -40,7 +40,7 @@ static struct binomial_node *link_binomial_trees(struct binomial_node *front
     return front;
 }
 
-static struct undirc_tree_node *extract_min_binomial_node(struct binomial_heap *heap)
+static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
 {
     struct binomial_node *min = heap->head, *prev_of_min = NULL;
     struct binomial_node *i;
@@ -102,7 +102,7 @@ static struct undirc_tree_node *extract_min_binomial_node(struct binomial_heap *
     return min->node;
 }
 
-static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct undirc_tree_node *const cand)
+static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct tree_node *const cand)
 {
     struct binomial_node *new_node = (struct binomial_node *)malloc(sizeof(struct binomial_node));
     memset(new_node, 0, sizeof(struct binomial_node));
@@ -130,7 +130,7 @@ static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct un
 #define DECR_SUCCESS 0
 static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new_dist)
 {
-    struct undirc_tree_node *decr_node = heap->prior_queue[id]->node;
+    struct tree_node *decr_node = heap->prior_queue[id]->node;
     if (decr_node == NULL)
     {
         fprintf(stderr, "No decreased_id %d in binomial_heap.\n", id);
@@ -161,15 +161,15 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
     return DECR_SUCCESS;
 }
 
-static void insert_adj_multinodes_in_binomial_heap(const struct undirc_tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
+static void insert_adj_multinodes_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
     struct adj_multinode *next_adj = UDGraph->closest_adj[node->node_id];
     while (next_adj != NULL)
     {
         /* candidate inserted into unvisited set */
-        struct undirc_tree_node *cand = (struct undirc_tree_node *)malloc(sizeof(struct undirc_tree_node));
-        memset(cand, 0, sizeof(struct undirc_tree_node));
+        struct tree_node *cand = (struct tree_node *)malloc(sizeof(struct tree_node));
+        memset(cand, 0, sizeof(struct tree_node));
         cand->node_id = (next_adj->i_node != node->node_id) ? next_adj->i_node : next_adj->j_node;
         cand->parent_id = node->node_id;
         cand->dist = next_adj->weight + flag * node->dist;
@@ -195,21 +195,21 @@ static void delete_all_nodes_in_binomial_heap(struct binomial_node *node)
 }
 
 #define DIJKSTRA 1
-struct undirc_tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src, int dest)
+struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src, int dest)
 {
     /* the root of shortest path tree */
-    struct undirc_tree_node *SPT_root;
-    *SPT_root = (struct undirc_tree_node){0};
+    struct tree_node *SPT_root;
+    *SPT_root = (struct tree_node){0};
     /* put src node into SPT as root */
     SPT_root->node_id = src;
     SPT_root->parent_id = -1;
     /* loop current node id */
-    struct undirc_tree_node *cur = SPT_root;
+    struct tree_node *cur = SPT_root;
     /* find the minimum-dist node from binomial heap */
     struct binomial_heap unvisited = (struct binomial_heap){0};
     unvisited.head->node = cur;
-    struct undirc_tree_node *visited[NODE_NUM];
-    memset(visited, 0, NODE_NUM * sizeof(struct undirc_tree_node *));
+    struct tree_node *visited[NODE_NUM];
+    memset(visited, 0, NODE_NUM * sizeof(struct tree_node *));
     while (cur->node_id != dest || unvisited.head != NULL)
     {
         /* find the minimum-dist node from binomial heap */
@@ -217,10 +217,10 @@ struct undirc_tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info
         insert_adj_multinodes_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
-            insert_leaf_in_undirc_tree_node(visited[cur->parent_id], cur);
+            insert_leaf_in_tree_node(visited[cur->parent_id], cur);
     }
     delete_all_nodes_in_binomial_heap(unvisited.head);
-    memset(unvisited.prior_queue, 0, NODE_NUM * sizeof(struct undirc_tree_node *));
+    memset(unvisited.prior_queue, 0, NODE_NUM * sizeof(struct tree_node *));
     free(&unvisited); free(visited);
     if (cur->node_id != dest)
     {
@@ -228,8 +228,8 @@ struct undirc_tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info
         return SPT_root = NULL;
     }
     /* copy DGraph_node to shortest_list */
-    struct undirc_tree_node *list_node, *last;
-    for (struct undirc_tree_node *i = cur; i != NULL; i = i->parent)
+    struct tree_node *list_node, *last;
+    for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
         list_node = copy_to_undirc_shortest_list(i);
         if (last != NULL)
@@ -244,21 +244,21 @@ struct undirc_tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info
 }
 
 #define PRIM 0
-struct undirc_tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
+struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
     /* the root of minimum spanning tree */
-    struct undirc_tree_node *MST_root;
-    *MST_root = (struct undirc_tree_node){0};
+    struct tree_node *MST_root;
+    *MST_root = (struct tree_node){0};
     /* put src node into SPT as root */
     MST_root->node_id = src;
     MST_root->parent_id = -1;
     /* loop current node id */
-    struct undirc_tree_node *cur = MST_root;
+    struct tree_node *cur = MST_root;
     /* find the minimum-dist node from binomial heap */
     struct binomial_heap unvisited = (struct binomial_heap){0};
     unvisited.head->node = cur;
-    struct undirc_tree_node *visited[NODE_NUM];
-    memset(visited, 0, NODE_NUM * sizeof(struct undirc_tree_node *));
+    struct tree_node *visited[NODE_NUM];
+    memset(visited, 0, NODE_NUM * sizeof(struct tree_node *));
     while (unvisited.head != NULL)
     {
         /* find the minimum-dist node from binomial heap */
@@ -266,7 +266,7 @@ struct undirc_tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UD
         insert_adj_multinodes_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
-            insert_leaf_in_undirc_tree_node(visited[cur->parent_id], cur);
+            insert_leaf_in_tree_node(visited[cur->parent_id], cur);
     }
     free(&unvisited); free(visited);
     return MST_root;
@@ -323,7 +323,7 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-struct undirc_tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     /* a set made up of all UDGraph sides in order from small to great */
     struct adj_multinode *sides_set[UDGraph->side_num];
@@ -343,17 +343,17 @@ struct undirc_tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info 
     }
     heap_sort(sides_set, (int)UDGraph->side_num);
     /* a set made up of all UDGraph nodes */
-    struct undirc_tree_node *nodes_set[NODE_NUM];
+    struct tree_node *nodes_set[NODE_NUM];
     /* disjoint set of node id */
     int disjt_set[NODE_NUM];
     for (int v = 0; v < NODE_NUM; v++)
     {
-        nodes_set[v] = (struct undirc_tree_node *)malloc(sizeof(struct undirc_tree_node));
-        memset(nodes_set[v], 0, sizeof(struct undirc_tree_node));
+        nodes_set[v] = (struct tree_node *)malloc(sizeof(struct tree_node));
+        memset(nodes_set[v], 0, sizeof(struct tree_node));
         nodes_set[v]->node_id = v;
         disjt_set[v] = v;
     }
-    struct undirc_tree_node *MST_root = nodes_set[sides_set[0]->i_node];
+    struct tree_node *MST_root = nodes_set[sides_set[0]->i_node];
     MST_root->parent_id = -1;
     for (size_t e = 0; e < UDGraph->side_num; e++)
     {
@@ -363,13 +363,13 @@ struct undirc_tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info 
             {
                 nodes_set[sides_set[e]->i_node]->dist = sides_set[e]->weight;
                 nodes_set[sides_set[e]->i_node]->parent_id = sides_set[e]->j_node;
-                insert_leaf_in_undirc_tree_node(nodes_set[sides_set[e]->j_node], nodes_set[sides_set[e]->i_node]);
+                insert_leaf_in_tree_node(nodes_set[sides_set[e]->j_node], nodes_set[sides_set[e]->i_node]);
             }
             else
             {
                 nodes_set[sides_set[e]->j_node]->dist = sides_set[e]->weight;
                 nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
-                insert_leaf_in_undirc_tree_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+                insert_leaf_in_tree_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
             }
             /* merge j_node to the set that i_node is belong to */
             disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];

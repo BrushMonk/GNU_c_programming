@@ -222,15 +222,15 @@ size_t find_all_SCC_in_DGraph(struct DGraph_info *DGraph)
 }
 
 /* a node in directed tree */
-struct dirc_tree_node
+struct tree_node
 {   int node_id;
     int64_t dist;
-    struct dirc_tree_node **next;
+    struct tree_node **next;
     int parent_id;
-    struct dirc_tree_node *parent;
+    struct tree_node *parent;
     size_t child_num;};
 
-static size_t insert_leaf_in_dirc_tree_node(struct dirc_tree_node *node, struct dirc_tree_node *new_leaf)
+static size_t insert_leaf_in_tree_node(struct tree_node *node, struct tree_node *new_leaf)
 {
     size_t middle, left = 0, right = node->child_num - 1;
     while (left <= right)
@@ -243,7 +243,7 @@ static size_t insert_leaf_in_dirc_tree_node(struct dirc_tree_node *node, struct 
         else left = middle + 1;
     }
     size_t pos = left > middle ? left : middle;
-    if ((node->next = (struct dirc_tree_node **)realloc(node->next, (node->child_num + 1) * 8UL)) == NULL)
+    if ((node->next = (struct tree_node **)realloc(node->next, (node->child_num + 1) * 8UL)) == NULL)
     {
         perror("fail to allocate array");
         exit(EXIT_FAILURE);
@@ -256,7 +256,7 @@ static size_t insert_leaf_in_dirc_tree_node(struct dirc_tree_node *node, struct 
     return pos;
 }
 
-static void delete_all_nodes_in_dirc_tree(struct dirc_tree_node *node)
+static void delete_all_nodes_in_dirc_tree(struct tree_node *node)
 {
     if (node->child_num == 0)
     {
@@ -268,11 +268,11 @@ static void delete_all_nodes_in_dirc_tree(struct dirc_tree_node *node)
     return;
 }
 
-static struct dirc_tree_node *copy_to_dirc_shortest_list(struct dirc_tree_node *node)
+static struct tree_node *copy_to_dirc_shortest_list(struct tree_node *node)
 {
-    struct dirc_tree_node *list_node = (struct dirc_tree_node *)malloc(sizeof(struct dirc_tree_node));
-    memset(list_node, 0, sizeof(struct dirc_tree_node));
-    list_node->next = (struct dirc_tree_node **)malloc(8UL);
+    struct tree_node *list_node = (struct tree_node *)malloc(sizeof(struct tree_node));
+    memset(list_node, 0, sizeof(struct tree_node));
+    list_node->next = (struct tree_node **)malloc(8UL);
     list_node->child_num = 1;
     list_node->dist = node->dist;
     list_node->node_id = node->node_id;
