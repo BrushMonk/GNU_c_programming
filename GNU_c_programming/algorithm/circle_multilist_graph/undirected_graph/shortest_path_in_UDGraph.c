@@ -375,16 +375,13 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
             disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];
         }
     }
-    for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->side_num; v++)
+    for (size_t v = 0; v < NODE_NUM; v++)
     {
         cur = UDGraph->closest_adj[v];
         while (cur != NULL)
         {
             if (cur->ismarked == 1)
-            {
                 cur->ismarked = 0;
-                sides_set[e++] = cur;
-            }
             cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }

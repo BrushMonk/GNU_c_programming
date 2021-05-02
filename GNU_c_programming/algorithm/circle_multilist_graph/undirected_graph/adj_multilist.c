@@ -78,6 +78,7 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
         }
     }
     memset(UDGraph->closest_adj, 0, NODE_NUM * 8UL);
+    memset(UDGraph->degree, 0, NODE_NUM * sizeof(size_t));
     UDGraph->side_num = 0;
     return;
 }
@@ -170,6 +171,8 @@ int delete_a_undirc_side_in_UDGraph(struct UDGraph_info *UDGraph, int node1, int
     if (cur != NULL)
     {
         UDGraph->side_num--;
+        UDGraph->degree[node1]--;
+        UDGraph->degree[node2]--;
         free(cur); return 0;
     }
     else
