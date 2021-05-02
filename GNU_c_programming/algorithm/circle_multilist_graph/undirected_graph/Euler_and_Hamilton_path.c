@@ -16,7 +16,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph)
             odd_degree_node = (int *)realloc(odd_degree_node, odd_degree_num * sizeof(int));
             odd_degree_num[odd_degree_num - 1] = v;
         }
-    struct tree_node *dist_path[odd_degree_node * (odd_degree_node - 1) / 2];
+    struct tree_node *dist_path[odd_degree_num * (odd_degree_num - 1) / 2];
     for (size_t v = 0, i = 0; v < odd_degree_num; v++)
         for (size_t n = v + 1; n < odd_degree_num; n++)
             dist_path[i++] = Dijkstra_algorithm_in_UDGraph(UDGraph, v, n);
