@@ -227,20 +227,20 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
         delete_all_nodes_in_undirc_tree(SPT_root);
         return SPT_root = NULL;
     }
-    /* copy DGraph_node to shortest_list */
-    struct tree_node *list_node, *last;
+    /* copy DGraph_node to shortest_path */
+    struct tree_node *path_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
-        list_node = copy_to_undirc_shortest_list(i);
+        path_node = copy_to_undirc_shortest_list(i);
         if (last != NULL)
         {
-            list_node->next[0] = last;
-            last->parent = list_node;
+            path_node->next[0] = last;
+            last->parent = path_node;
         }
-        last = list_node;
+        last = path_node;
     }
     delete_all_nodes_in_undirc_tree(SPT_root);
-    return list_node;
+    return path_node;
 }
 
 #define PRIM 0
@@ -323,7 +323,8 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+/* get the set made up of all UDGraph sides in order from small to great */
+struct adj_multinode **get_sides_set_in_ascd_order(const struct UDGraph_info *UDGraph)
 {
     /* a set made up of all UDGraph sides in order from small to great */
     struct adj_multinode *sides_set[UDGraph->side_num];
@@ -342,6 +343,22 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
         }
     }
     heap_sort(sides_set, (int)UDGraph->side_num);
+    for (size_t v = 0; v < NODE_NUM; v++)
+    {
+        cur = UDGraph->closest_adj[v];
+        while (cur != NULL)
+        {
+            if (cur->ismarked == 1)
+                cur->ismarked = 0;
+            cur = cur->i_node == v ? cur->i_next : cur->j_next;
+        }
+    }
+    return sides_set;
+}
+
+struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+{
+    struct adj_multinode **sides_set = get_sides_set_in_ascd_order(UDGraph);
     /* a set made up of all UDGraph nodes */
     struct tree_node *nodes_set[NODE_NUM];
     /* disjoint set of node id */
@@ -373,16 +390,6 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
             }
             /* merge j_node to the set that i_node is belong to */
             disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];
-        }
-    }
-    for (size_t v = 0; v < NODE_NUM; v++)
-    {
-        cur = UDGraph->closest_adj[v];
-        while (cur != NULL)
-        {
-            if (cur->ismarked == 1)
-                cur->ismarked = 0;
-            cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
     return MST_root;
