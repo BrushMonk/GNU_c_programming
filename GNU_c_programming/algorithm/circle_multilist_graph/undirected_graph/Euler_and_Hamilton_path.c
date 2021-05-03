@@ -5,7 +5,7 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
-struct tree_node *get_a_Euler_path_from_a_node(const struct UDGraph_info *UDGraph, int src)
+struct tree_node *get_a_Euler_path_from_a_starting_node(const struct UDGraph_info *UDGraph, int src)
 {
     struct tree_node *start_node = (struct tree_node){0};
     start_node->parent_id = -1;
@@ -48,8 +48,11 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_node = (int *)realloc(odd_deg_node, odd_deg_num * sizeof(int));
             odd_deg_num[odd_deg_num - 1] = v;
         }
-    if (odd_deg_node == 0)
-        return get_a_Euler_path_from_a_node(UDGraph, src);
+    if (odd_deg_num == 0)
+        return get_a_Euler_path_from_a_starting_node(UDGraph, src);
+    if (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1)
+    {
+    }
     struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
     for (size_t v = 0, i = 0; v < odd_deg_num; v++)
         for (size_t n = v + 1; n < odd_deg_num; n++)
