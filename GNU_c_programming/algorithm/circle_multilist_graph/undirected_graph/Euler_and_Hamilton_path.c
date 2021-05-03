@@ -5,7 +5,7 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
-struct tree_node *get_a_Euler_path_from_a_starting_node(const struct UDGraph_info *UDGraph, int src)
+struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
     struct tree_node *start_node = (struct tree_node){0};
     start_node->parent_id = -1;
@@ -49,7 +49,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_num[odd_deg_num - 1] = v;
         }
     if (odd_deg_num == 0)
-        return get_a_Euler_path_from_a_starting_node(UDGraph, src);
+        return Fleury_algorithm_in_UDGraph(UDGraph, src);
     if (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1)
     {
     }
