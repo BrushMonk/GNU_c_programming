@@ -5,34 +5,61 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
+static int find_next_nodeid_in_UDGraph_Euler_path(const struct UDGraph_info *UDGraph, int node_id, int64_t *dist, size_t *used_degree)
+{
+    if (used_degree[node_id] == UDGraph->degree[node_id])
+        return -1;
+    /* next candidate node id in all adjacenct nodes */
+    int next_id;
+    struct adj_multiedge *cur = UDGraph->closest_adj[node_id];
+    while (cur != NULL)
+    {
+        next_id = cur->i_node == node_id ? cur->j_node : cur->i_node;
+        if (cur->ismarked == 1)
+        {
+            cur = cur->i_node == node_id ? cur->i_next : cur->j_next;
+            continue;
+        }
+        else if (UDGraph->degree[next_id] - used_degree[next_id] > 1)
+        {
+            cur->ismarked = 1;
+            used_degree[next_id]++;
+            used_degree[node_id]++;
+            *dist = cur->weight;
+            break;
+        }
+        else
+        {
+            cur->ismarked = 1;
+            used_degree[next_id]++;
+            used_degree[node_id]++;
+            *dist = cur->weight;
+            break;
+        }
+    }
+    return next_id;
+}
+
 struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
+    size_t used_degree[NODE_NUM] = {0};
     struct tree_node *start_node = (struct tree_node){0};
     start_node->parent_id = -1;
     start_node->node_id = src;
-    struct adj_multinode *cur;
     struct tree_node *last = NULL, path_node;
-    for (int v = src, e = 0; e < UDGraph->side_num;)
+    int cur_id = src;
+    int64_t dist = 0;
+    while(cur_id == -1)
     {
         if (last != NULL)
         {
-            *path_node = (struct tree_node){(v, cur->weight, 0});
+            int64_t dist = 0;
+            *path_node = (struct tree_node){(cur_id, dist, 0});
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
         last = path_node;
-        cur = UDGraph->closest_adj[v];
-        while (cur != NULL)
-        {
-            if (cur->ismarked == 0)
-            {
-                cur->ismarked = 1;
-                e++;
-                v = cur->i_node == v ? cur->j_node : cur->i_node;
-                break;
-            }
-            else cur = cur->i_node == v ? cur->i_next : cur->j_next;
-        }
+        cur_id = find_next_nodeid_in_UDGraph_Euler_path(UDGraph, cur_id, &dist, used_degree);
     }
     return start_node;
 }
@@ -48,11 +75,8 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_node = (int *)realloc(odd_deg_node, odd_deg_num * sizeof(int));
             odd_deg_num[odd_deg_num - 1] = v;
         }
-    if (odd_deg_num == 0)
+    if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
         return Fleury_algorithm_in_UDGraph(UDGraph, src);
-    if (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1)
-    {
-    }
     struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
     for (size_t v = 0, i = 0; v < odd_deg_num; v++)
         for (size_t n = v + 1; n < odd_deg_num; n++)

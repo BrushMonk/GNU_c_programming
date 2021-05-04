@@ -161,10 +161,10 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
     return DECR_SUCCESS;
 }
 
-static void insert_adj_multinodes_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
+static void insert_adj_multiedges_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
-    struct adj_multinode *next_adj = UDGraph->closest_adj[node->node_id];
+    struct adj_multiedge *next_adj = UDGraph->closest_adj[node->node_id];
     while (next_adj != NULL)
     {
         /* candidate inserted into unvisited set */
@@ -214,7 +214,7 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multinodes_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
+        insert_adj_multiedges_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);
@@ -263,7 +263,7 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multinodes_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
+        insert_adj_multiedges_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);
@@ -272,7 +272,7 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     return MST_root;
 }
 
-static void heap_sort(struct adj_multinode **restrict arr, int len)
+static void heap_sort(struct adj_multiedge **restrict arr, int len)
 {
     /* initialize i as the last nonleaf node in tree */
     for (int i = len >> 1 ; i >= 0; i--)
@@ -284,7 +284,7 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
         if (arr[i]->weight >= arr[min_child]->weight) continue;
         else
         {
-            struct adj_multinode *tmp = arr[i];
+            struct adj_multiedge *tmp = arr[i];
             arr[i] = arr[min_child];
             arr[min_child] = tmp;
         }
@@ -292,7 +292,7 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
     for (int i = len - 1; i > 0; i--)
     /* the complexity of this procedure is O(nlog n) */
     {
-        struct adj_multinode *tmp = arr[i];
+        struct adj_multiedge *tmp = arr[i];
         arr[i] = arr[0];
         arr[0] = tmp;
         for (int cur = i, max_child = (cur << 1) + 1; max_child < len;)
@@ -303,7 +303,7 @@ static void heap_sort(struct adj_multinode **restrict arr, int len)
             if (arr[cur]->weight >= arr[max_child]->weight) break;
             else
             {
-                struct adj_multinode *tmp = arr[cur]; arr[cur] = arr[max_child]; arr[max_child] = tmp;
+                struct adj_multiedge *tmp = arr[cur]; arr[cur] = arr[max_child]; arr[max_child] = tmp;
                 cur = max_child;
                 max_child = 2 * cur + 1;
             }
@@ -324,11 +324,11 @@ static int find_disjt_root(int *disjt_set, int node_id)
 }
 
 /* get the set made up of all UDGraph sides in order from small to great */
-struct adj_multinode **get_sides_set_in_ascd_order(const struct UDGraph_info *UDGraph)
+struct adj_multiedge **get_sides_set_in_ascd_order(const struct UDGraph_info *UDGraph)
 {
     /* a set made up of all UDGraph sides in order from small to great */
-    struct adj_multinode *sides_set[UDGraph->side_num];
-    struct adj_multinode *cur;
+    struct adj_multiedge *sides_set[UDGraph->side_num];
+    struct adj_multiedge *cur;
     for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->side_num; v++)
     {
         cur = UDGraph->closest_adj[v];
@@ -358,7 +358,7 @@ struct adj_multinode **get_sides_set_in_ascd_order(const struct UDGraph_info *UD
 
 struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    struct adj_multinode **sides_set = get_sides_set_in_ascd_order(UDGraph);
+    struct adj_multiedge **sides_set = get_sides_set_in_ascd_order(UDGraph);
     /* a set made up of all UDGraph nodes */
     struct tree_node *nodes_set[NODE_NUM];
     /* disjoint set of node id */

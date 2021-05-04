@@ -5,10 +5,10 @@
 #include <string.h>
 
 #define NODE_NUM 1024
-/* adjacency multilist node */
-struct adj_multinode
+/* adjacency multilist edge */
+struct adj_multiedge
 {   int i_node, j_node;
-    struct adj_multinode *i_next, *j_next;
+    struct adj_multiedge *i_next, *j_next;
     int64_t weight;
     _Bool ismarked;};
 
@@ -16,7 +16,7 @@ struct adj_multinode
 struct UDGraph_info
 {
     /* the closest adjacency node */
-    struct adj_multinode **closest_adj;
+    struct adj_multiedge **closest_adj;
     size_t *degree;
     size_t side_num;
 };
@@ -25,10 +25,10 @@ struct undirc_side
 {   int i_node, j_node;
     int64_t weight;};
 
-static struct adj_multinode *insert_a_node_in_adj_multilist(struct adj_multinode *closest_adj, struct adj_multinode *new_node)
+static struct adj_multiedge *insert_a_node_in_adj_multilist(struct adj_multiedge *closest_adj, struct adj_multiedge *new_node)
 {
-    struct adj_multinode *cur;
-    *cur =  (struct adj_multinode){0};
+    struct adj_multiedge *cur;
+    *cur =  (struct adj_multiedge){0};
     if (closest_adj->i_node == new_node->i_node)
     {
         for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_node->weight; cur = cur->i_next);
@@ -58,10 +58,10 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
 {
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        struct adj_multinode *cur = UDGraph->closest_adj[v];
+        struct adj_multiedge *cur = UDGraph->closest_adj[v];
         while (cur != NULL)
         {
-            struct adj_multinode *tmp = cur;
+            struct adj_multiedge *tmp = cur;
             if (cur->i_node == v)
             {
                 if (UDGraph->closest_adj[cur->j_node] == cur)
@@ -86,7 +86,7 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
 int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_t side_num)
 {
     UDGraph->degree = (size_t *)malloc(NODE_NUM * sizeof(size_t));
-    UDGraph->closest_adj = (struct adj_multinode **)malloc(NODE_NUM * 8UL);
+    UDGraph->closest_adj = (struct adj_multiedge **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
         UDGraph->closest_adj[v] = NULL;
     for (size_t e = 0; e < side_num; e++)
@@ -99,8 +99,8 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_
             return -1;
         }
         /* use weight-ascending order to creat an adjacency multilist */
-        struct adj_multinode *new_node = (struct adj_multinode *)malloc(sizeof(struct adj_multinode));
-        memset(new_node, 0, sizeof(struct adj_multinode));
+        struct adj_multiedge *new_node = (struct adj_multiedge *)malloc(sizeof(struct adj_multiedge));
+        memset(new_node, 0, sizeof(struct adj_multiedge));
         new_node->i_node = sides[e].i_node;
         new_node->j_node = sides[e].j_node;
         new_node->weight = sides[e].weight;
@@ -119,7 +119,7 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_
 
 int delete_a_undirc_side_in_UDGraph(struct UDGraph_info *UDGraph, int node1, int node2)
 {
-    struct adj_multinode *cur, *last;
+    struct adj_multiedge *cur, *last;
     cur = UDGraph->closest_adj[node1]; last = NULL;
     while (cur != NULL)
     {
