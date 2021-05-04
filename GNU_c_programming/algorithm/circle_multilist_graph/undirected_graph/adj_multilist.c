@@ -177,7 +177,7 @@ int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_
     }
     else
     {
-        fprintf(stderr, "Fail to delete! Error: No undirected line linking with node %d and %d.\n", node1, node2);
+        fprintf(stderr, "Fail to delete! Error: No undirected line linking with node %d and %d.\n", line.i_node, line.j_node);
         return -1;
     }
 }
