@@ -18,10 +18,10 @@ struct DGraph_info
     struct adj_node **closest_outadj;
     /* the closest indegree adjacency node */
     struct adj_node **closest_inadj;
-    size_t side_num;
+    size_t line_num;
 };
 
-struct dirc_side
+struct dirc_line
 {   int src, dest;
     int64_t weight;};
 
@@ -37,7 +37,7 @@ static struct adj_node *insert_a_node_in_adj_list(struct adj_node *closest_adj, 
     return closest_adj;
 }
 
-static void delete_all_sides_in_DGraph(struct DGraph_info *DGraph)
+static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
 {
     struct adj_node *cur;
     for (size_t v = 0; v < NODE_NUM; v++)
@@ -59,11 +59,11 @@ static void delete_all_sides_in_DGraph(struct DGraph_info *DGraph)
     }
     memset(DGraph->closest_inadj, 0, NODE_NUM * 8UL);
     memset(DGraph->closest_outadj, 0, NODE_NUM * 8UL);
-    DGraph->side_num = 0;
+    DGraph->line_num = 0;
     return;
 }
 
-int init_DGraph(struct DGraph_info *DGraph, struct dirc_side sides[], size_t side_num)
+int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t line_num)
 {
     DGraph->closest_outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
     DGraph->closest_inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
@@ -72,36 +72,36 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_side sides[], size_t sid
         DGraph->closest_outadj[v] = NULL;
         DGraph->closest_inadj[v] = NULL;
     }
-    for (size_t e = 0; e < side_num; e++)
+    for (size_t e = 0; e < line_num; e++)
     {
-        if (sides[e].src >= NODE_NUM || sides[e].dest >= NODE_NUM)
+        if (lines[e].src >= NODE_NUM || lines[e].dest >= NODE_NUM)
         {
-            fputs("side node_id error. Fail to initialize directed graph!\n", stderr);
-            delete_all_sides_in_DGraph(DGraph);
+            fputs("line node_id error. Fail to initialize directed graph!\n", stderr);
+            delete_all_lines_in_DGraph(DGraph);
             return -1;
         }
         /* use weight-ascending order to creat an adjacency list */
         struct adj_node *new_src_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_src_node->node_id = sides[e].dest;
-        new_src_node->weight = sides[e].weight;
+        new_src_node->node_id = lines[e].dest;
+        new_src_node->weight = lines[e].weight;
         new_src_node->next = NULL;
-        if (DGraph->closest_outadj[sides[e].src] == NULL)
-            DGraph->closest_outadj[sides[e].src] = new_src_node;
-        else DGraph->closest_outadj[sides[e].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[sides[e].src], new_src_node);
+        if (DGraph->closest_outadj[lines[e].src] == NULL)
+            DGraph->closest_outadj[lines[e].src] = new_src_node;
+        else DGraph->closest_outadj[lines[e].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[lines[e].src], new_src_node);
         /* use use weight-ascending order to creat a reverse adjacency list */
         struct adj_node *new_dest_node = (struct adj_node *)malloc(sizeof(struct adj_node));
-        new_dest_node->node_id = sides[e].src;
-        new_dest_node->weight = sides[e].weight;
+        new_dest_node->node_id = lines[e].src;
+        new_dest_node->weight = lines[e].weight;
         new_dest_node->next = NULL;
-        if (DGraph->closest_inadj[sides[e].dest] == NULL)
-            DGraph->closest_inadj[sides[e].dest] = new_dest_node;
-        else DGraph->closest_inadj[sides[e].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[sides[e].dest], new_dest_node);
+        if (DGraph->closest_inadj[lines[e].dest] == NULL)
+            DGraph->closest_inadj[lines[e].dest] = new_dest_node;
+        else DGraph->closest_inadj[lines[e].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[lines[e].dest], new_dest_node);
     }
-    DGraph->side_num = side_num;
+    DGraph->line_num = line_num;
     return 0;
 }
 
-int delete_a_dirc_side_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
+int delete_a_dirc_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
 {
     struct adj_node *cur, *last;
     last = NULL;
@@ -130,12 +130,12 @@ int delete_a_dirc_side_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
     }
     if (cur == NULL)
     {
-        fprintf(stderr, "Fail to delete! Error: No correponding side from node %d to node %d.\n", src, dest);
+        fprintf(stderr, "Fail to delete! Error: No correponding line from node %d to node %d.\n", src, dest);
         return -1;
     }
     else
     {
-        DGraph->side_num--;
+        DGraph->line_num--;
         free(cur);
         return 0;
     }

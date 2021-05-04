@@ -161,10 +161,10 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
     return DECR_SUCCESS;
 }
 
-static void insert_adj_multiedges_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
+static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
-    struct adj_multiedge *next_adj = UDGraph->closest_adj[node->node_id];
+    struct adj_multiline *next_adj = UDGraph->closest_adj[node->node_id];
     while (next_adj != NULL)
     {
         /* candidate inserted into unvisited set */
@@ -214,7 +214,7 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multiedges_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
+        insert_adj_multilines_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);
@@ -263,7 +263,7 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multiedges_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
+        insert_adj_multilines_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);
@@ -272,30 +272,30 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     return MST_root;
 }
 
-static void heap_sort(struct adj_multiedge **restrict arr, int len)
+static void heap_sort(struct adj_multiline **restrict arr, long long len)
 {
     /* initialize i as the last nonleaf node in tree */
-    for (int i = len >> 1 ; i >= 0; i--)
+    for (long long i = len >> 1 ; i >= 0; i--)
     /* the complexity of this procedure is O(n) */
     {
-        int min_child = (i << 1) + 1;
+        long long min_child = (i << 1) + 1;
         if (min_child + 1 < len && arr[min_child]->weight < arr[min_child + 1]->weight)
             min_child++;
         if (arr[i]->weight >= arr[min_child]->weight) continue;
         else
         {
-            struct adj_multiedge *tmp = arr[i];
+            struct adj_multiline *tmp = arr[i];
             arr[i] = arr[min_child];
             arr[min_child] = tmp;
         }
     }
-    for (int i = len - 1; i > 0; i--)
+    for (long long i = len - 1; i > 0; i--)
     /* the complexity of this procedure is O(nlog n) */
     {
-        struct adj_multiedge *tmp = arr[i];
+        struct adj_multiline *tmp = arr[i];
         arr[i] = arr[0];
         arr[0] = tmp;
-        for (int cur = i, max_child = (cur << 1) + 1; max_child < len;)
+        for (long long cur = i, max_child = (cur << 1) + 1; max_child < len;)
         /* heapify from this first element. The complexity of this procedure is O(log n). */
         {
             if (max_child + 1 < len && arr[max_child]->weight < arr[max_child + 1]->weight)
@@ -303,7 +303,7 @@ static void heap_sort(struct adj_multiedge **restrict arr, int len)
             if (arr[cur]->weight >= arr[max_child]->weight) break;
             else
             {
-                struct adj_multiedge *tmp = arr[cur]; arr[cur] = arr[max_child]; arr[max_child] = tmp;
+                struct adj_multiline *tmp = arr[cur]; arr[cur] = arr[max_child]; arr[max_child] = tmp;
                 cur = max_child;
                 max_child = 2 * cur + 1;
             }
@@ -323,13 +323,13 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-/* get the set made up of all UDGraph sides in order from small to great */
-struct adj_multiedge **get_sides_set_in_ascd_order(const struct UDGraph_info *UDGraph)
+/* get the set made up of all UDGraph lines in order from small to great */
+static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_info *UDGraph)
 {
-    /* a set made up of all UDGraph sides in order from small to great */
-    struct adj_multiedge *sides_set[UDGraph->side_num];
-    struct adj_multiedge *cur;
-    for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->side_num; v++)
+    /* a set made up of all UDGraph lines in order from small to great */
+    struct adj_multiline **lines_set = (struct adj_multiline **)malloc(UDGraph->line_num * 8UL);
+    struct adj_multiline *cur;
+    for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->line_num; v++)
     {
         cur = UDGraph->closest_adj[v];
         while (cur != NULL)
@@ -337,12 +337,12 @@ struct adj_multiedge **get_sides_set_in_ascd_order(const struct UDGraph_info *UD
             if (cur->ismarked == 0)
             {
                 cur->ismarked = 1;
-                sides_set[e++] = cur;
+                lines_set[e++] = cur;
             }
             cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
-    heap_sort(sides_set, (int)UDGraph->side_num);
+    heap_sort(lines_set, (long long)UDGraph->line_num);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
         cur = UDGraph->closest_adj[v];
@@ -353,12 +353,12 @@ struct adj_multiedge **get_sides_set_in_ascd_order(const struct UDGraph_info *UD
             cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
-    return sides_set;
+    return lines_set;
 }
 
 struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    struct adj_multiedge **sides_set = get_sides_set_in_ascd_order(UDGraph);
+    struct adj_multiline **lines_set = get_lines_set_in_ascd_order(UDGraph);
     /* a set made up of all UDGraph nodes */
     struct tree_node *nodes_set[NODE_NUM];
     /* disjoint set of node id */
@@ -370,27 +370,28 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
         nodes_set[v]->node_id = v;
         disjt_set[v] = v;
     }
-    struct tree_node *MST_root = nodes_set[sides_set[0]->i_node];
+    struct tree_node *MST_root = nodes_set[lines_set[0]->i_node];
     MST_root->parent_id = -1;
-    for (size_t e = 0; e < UDGraph->side_num; e++)
+    for (size_t e = 0; e < UDGraph->line_num; e++)
     {
-        if (find_disjt_root(disjt_set, sides_set[e]->i_node) != find_disjt_root(disjt_set, sides_set[e]->j_node))
+        if (find_disjt_root(disjt_set, lines_set[e]->i_node) != find_disjt_root(disjt_set, lines_set[e]->j_node))
         {
-            if (disjt_set[sides_set[e]->j_node] == MST_root->node_id)
+            if (disjt_set[lines_set[e]->j_node] == MST_root->node_id)
             {
-                nodes_set[sides_set[e]->i_node]->dist = sides_set[e]->weight;
-                nodes_set[sides_set[e]->i_node]->parent_id = sides_set[e]->j_node;
-                insert_leaf_in_tree_node(nodes_set[sides_set[e]->j_node], nodes_set[sides_set[e]->i_node]);
+                nodes_set[lines_set[e]->i_node]->dist = lines_set[e]->weight;
+                nodes_set[lines_set[e]->i_node]->parent_id = lines_set[e]->j_node;
+                insert_leaf_in_tree_node(nodes_set[lines_set[e]->j_node], nodes_set[lines_set[e]->i_node]);
             }
             else
             {
-                nodes_set[sides_set[e]->j_node]->dist = sides_set[e]->weight;
-                nodes_set[sides_set[e]->j_node]->parent_id = sides_set[e]->i_node;
-                insert_leaf_in_tree_node(nodes_set[sides_set[e]->i_node], nodes_set[sides_set[e]->j_node]);
+                nodes_set[lines_set[e]->j_node]->dist = lines_set[e]->weight;
+                nodes_set[lines_set[e]->j_node]->parent_id = lines_set[e]->i_node;
+                insert_leaf_in_tree_node(nodes_set[lines_set[e]->i_node], nodes_set[lines_set[e]->j_node]);
             }
             /* merge j_node to the set that i_node is belong to */
-            disjt_set[sides_set[e]->j_node] = disjt_set[sides_set[e]->i_node];
+            disjt_set[lines_set[e]->j_node] = disjt_set[lines_set[e]->i_node];
         }
     }
+    free(lines_set);
     return MST_root;
 }

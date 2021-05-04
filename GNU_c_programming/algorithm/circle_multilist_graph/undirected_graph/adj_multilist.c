@@ -5,10 +5,10 @@
 #include <string.h>
 
 #define NODE_NUM 1024
-/* adjacency multilist edge */
-struct adj_multiedge
+/* adjacency multilist line */
+struct adj_multiline
 {   int i_node, j_node;
-    struct adj_multiedge *i_next, *j_next;
+    struct adj_multiline *i_next, *j_next;
     int64_t weight;
     _Bool ismarked;};
 
@@ -16,19 +16,19 @@ struct adj_multiedge
 struct UDGraph_info
 {
     /* the closest adjacency node */
-    struct adj_multiedge **closest_adj;
+    struct adj_multiline **closest_adj;
     size_t *degree;
-    size_t side_num;
+    size_t line_num;
 };
 
-struct undirc_side
+struct undirc_line
 {   int i_node, j_node;
     int64_t weight;};
 
-static struct adj_multiedge *insert_a_node_in_adj_multilist(struct adj_multiedge *closest_adj, struct adj_multiedge *new_node)
+static struct adj_multiline *insert_a_node_in_adj_multilist(struct adj_multiline *closest_adj, struct adj_multiline *new_node)
 {
-    struct adj_multiedge *cur;
-    *cur =  (struct adj_multiedge){0};
+    struct adj_multiline *cur;
+    *cur =  (struct adj_multiline){0};
     if (closest_adj->i_node == new_node->i_node)
     {
         for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_node->weight; cur = cur->i_next);
@@ -54,14 +54,14 @@ static struct adj_multiedge *insert_a_node_in_adj_multilist(struct adj_multiedge
     }
 }
 
-static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
+static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
 {
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        struct adj_multiedge *cur = UDGraph->closest_adj[v];
+        struct adj_multiline *cur = UDGraph->closest_adj[v];
         while (cur != NULL)
         {
-            struct adj_multiedge *tmp = cur;
+            struct adj_multiline *tmp = cur;
             if (cur->i_node == v)
             {
                 if (UDGraph->closest_adj[cur->j_node] == cur)
@@ -79,105 +79,105 @@ static void delete_all_sides_in_UDGraph(struct UDGraph_info *UDGraph)
     }
     memset(UDGraph->closest_adj, 0, NODE_NUM * 8UL);
     memset(UDGraph->degree, 0, NODE_NUM * sizeof(size_t));
-    UDGraph->side_num = 0;
+    UDGraph->line_num = 0;
     return;
 }
 
-int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_side sides[], size_t side_num)
+int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_t line_num)
 {
     UDGraph->degree = (size_t *)malloc(NODE_NUM * sizeof(size_t));
-    UDGraph->closest_adj = (struct adj_multiedge **)malloc(NODE_NUM * 8UL);
+    UDGraph->closest_adj = (struct adj_multiline **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
         UDGraph->closest_adj[v] = NULL;
-    for (size_t e = 0; e < side_num; e++)
+    for (size_t e = 0; e < line_num; e++)
     {
-        if (sides[e].i_node >= NODE_NUM || sides[e].j_node >= NODE_NUM)
+        if (lines[e].i_node >= NODE_NUM || lines[e].j_node >= NODE_NUM)
         {
-            fputs("side node_id error. Fail to initialize undirected graph!\n", stderr);
-            delete_all_sides_in_UDGraph(UDGraph);
+            fputs("line node_id error. Fail to initialize undirected graph!\n", stderr);
+            delete_all_lines_in_UDGraph(UDGraph);
             UDGraph = NULL;
             return -1;
         }
         /* use weight-ascending order to creat an adjacency multilist */
-        struct adj_multiedge *new_node = (struct adj_multiedge *)malloc(sizeof(struct adj_multiedge));
-        memset(new_node, 0, sizeof(struct adj_multiedge));
-        new_node->i_node = sides[e].i_node;
-        new_node->j_node = sides[e].j_node;
-        new_node->weight = sides[e].weight;
-        if (UDGraph->closest_adj[sides[e].i_node] == NULL)
-            UDGraph->closest_adj[sides[e].i_node] = new_node;
-        else UDGraph->closest_adj[sides[e].i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[sides[e].i_node], new_node);
-        UDGraph->degree[sides[e].i_node]++;
-        if (UDGraph->closest_adj[sides[e].j_node] == NULL)
-            UDGraph->closest_adj[sides[e].j_node] = new_node;
-        else UDGraph->closest_adj[sides[e].j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[sides[e].j_node], new_node);
-        UDGraph->degree[sides[e].j_node]++;
+        struct adj_multiline *new_node = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
+        memset(new_node, 0, sizeof(struct adj_multiline));
+        new_node->i_node = lines[e].i_node;
+        new_node->j_node = lines[e].j_node;
+        new_node->weight = lines[e].weight;
+        if (UDGraph->closest_adj[lines[e].i_node] == NULL)
+            UDGraph->closest_adj[lines[e].i_node] = new_node;
+        else UDGraph->closest_adj[lines[e].i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[lines[e].i_node], new_node);
+        UDGraph->degree[lines[e].i_node]++;
+        if (UDGraph->closest_adj[lines[e].j_node] == NULL)
+            UDGraph->closest_adj[lines[e].j_node] = new_node;
+        else UDGraph->closest_adj[lines[e].j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[lines[e].j_node], new_node);
+        UDGraph->degree[lines[e].j_node]++;
     }
-    UDGraph->side_num = side_num;
+    UDGraph->line_num = line_num;
     return 0;
 }
 
-int delete_a_undirc_side_in_UDGraph(struct UDGraph_info *UDGraph, int node1, int node2)
+int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
-    struct adj_multiedge *cur, *last;
-    cur = UDGraph->closest_adj[node1]; last = NULL;
+    struct adj_multiline *cur, *last;
+    cur = UDGraph->closest_adj[line.i_node]; last = NULL;
     while (cur != NULL)
     {
-        if (cur->j_node == node2)
+        if (cur->j_node == line.j_node && cur->weight == line.weight)
         {
             if (last != NULL && last->i_next == cur)
                 last->i_next = cur->i_next;
             else if (last != NULL &&  last->j_next == cur)
                 last->j_next = cur->i_next;
-            else UDGraph->closest_adj[node1] = cur->i_next;
+            else UDGraph->closest_adj[line.i_node] = cur->i_next;
             break;
         }
-        if (cur->i_node == node2)
+        if (cur->i_node == line.j_node && cur->weight == line.weight)
         {
             if (last != NULL && last->i_next == cur)
                 last->i_next = cur->j_next;
             else if (last != NULL &&  last->j_next == cur)
                 last->j_next = cur->j_next;
-            else UDGraph->closest_adj[node1] = cur->j_next;
+            else UDGraph->closest_adj[line.i_node] = cur->j_next;
             break;
         }
         last = cur;
-        cur = (cur->i_node == node1) ? cur->i_next : cur->j_next;
+        cur = (cur->i_node == line.i_node) ? cur->i_next : cur->j_next;
     }
-    cur = UDGraph->closest_adj[node2]; last = NULL;
+    cur = UDGraph->closest_adj[line.j_node]; last = NULL;
     while (cur != NULL)
     {
-        if (cur->j_node == node1)
+        if (cur->j_node == line.i_node && cur->weight == line.weight)
         {
             if (last != NULL && last->i_next == cur)
                 last->i_next = cur->i_next;
             else if (last != NULL &&  last->j_next == cur)
                 last->j_next = cur->i_next;
-            else UDGraph->closest_adj[node1] = cur->i_next;
+            else UDGraph->closest_adj[line.j_node] = cur->i_next;
             break;
         }
-        if (cur->i_node == node1)
+        if (cur->i_node == line.i_node && cur->weight == line.weight)
         {
             if (last != NULL && last->i_next == cur)
                 last->i_next = cur->j_next;
             else if (last != NULL &&  last->j_next == cur)
                 last->j_next = cur->j_next;
-            else UDGraph->closest_adj[node1] = cur->j_next;
+            else UDGraph->closest_adj[line.j_node] = cur->j_next;
             break;
         }
         last = cur;
-        cur = (cur->i_node == node2) ? cur->i_next : cur->j_next;
+        cur = (cur->i_node == line.j_node) ? cur->i_next : cur->j_next;
     }
     if (cur != NULL)
     {
-        UDGraph->side_num--;
-        UDGraph->degree[node1]--;
-        UDGraph->degree[node2]--;
+        UDGraph->line_num--;
+        UDGraph->degree[line.i_node]--;
+        UDGraph->degree[line.j_node]--;
         free(cur); return 0;
     }
     else
     {
-        fprintf(stderr, "Fail to delete! Error: No undirected side linking with node %d and %d.\n", node1, node2);
+        fprintf(stderr, "Fail to delete! Error: No undirected line linking with node %d and %d.\n", node1, node2);
         return -1;
     }
 }
