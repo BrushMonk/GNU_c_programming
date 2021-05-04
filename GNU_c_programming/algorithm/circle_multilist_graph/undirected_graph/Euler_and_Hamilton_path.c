@@ -9,8 +9,8 @@ static int find_next_nodeid_in_UDGraph_Euler_path(const struct UDGraph_info *UDG
 {
     if (used_degree[node_id] == UDGraph->degree[node_id])
         return -1;
-    struct adj_multiedge *chosen;
-    struct adj_multiedge *cur = UDGraph->closest_adj[node_id];
+    struct adj_multiline *chosen;
+    struct adj_multiline *cur = UDGraph->closest_adj[node_id];
     while (cur != NULL)
     {
         /* next candidate node id in all adjacenct nodes */

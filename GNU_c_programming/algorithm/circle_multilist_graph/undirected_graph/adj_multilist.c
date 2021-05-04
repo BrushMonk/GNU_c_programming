@@ -25,35 +25,6 @@ struct undirc_line
 {   int i_node, j_node;
     int64_t weight;};
 
-static struct adj_multiline *insert_a_node_in_adj_multilist(struct adj_multiline *closest_adj, struct adj_multiline *new_node)
-{
-    struct adj_multiline *cur;
-    *cur =  (struct adj_multiline){0};
-    if (closest_adj->i_node == new_node->i_node)
-    {
-        for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_node->weight; cur = cur->i_next);
-        ;
-        new_node->i_next = cur->i_next;
-        cur->i_next = new_node;
-        if (new_node->i_next == closest_adj) closest_adj = new_node;
-        return closest_adj;
-    }
-    if (closest_adj->j_node == new_node->j_node)
-    {
-        for(cur->j_next = closest_adj; cur->j_next != NULL && cur->j_next->weight < new_node->weight; cur = cur->j_next);
-        ;
-        new_node->j_next = cur->j_next;
-        cur->j_next = new_node;
-        if (new_node->j_next == closest_adj) closest_adj = new_node;
-        return closest_adj;
-    }
-    else
-    {
-        fputs("error: Non-existent node in undirected graph!\n", stderr);
-        return NULL;
-    }
-}
-
 static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
 {
     for (size_t v = 0; v < NODE_NUM; v++)
@@ -83,6 +54,62 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
     return;
 }
 
+static struct adj_multiline *insert_a_node_in_adj_multilist(struct adj_multiline *closest_adj, struct adj_multiline *new_node)
+{
+    struct adj_multiline *cur;
+    *cur =  (struct adj_multiline){0};
+    if (closest_adj->i_node == new_node->i_node)
+    {
+        for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_node->weight; cur = cur->i_next);
+        ;
+        new_node->i_next = cur->i_next;
+        cur->i_next = new_node;
+        if (new_node->i_next == closest_adj) closest_adj = new_node;
+        return closest_adj;
+    }
+    if (closest_adj->j_node == new_node->j_node)
+    {
+        for(cur->j_next = closest_adj; cur->j_next != NULL && cur->j_next->weight < new_node->weight; cur = cur->j_next);
+        ;
+        new_node->j_next = cur->j_next;
+        cur->j_next = new_node;
+        if (new_node->j_next == closest_adj) closest_adj = new_node;
+        return closest_adj;
+    }
+    else
+    {
+        fputs("error: Non-existent node in undirected graph!\n", stderr);
+        return NULL;
+    }
+}
+
+static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
+{
+    if (line.i_node >= NODE_NUM || line.j_node >= NODE_NUM || line.i_node < 0 || line.j_node < 0)
+    {
+        fputs("line node_id error. Fail to initialize undirected graph!\n", stderr);
+        delete_all_lines_in_UDGraph(UDGraph);
+        UDGraph = NULL;
+        return -1;
+    }
+    /* use weight-ascending order to creat an adjacency multilist */
+    struct adj_multiline *new_node = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
+    memset(new_node, 0, sizeof(struct adj_multiline));
+    new_node->i_node = line.i_node;
+    new_node->j_node = line.j_node;
+    new_node->weight = line.weight;
+    if (UDGraph->closest_adj[line.i_node] == NULL)
+        UDGraph->closest_adj[line.i_node] = new_node;
+    else UDGraph->closest_adj[line.i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[line.i_node], new_node);
+    UDGraph->degree[line.i_node]++;
+    if (UDGraph->closest_adj[line.j_node] == NULL)
+        UDGraph->closest_adj[line.j_node] = new_node;
+    else UDGraph->closest_adj[line.j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[line.j_node], new_node);
+    UDGraph->degree[line.j_node]++;
+    UDGraph->line_num++;
+    return 0;
+}
+
 int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_t line_num)
 {
     UDGraph->degree = (size_t *)malloc(NODE_NUM * sizeof(size_t));
@@ -91,29 +118,10 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
         UDGraph->closest_adj[v] = NULL;
     for (size_t e = 0; e < line_num; e++)
     {
-        if (lines[e].i_node >= NODE_NUM || lines[e].j_node >= NODE_NUM)
-        {
-            fputs("line node_id error. Fail to initialize undirected graph!\n", stderr);
-            delete_all_lines_in_UDGraph(UDGraph);
-            UDGraph = NULL;
+        if (add_a_undirc_line_in_UDGraph(UDGraph, lines[e]) == -1)
             return -1;
-        }
-        /* use weight-ascending order to creat an adjacency multilist */
-        struct adj_multiline *new_node = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
-        memset(new_node, 0, sizeof(struct adj_multiline));
-        new_node->i_node = lines[e].i_node;
-        new_node->j_node = lines[e].j_node;
-        new_node->weight = lines[e].weight;
-        if (UDGraph->closest_adj[lines[e].i_node] == NULL)
-            UDGraph->closest_adj[lines[e].i_node] = new_node;
-        else UDGraph->closest_adj[lines[e].i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[lines[e].i_node], new_node);
-        UDGraph->degree[lines[e].i_node]++;
-        if (UDGraph->closest_adj[lines[e].j_node] == NULL)
-            UDGraph->closest_adj[lines[e].j_node] = new_node;
-        else UDGraph->closest_adj[lines[e].j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[lines[e].j_node], new_node);
-        UDGraph->degree[lines[e].j_node]++;
+        else continue;
     }
-    UDGraph->line_num = line_num;
     return 0;
 }
 
