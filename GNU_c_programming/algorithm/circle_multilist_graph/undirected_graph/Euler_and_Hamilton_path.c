@@ -9,34 +9,30 @@ static int find_next_nodeid_in_UDGraph_Euler_path(const struct UDGraph_info *UDG
 {
     if (used_degree[node_id] == UDGraph->degree[node_id])
         return -1;
-    /* next candidate node id in all adjacenct nodes */
-    int next_id;
+    struct adj_multiedge *chosen;
     struct adj_multiedge *cur = UDGraph->closest_adj[node_id];
     while (cur != NULL)
     {
-        next_id = cur->i_node == node_id ? cur->j_node : cur->i_node;
-        if (cur->ismarked == 1)
+        /* next candidate node id in all adjacenct nodes */
+        int cand_id = cur->i_node == node_id ? cur->j_node : cur->i_node;
+        if (cur->ismarked == 0 && UDGraph->degree[cand_id] - used_degree[cand_id] > 1 && )
         {
-            cur = cur->i_node == node_id ? cur->i_next : cur->j_next;
-            continue;
-        }
-        else if (UDGraph->degree[next_id] - used_degree[next_id] > 1)
-        {
-            cur->ismarked = 1;
-            used_degree[next_id]++;
-            used_degree[node_id]++;
-            *dist = cur->weight;
+            chosen = cur;
             break;
         }
         else
         {
-            cur->ismarked = 1;
-            used_degree[next_id]++;
-            used_degree[node_id]++;
-            *dist = cur->weight;
-            break;
+            if (cur->ismarked == 0)
+                chosen = cur;
+            cur = cur->i_node == node_id ? cur->i_next : cur->j_next;
+            continue;
         }
     }
+    chosen->ismarked = 1;
+    *dist = chosen->weight;
+    int next_id = chosen->i_node == node_id ? chosen->j_node : chosen->i_node;
+    used_degree[next_id]++;
+    used_degree[node_id]++;
     return next_id;
 }
 
