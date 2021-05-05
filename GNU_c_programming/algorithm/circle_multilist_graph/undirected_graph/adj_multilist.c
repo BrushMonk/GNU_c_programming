@@ -211,13 +211,16 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
     return timestamp[node_id];
 }
 
-static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2, int init_time)
+static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2)
 {
     for (int v = 0; v < NODE_NUM; v++)
         timestamp[v] = -1;
     timestamp[node1] = 0;
     timestamp[node2] = 1;
-    return Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, timestamp[node2] + 1);
+    Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, timestamp[node2] + 1);
+    if (timestamp[node2] == 0)
+        return 0;
+    else return 1;
 }
 
 /* a node in undirected tree */
@@ -231,27 +234,31 @@ struct tree_node
 
 static size_t insert_leaf_in_tree_node(struct tree_node *node, struct tree_node *new_leaf)
 {
-    size_t middle, left = 0, right = node->child_num - 1;
-    while (left <= right)
-    {
-        middle = left + ((right - left) >> 1);
-        if (node->next[middle]->dist == new_leaf->dist)
-            break;
-        else if (node->next[middle]->dist > new_leaf->dist)
-            right = middle - 1;
-        else left = middle + 1;
-    }
-    size_t pos = left > middle ? left : middle;
     if ((node->next = (struct tree_node **)realloc(node->next, (node->child_num + 1) * 8UL)) == NULL)
     {
         perror("fail to allocate array");
         exit(EXIT_FAILURE);
     }
-    for (size_t i = pos; i < node->child_num; i++)
-        node->next[i + 1] = node->next[i];
+    size_t pos = 0;
+    if (node->child_num != 0)
+    {
+        size_t left = 0, right = node->child_num - 1, middle;
+        while (left <= right)
+        {
+            middle = left + ((right - left) >> 1);
+            if (node->next[middle]->dist == new_leaf->dist)
+                break;
+            else if (node->next[middle]->dist > new_leaf->dist)
+                right = middle - 1;
+            else left = middle + 1;
+        }
+        pos = left > middle ? left : middle;
+        for (size_t i = pos; i < node->child_num; i++)
+            node->next[i + 1] = node->next[i];
+    }
+    node->child_num++;
     node->next[pos] = new_leaf;
     new_leaf->parent = node;
-    node->child_num++;
     return pos;
 }
 

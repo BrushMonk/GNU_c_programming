@@ -5,43 +5,43 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
-static int find_next_nodeid_in_UDGraph_Euler_path(const struct UDGraph_info *UDGraph, int node_id, int64_t *dist, size_t *used_degree)
+static int find_next_nodeid_in_UDGraph_Euler_path(struct UDGraph_info *UDGraph, int node_id, int64_t *dist)
 {
-    if (used_degree[node_id] == UDGraph->degree[node_id])
-        return -1;
-    struct adj_multiline *chosen;
-    struct adj_multiline *cur = UDGraph->closest_adj[node_id];
-    while (cur != NULL)
+    struct adj_multiline *adj_line = UDGraph->closest_adj[node_id];
+    int next_id = -1;
+    while (adj_line != NULL)
     {
-        /* next candidate node id in all adjacenct nodes */
-        int cand_id = cur->i_node == node_id ? cur->j_node : cur->i_node;
-        if (cur->ismarked == 0 && UDGraph->degree[cand_id] - used_degree[cand_id] > 1 && )
-        {
-            chosen = cur;
-            break;
-        }
+        /* next node id in all adjacenct nodes */
+        int adj_id = adj_line->i_node == node_id ? adj_line->j_node : adj_line->i_node;
+        if (is_a_bridge_in_UDGraph(UDGraph, adj_line->i_node, adj_line->j_node))
+            next_id = adj_id;
+        /* if the adjacenct line is not a bridge, jump out of this loop. */
         else
         {
-            if (cur->ismarked == 0)
-                chosen = cur;
-            cur = cur->i_node == node_id ? cur->i_next : cur->j_next;
-            continue;
+            next_id = adj_id;
+            break;
         }
+        adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    chosen->ismarked = 1;
-    *dist = chosen->weight;
-    int next_id = chosen->i_node == node_id ? chosen->j_node : chosen->i_node;
-    used_degree[next_id]++;
-    used_degree[node_id]++;
+    *dist = adj_line->weight;
+    if (adj_line != NULL)
+        delete_a_undirc_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
     return next_id;
 }
 
 struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
-    size_t used_degree[NODE_NUM] = {0};
-    struct tree_node *start_node = (struct tree_node){0};
-    start_node->parent_id = -1;
-    start_node->node_id = src;
+    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
+    struct undirc_line lines[UDGraph->line_num];
+    for (size_t e = 0; e < UDGraph->line_num; e++)
+    {
+        lines[e].i_node = line_set[e]->i_node;
+        lines[e].j_node = line_set[e]->j_node;
+        lines[e].weight = line_set[e]->weight;
+    }
+    struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
+    init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
+    struct tree_node *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
     int cur_id = src;
     int64_t dist = 0;
@@ -49,13 +49,12 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     {
         if (last != NULL)
         {
-            int64_t dist = 0;
-            *path_node = (struct tree_node){cur_id, dist, 0};
+            *path_node = (struct tree_node){cur_id, dist, 0, 0, 0};
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
         last = path_node;
-        cur_id = find_next_nodeid_in_UDGraph_Euler_path(UDGraph, cur_id, &dist, used_degree);
+        cur_id = find_next_nodeid_in_UDGraph_Euler_path(unvis_UDGraph, cur_id, &dist);
     }
     return start_node;
 }

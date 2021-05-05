@@ -199,10 +199,8 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
 {
     /* the root of shortest path tree */
     struct tree_node *SPT_root;
-    *SPT_root = (struct tree_node){0};
     /* put src node into SPT as root */
-    SPT_root->node_id = src;
-    SPT_root->parent_id = -1;
+    *SPT_root = (struct tree_node){src, 0, 0, -1, 0};
     /* loop current node id */
     struct tree_node *cur = SPT_root;
     /* find the minimum-dist node from binomial heap */
@@ -248,10 +246,8 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
 {
     /* the root of minimum spanning tree */
     struct tree_node *MST_root;
-    *MST_root = (struct tree_node){0};
-    /* put src node into SPT as root */
-    MST_root->node_id = src;
-    MST_root->parent_id = -1;
+    /* put src node into MST as root */
+    *MST_root = (struct tree_node){src, 0, 0, -1, 0};
     /* loop current node id */
     struct tree_node *cur = MST_root;
     /* find the minimum-dist node from binomial heap */
