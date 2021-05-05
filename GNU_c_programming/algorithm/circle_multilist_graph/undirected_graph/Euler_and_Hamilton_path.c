@@ -42,7 +42,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     struct tree_node *start_node = (struct tree_node){0};
     start_node->parent_id = -1;
     start_node->node_id = src;
-    struct tree_node *last = NULL, path_node;
+    struct tree_node *last = NULL, *path_node;
     int cur_id = src;
     int64_t dist = 0;
     while(cur_id == -1)

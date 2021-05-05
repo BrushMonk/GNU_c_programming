@@ -5,12 +5,12 @@
 #include <stddef.h>
 
 uint_least64_t derange(int_fast8_t *restrict arr, const ptrdiff_t len,
-_Bool display, int_fast8_t *restrict Peano, ptrdiff_t depth)
+_Bool isdisplay, int_fast8_t *restrict Peano, ptrdiff_t depth)
 {
-    uint_least64_t count;
+    uint_least64_t count = 0;
     if (depth == len)
     {
-        if (display)
+        if (isdisplay)
         {
             for ( ptrdiff_t i = 0; i < len; i++ )
             fprintf(stdout, "%" PRId8"\040", arr[i]);
@@ -23,7 +23,7 @@ _Bool display, int_fast8_t *restrict Peano, ptrdiff_t depth)
         if ( i == Peano[depth] ) continue;
         int_fast8_t tmp = Peano[i]; Peano[i] = Peano[depth]; Peano[depth] = tmp;
         tmp = arr[i]; arr[i] = arr[depth]; arr[depth] = tmp;
-        count += derange(arr, len, display, Peano, depth + 1);
+        count += derange(arr, len, isdisplay, Peano, depth + 1);
         tmp = Peano[i]; Peano[i] = Peano[depth]; Peano[depth] = tmp;
         tmp = arr[i]; arr[i] = arr[depth]; arr[depth] = tmp;
     }

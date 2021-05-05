@@ -192,19 +192,32 @@ int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_
 
 /* timestamp in the traversal to the whole undirected graph */
 static int volatile timestamp[NODE_NUM] = {-1};
-static void find_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2, int init_time)
+static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int init_time)
 {
-    timestamp[node1] = init_time;
-    struct adj_multiline *adj_line = UDGraph->closest_adj[node1];
+    timestamp[node_id] = init_time;
+    struct adj_multiline *adj_line = UDGraph->closest_adj[node_id];
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node->node_id) ? adj_line->j_node : adj_line->i_node;
         if (timestamp[adj_id] == -1)
-            DFS_from_a_node_in_in_UDGraph(UDGraph, adj_id, node2, init_time + 1);
+        {
+            Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, adj_id, init_time + 1);
+            timestamp[node_id] = timestamp[adj_id] < timestamp[node_id] ? timestamp[adj_id] : timestamp[node_id];
+        }
+        else if (timestamp[adj_id] < timestamp[node_id])
+            timestamp[node_id] = timestamp[adj_id];
         adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    if (adj_line != NULL) printf("%d\040", node_id);
-    return;
+    return timestamp[node_id];
+}
+
+static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2, int init_time)
+{
+    for (int v = 0; v < NODE_NUM; v++)
+        timestamp[v] = -1;
+    timestamp[node1] = 0;
+    timestamp[node2] = 1;
+    return Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, timestamp[node2] + 1);
 }
 
 /* a node in undirected tree */
