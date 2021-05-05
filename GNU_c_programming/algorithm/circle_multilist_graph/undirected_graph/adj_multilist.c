@@ -190,6 +190,23 @@ int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_
     }
 }
 
+/* timestamp in the traversal to the whole undirected graph */
+static int volatile timestamp[NODE_NUM] = {-1};
+static void find_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2, int init_time)
+{
+    timestamp[node1] = init_time;
+    struct adj_multiline *adj_line = UDGraph->closest_adj[node1];
+    while (adj_line != NULL)
+    {
+        int adj_id = (adj_line->i_node != node->node_id) ? adj_line->j_node : adj_line->i_node;
+        if (timestamp[adj_id] == -1)
+            DFS_from_a_node_in_in_UDGraph(UDGraph, adj_id, node2, init_time + 1);
+        adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
+    }
+    if (adj_line != NULL) printf("%d\040", node_id);
+    return;
+}
+
 /* a node in undirected tree */
 struct tree_node
 {   int node_id;

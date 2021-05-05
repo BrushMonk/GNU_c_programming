@@ -164,15 +164,15 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
 static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
-    struct adj_multiline *next_adj = UDGraph->closest_adj[node->node_id];
-    while (next_adj != NULL)
+    struct adj_multiline *adj_line = UDGraph->closest_adj[node->node_id];
+    while (adj_line != NULL)
     {
         /* candidate inserted into unvisited set */
         struct tree_node *cand = (struct tree_node *)malloc(sizeof(struct tree_node));
         memset(cand, 0, sizeof(struct tree_node));
-        cand->node_id = (next_adj->i_node != node->node_id) ? next_adj->i_node : next_adj->j_node;
+        cand->node_id = (adj_line->i_node != node->node_id) ? adj_line->i_node : adj_line->j_node;
         cand->parent_id = node->node_id;
-        cand->dist = next_adj->weight + flag * node->dist;
+        cand->dist = adj_line->weight + flag * node->dist;
         if (decrease_binomial_key(heap, cand->node_id, cand->dist) == NO_NODEID)
             insert_a_node_in_binomial_heap(heap, cand);
         else
@@ -180,7 +180,7 @@ static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node,
             free(cand);
             continue;
         }
-        next_adj = (next_adj->i_node == node->node_id) ? next_adj->i_next : next_adj->j_next;
+        adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
     }
     return;
 }
@@ -276,7 +276,7 @@ static void merge_sort(struct adj_multiline **restrict arr, size_t len)
 {
     struct adj_multiline *sub_arr[len];
     for (size_t e = 0; e < len; e++)
-        memcpy(sub_arr[e], arr[e], sizeof(struct adj_multiline));
+        sub_arr[e] = arr[e];
 
     for (size_t depth = 1; depth < len; depth <<= 1)
     for (size_t left = 0; left < len; left += depth)

@@ -154,7 +154,7 @@ static int find_disjt_root(int *disjt_set, int node_id)
 
 /* timestamp in the traversal to the whole directed graph */
 static int volatile timestamp[NODE_NUM] = {-1};
-void DFS_from_a_node_in_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time)
+static void DFS_from_a_node_in_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time)
 {
     timestamp[node_id] = init_time;
     struct adj_node *next_adj;
@@ -171,7 +171,7 @@ void DFS_from_a_node_in_in_DGraph(const struct DGraph_info *DGraph, int node_id,
 static int volatile SCC_stack[NODE_NUM];
 /* The top of strongly connected stack */
 static _Atomic(int) top_in_SCC_stack = -1;
-int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *disjt_set)
+static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *disjt_set)
 {
     SCC_stack[++top_in_SCC_stack] = node_id;
     timestamp[node_id] = init_time;
