@@ -54,26 +54,26 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
     return;
 }
 
-static struct adj_multiline *insert_a_node_in_adj_multilist(struct adj_multiline *closest_adj, struct adj_multiline *new_node)
+static struct adj_multiline *insert_a_line_in_adj_multilist(struct adj_multiline *closest_adj, struct adj_multiline *new_line)
 {
     struct adj_multiline *cur;
     *cur =  (struct adj_multiline){0};
-    if (closest_adj->i_node == new_node->i_node)
+    if (closest_adj->i_node == new_line->i_node)
     {
-        for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_node->weight; cur = cur->i_next);
+        for(cur->i_next = closest_adj; cur->i_next != NULL && cur->i_next->weight < new_line->weight; cur = cur->i_next);
         ;
-        new_node->i_next = cur->i_next;
-        cur->i_next = new_node;
-        if (new_node->i_next == closest_adj) closest_adj = new_node;
+        new_line->i_next = cur->i_next;
+        cur->i_next = new_line;
+        if (new_line->i_next == closest_adj) closest_adj = new_line;
         return closest_adj;
     }
-    if (closest_adj->j_node == new_node->j_node)
+    if (closest_adj->j_node == new_line->j_node)
     {
-        for(cur->j_next = closest_adj; cur->j_next != NULL && cur->j_next->weight < new_node->weight; cur = cur->j_next);
+        for(cur->j_next = closest_adj; cur->j_next != NULL && cur->j_next->weight < new_line->weight; cur = cur->j_next);
         ;
-        new_node->j_next = cur->j_next;
-        cur->j_next = new_node;
-        if (new_node->j_next == closest_adj) closest_adj = new_node;
+        new_line->j_next = cur->j_next;
+        cur->j_next = new_line;
+        if (new_line->j_next == closest_adj) closest_adj = new_line;
         return closest_adj;
     }
     else
@@ -93,18 +93,18 @@ static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct und
         return -1;
     }
     /* use weight-ascending order to creat an adjacency multilist */
-    struct adj_multiline *new_node = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
-    memset(new_node, 0, sizeof(struct adj_multiline));
-    new_node->i_node = line.i_node;
-    new_node->j_node = line.j_node;
-    new_node->weight = line.weight;
+    struct adj_multiline *new_line = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
+    memset(new_line, 0, sizeof(struct adj_multiline));
+    new_line->i_node = line.i_node;
+    new_line->j_node = line.j_node;
+    new_line->weight = line.weight;
     if (UDGraph->closest_adj[line.i_node] == NULL)
-        UDGraph->closest_adj[line.i_node] = new_node;
-    else UDGraph->closest_adj[line.i_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[line.i_node], new_node);
+        UDGraph->closest_adj[line.i_node] = new_line;
+    else UDGraph->closest_adj[line.i_node] = insert_a_line_in_adj_multilist(UDGraph->closest_adj[line.i_node], new_line);
     UDGraph->degree[line.i_node]++;
     if (UDGraph->closest_adj[line.j_node] == NULL)
-        UDGraph->closest_adj[line.j_node] = new_node;
-    else UDGraph->closest_adj[line.j_node] = insert_a_node_in_adj_multilist(UDGraph->closest_adj[line.j_node], new_node);
+        UDGraph->closest_adj[line.j_node] = new_line;
+    else UDGraph->closest_adj[line.j_node] = insert_a_line_in_adj_multilist(UDGraph->closest_adj[line.j_node], new_line);
     UDGraph->degree[line.j_node]++;
     UDGraph->line_num++;
     return 0;

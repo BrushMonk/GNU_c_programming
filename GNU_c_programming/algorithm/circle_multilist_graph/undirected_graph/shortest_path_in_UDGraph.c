@@ -272,42 +272,24 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     return MST_root;
 }
 
-static void heap_sort(struct adj_multiline **restrict arr, long long len)
+static void merge_sort(struct adj_multiline **restrict arr, size_t len)
 {
-    /* initialize i as the last nonleaf node in tree */
-    for (long long i = len >> 1 ; i >= 0; i--)
-    /* the complexity of this procedure is O(n) */
+    struct adj_multiline *sub_arr[len];
+    for (size_t e = 0; e < len; e++)
+        memcpy(sub_arr[e], arr[e], sizeof(struct adj_multiline));
+
+    for (size_t depth = 1; depth < len; depth <<= 1)
+    for (size_t left = 0; left < len; left += depth)
     {
-        long long min_child = (i << 1) + 1;
-        if (min_child + 1 < len && arr[min_child]->weight < arr[min_child + 1]->weight)
-            min_child++;
-        if (arr[i]->weight >= arr[min_child]->weight) continue;
-        else
-        {
-            struct adj_multiline *tmp = arr[i];
-            arr[i] = arr[min_child];
-            arr[min_child] = tmp;
-        }
-    }
-    for (long long i = len - 1; i > 0; i--)
-    /* the complexity of this procedure is O(nlog n) */
-    {
-        struct adj_multiline *tmp = arr[i];
-        arr[i] = arr[0];
-        arr[0] = tmp;
-        for (long long cur = i, max_child = (cur << 1) + 1; max_child < len;)
-        /* heapify from this first element. The complexity of this procedure is O(log n). */
-        {
-            if (max_child + 1 < len && arr[max_child]->weight < arr[max_child + 1]->weight)
-                max_child++;
-            if (arr[cur]->weight >= arr[max_child]->weight) break;
-            else
-            {
-                struct adj_multiline *tmp = arr[cur]; arr[cur] = arr[max_child]; arr[max_child] = tmp;
-                cur = max_child;
-                max_child = 2 * cur + 1;
-            }
-        }
+        size_t right = (left + depth < len) ? left + depth - 1 : len - 1;
+        size_t middle = (left == right) ? left : 1 + left + ((right - left) >> 1);
+        size_t i, j, k;
+        for ( i = left, j = middle + 1, k = 0; i <= middle && j <= right; k++)
+        arr[k] = (sub_arr[i]->weight < sub_arr[j]->weight) ? sub_arr[i++] : sub_arr[j++];
+        while (i <= middle)
+        arr[k++] = sub_arr[i++];
+        while (j <= right)
+        arr[k++] = sub_arr[j++];
     }
     return;
 }
@@ -342,7 +324,7 @@ static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_i
             cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
-    heap_sort(lines_set, (long long)UDGraph->line_num);
+    merge_sort(lines_set, UDGraph->line_num);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
         cur = UDGraph->closest_adj[v];
