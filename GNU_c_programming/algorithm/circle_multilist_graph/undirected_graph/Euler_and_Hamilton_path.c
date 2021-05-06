@@ -5,7 +5,7 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
-static int find_next_nodeid_in_UDGraph_Euler_path(struct UDGraph_info *UDGraph, int node_id, int64_t *dist)
+static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id, int64_t *dist)
 {
     struct adj_multiline *adj_line = UDGraph->closest_adj[node_id];
     int next_id = -1;
@@ -54,7 +54,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
         }
         else path_node = start_node;
         last = path_node;
-        cur_id = find_next_nodeid_in_UDGraph_Euler_path(unvis_UDGraph, cur_id, &dist);
+        cur_id = find_next_nodeid_in_undirc_Euler_path(unvis_UDGraph, cur_id, &dist);
     }
     free(unvis_UDGraph);
     return start_node;
