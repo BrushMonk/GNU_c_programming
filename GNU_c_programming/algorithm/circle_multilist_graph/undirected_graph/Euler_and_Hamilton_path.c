@@ -45,7 +45,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     struct tree_node *last = NULL, *path_node;
     int cur_id = src;
     int64_t dist = 0;
-    while(cur_id == -1)
+    while (cur_id == -1)
     {
         if (last != NULL)
         {
@@ -72,9 +72,12 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         }
     if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
         return Fleury_algorithm_in_UDGraph(UDGraph, src);
-    struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
-    for (size_t v = 0, i = 0; v < odd_deg_num; v++)
-        for (size_t n = v + 1; n < odd_deg_num; n++)
-            dist_path[i++] = Dijkstra_algorithm_in_UDGraph(UDGraph, odd_deg_node[v], odd_deg_node[n]);
-
+    else
+    {
+        struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
+        int64_t dist[odd_deg_num * (odd_deg_num - 1) / 2];
+        for (size_t v = 0, i = 0; v < odd_deg_num; v++)
+            for (size_t n = v + 1; n < odd_deg_num; n++)
+                dist_path[i++] = Dijkstra_algorithm_in_UDGraph(UDGraph, odd_deg_node[v], odd_deg_node[n], &dist[i]);
+    }
 }

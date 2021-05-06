@@ -194,7 +194,7 @@ static void delete_all_nodes_in_binomial_heap(struct binomial_node *node)
 }
 
 #define DIJKSTRA 1
-struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src, int dest)
+struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src, int dest, int64_t *dist)
 {
     /* the root of shortest path tree */
     struct tree_node *SPT_root;
@@ -224,6 +224,7 @@ struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph,
         delete_all_nodes_in_dirc_tree(SPT_root);
         return SPT_root = NULL;
     }
+    if (dist != NULL) *dist = cur->dist;
     /* copy tree_node to shortest_list */
     struct tree_node *list_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
