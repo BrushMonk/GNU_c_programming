@@ -56,6 +56,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
         last = path_node;
         cur_id = find_next_nodeid_in_UDGraph_Euler_path(unvis_UDGraph, cur_id, &dist);
     }
+    free(unvis_UDGraph);
     return start_node;
 }
 
