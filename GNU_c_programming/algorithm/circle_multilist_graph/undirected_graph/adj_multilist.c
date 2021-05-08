@@ -216,8 +216,7 @@ static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node
     for (int v = 0; v < NODE_NUM; v++)
         timestamp[v] = -1;
     timestamp[node1] = 0;
-    timestamp[node2] = 1;
-    Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, timestamp[node2] + 1);
+    timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1);
     if (timestamp[node2] == 0)
         return 0;
     else return 1;
