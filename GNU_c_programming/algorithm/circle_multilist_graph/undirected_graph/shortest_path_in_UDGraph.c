@@ -293,13 +293,7 @@ static void merge_sort(struct adj_multiline **restrict arr, size_t len)
 
 static int find_disjt_root(int *disjt_set, int node_id)
 {
-    if (disjt_set[node_id] == node_id)
-        return node_id;
-    else
-    {
-        disjt_set[node_id] = find_disjt_root(disjt_set, node_id);
-        return disjt_set[node_id];
-    }
+    return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
 }
 
 /* get the set made up of all UDGraph lines in order from small to great */
