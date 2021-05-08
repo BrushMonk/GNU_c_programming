@@ -15,9 +15,9 @@ struct adj_node
 struct DGraph_info
 {
     /* the closest outdegree adjacency node */
-    struct adj_node **closest_outadj;
+    struct adj_node **outadj;
     /* the closest indegree adjacency node */
-    struct adj_node **closest_inadj;
+    struct adj_node **inadj;
     size_t line_num;
 };
 
@@ -25,16 +25,16 @@ struct dirc_line
 {   int src, dest;
     int64_t weight;};
 
-static struct adj_node *insert_a_node_in_adj_list(struct adj_node *closest_adj, struct adj_node *new_node)
+static struct adj_node *insert_a_node_in_adj_list(struct adj_node *adj, struct adj_node *new_node)
 {
     struct adj_node *cur;
     *cur = (struct adj_node){0};
-    for(cur->next = closest_adj; cur->next != NULL && cur->next->weight < new_node->weight; cur = cur->next);
+    for(cur->next = adj; cur->next != NULL && cur->next->weight < new_node->weight; cur = cur->next);
     ;
     new_node->next = cur->next;
     cur->next = new_node;
-    if (new_node->next == closest_adj) closest_adj = new_node;
-    return closest_adj;
+    if (new_node->next == adj) adj = new_node;
+    return adj;
 }
 
 static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
@@ -42,14 +42,14 @@ static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
     struct adj_node *cur;
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        cur = DGraph->closest_inadj[v];
+        cur = DGraph->inadj[v];
         while (cur != NULL)
         {
             struct adj_node *tmp = cur;
             cur = cur->next;
             free(tmp);
         }
-        cur = DGraph->closest_outadj[v];
+        cur = DGraph->outadj[v];
         while (cur != NULL)
         {
             struct adj_node *tmp = cur;
@@ -57,20 +57,20 @@ static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
             free(tmp);
         }
     }
-    memset(DGraph->closest_inadj, 0, NODE_NUM * 8UL);
-    memset(DGraph->closest_outadj, 0, NODE_NUM * 8UL);
+    memset(DGraph->inadj, 0, NODE_NUM * 8UL);
+    memset(DGraph->outadj, 0, NODE_NUM * 8UL);
     DGraph->line_num = 0;
     return;
 }
 
 int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t line_num)
 {
-    DGraph->closest_outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
-    DGraph->closest_inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
+    DGraph->outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
+    DGraph->inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        DGraph->closest_outadj[v] = NULL;
-        DGraph->closest_inadj[v] = NULL;
+        DGraph->outadj[v] = NULL;
+        DGraph->inadj[v] = NULL;
     }
     for (size_t e = 0; e < line_num; e++)
     {
@@ -85,17 +85,17 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t lin
         new_src_node->node_id = lines[e].dest;
         new_src_node->weight = lines[e].weight;
         new_src_node->next = NULL;
-        if (DGraph->closest_outadj[lines[e].src] == NULL)
-            DGraph->closest_outadj[lines[e].src] = new_src_node;
-        else DGraph->closest_outadj[lines[e].src] = insert_a_node_in_adj_list(DGraph->closest_outadj[lines[e].src], new_src_node);
+        if (DGraph->outadj[lines[e].src] == NULL)
+            DGraph->outadj[lines[e].src] = new_src_node;
+        else DGraph->outadj[lines[e].src] = insert_a_node_in_adj_list(DGraph->outadj[lines[e].src], new_src_node);
         /* use use weight-ascending order to creat a reverse adjacency list */
         struct adj_node *new_dest_node = (struct adj_node *)malloc(sizeof(struct adj_node));
         new_dest_node->node_id = lines[e].src;
         new_dest_node->weight = lines[e].weight;
         new_dest_node->next = NULL;
-        if (DGraph->closest_inadj[lines[e].dest] == NULL)
-            DGraph->closest_inadj[lines[e].dest] = new_dest_node;
-        else DGraph->closest_inadj[lines[e].dest] = insert_a_node_in_adj_list(DGraph->closest_inadj[lines[e].dest], new_dest_node);
+        if (DGraph->inadj[lines[e].dest] == NULL)
+            DGraph->inadj[lines[e].dest] = new_dest_node;
+        else DGraph->inadj[lines[e].dest] = insert_a_node_in_adj_list(DGraph->inadj[lines[e].dest], new_dest_node);
     }
     DGraph->line_num = line_num;
     return 0;
@@ -105,25 +105,25 @@ int delete_a_dirc_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
 {
     struct adj_node *cur, *last;
     last = NULL;
-    for (cur = DGraph->closest_outadj[src]; cur != NULL; cur = cur->next)
+    for (cur = DGraph->outadj[src]; cur != NULL; cur = cur->next)
     {
         if (cur->node_id == dest)
         {
             if (last != NULL)
                 last->next = cur->next;
-            else DGraph->closest_outadj[src] = cur->next;
+            else DGraph->outadj[src] = cur->next;
             break;
         }
         last = cur;
     }
     last = NULL;
-    for (cur = DGraph->closest_inadj[dest]; cur != NULL; cur = cur->next)
+    for (cur = DGraph->inadj[dest]; cur != NULL; cur = cur->next)
     {
         if (cur->node_id == src)
         {
             if (last != NULL)
                 last->next = cur->next;
-            else DGraph->closest_inadj[dest] = cur->next;
+            else DGraph->inadj[dest] = cur->next;
             break;
         }
         last = cur;
@@ -158,7 +158,7 @@ static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGra
 {
     timestamp[node_id] = init_time;
     struct adj_node *next_adj;
-    for(next_adj = DGraph->closest_outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
+    for(next_adj = DGraph->outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         if (timestamp[next_adj->node_id] == -1)
         {
@@ -183,7 +183,7 @@ static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, in
     timestamp[node_id] = init_time;
     SCC_stack[++top_in_SCC_stack] = node_id;
     int cur_id;
-    for(struct adj_node *next_adj = DGraph->closest_outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
+    for(struct adj_node *next_adj = DGraph->outadj[node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         cur_id = next_adj->node_id;
         if (timestamp[cur_id] == -1)

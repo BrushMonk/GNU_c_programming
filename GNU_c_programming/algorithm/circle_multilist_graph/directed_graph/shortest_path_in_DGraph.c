@@ -165,7 +165,7 @@ static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, cons
 {
     /* next adjacent node */
     struct adj_node *next_adj;
-    for (next_adj = DGraph->closest_outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
+    for (next_adj = DGraph->outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         /* candidate inserted into unvisited set */
         struct tree_node *cand = (struct tree_node *)malloc(sizeof(struct tree_node));

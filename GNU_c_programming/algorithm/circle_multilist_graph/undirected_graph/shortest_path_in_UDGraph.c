@@ -164,7 +164,7 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
 static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
-    struct adj_multiline *adj_line = UDGraph->closest_adj[node->node_id];
+    struct adj_multiline *adj_line = UDGraph->adj[node->node_id];
     while (adj_line != NULL)
     {
         /* candidate inserted into unvisited set */
@@ -304,7 +304,7 @@ static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_i
     struct adj_multiline *cur;
     for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->line_num; v++)
     {
-        cur = UDGraph->closest_adj[v];
+        cur = UDGraph->adj[v];
         while (cur != NULL)
         {
             if (cur->ismarked == 0)
@@ -318,7 +318,7 @@ static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_i
     merge_sort(lines_set, UDGraph->line_num);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        cur = UDGraph->closest_adj[v];
+        cur = UDGraph->adj[v];
         while (cur != NULL)
         {
             if (cur->ismarked == 1)

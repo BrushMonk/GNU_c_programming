@@ -7,7 +7,7 @@
 
 static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id, int64_t *dist)
 {
-    struct adj_multiline *adj_line = UDGraph->closest_adj[node_id];
+    struct adj_multiline *adj_line = UDGraph->adj[node_id];
     int next_id = -1;
     while (adj_line != NULL)
     {
