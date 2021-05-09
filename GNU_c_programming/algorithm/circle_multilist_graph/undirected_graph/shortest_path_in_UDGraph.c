@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "adj_multilist.c"
+#include "UDGraph.c"
 
 struct binomial_node
 {   struct tree_node *node;
