@@ -21,7 +21,7 @@ static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, i
             next_id = adj_id;
             break;
         }
-        adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
+        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
     *dist = adj_line->weight;
     if (adj_line != NULL)
@@ -41,7 +41,8 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     }
     struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
     init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
-    struct tree_node *start_node = (struct tree_node){src, 0, 0, -1, 0};
+    struct tree_node *start_node;
+    *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
     int cur_id = src;
     int64_t dist = 0;
@@ -73,7 +74,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         if (UDGraph->degree[v] >> 1 == 1)
         {
             odd_deg_node = (int *)realloc(++odd_deg_node, odd_deg_num * sizeof(int));
-            odd_deg_num[odd_deg_num - 1] = v;
+            odd_deg_node[odd_deg_num - 1] = v;
         }
     if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
         return Fleury_algorithm_in_UDGraph(UDGraph, src);

@@ -198,7 +198,7 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
-        int adj_id = (adj_line->i_node != node->node_id) ? adj_line->j_node : adj_line->i_node;
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
         if (timestamp[adj_id] == -1)
         {
             Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, adj_id, init_time + 1);
@@ -206,7 +206,7 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
         }
         else if (timestamp[adj_id] < timestamp[node_id])
             timestamp[node_id] = timestamp[adj_id];
-        adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
+        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
     return timestamp[node_id];
 }
