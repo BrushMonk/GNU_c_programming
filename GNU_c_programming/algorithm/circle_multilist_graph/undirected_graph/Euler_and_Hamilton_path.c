@@ -61,7 +61,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     return start_node;
 }
 
-struct undirc_line* Kuhn_Munkras_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct undirc_line* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
 
 }
