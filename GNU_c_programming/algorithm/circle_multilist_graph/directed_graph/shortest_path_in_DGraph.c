@@ -168,11 +168,10 @@ static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, cons
     for (next_adj = DGraph->outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         /* candidate inserted into unvisited set */
-        struct tree_node *cand = (struct tree_node *)malloc(sizeof(struct tree_node));
-        memset(cand, 0, sizeof(struct tree_node));
-        cand->node_id = next_adj->node_id;
-        cand->parent_id = node->node_id;
-        cand->dist = next_adj->weight + flag * node->dist;
+        struct tree_node *cand;
+        *cand = (struct tree_node){next_adj->node_id,
+        next_adj->weight + node->dist * flag
+        , 0 , node->node_id, 0, 0};
         if (decrease_binomial_key(heap, cand->node_id, cand->dist) == NO_NODEID)
             insert_a_node_in_binomial_heap(heap, cand);
         else
