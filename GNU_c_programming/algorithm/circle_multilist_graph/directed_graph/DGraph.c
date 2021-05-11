@@ -15,9 +15,9 @@ struct adj_node
 struct DGraph_info
 {
     /* the closest outdegree adjacency node */
-    struct adj_node **outadj;
+    struct adj_node *outadj[NODE_NUM];
     /* the closest indegree adjacency node */
-    struct adj_node **inadj;
+    struct adj_node *inadj[NODE_NUM];
     size_t line_num;
 };
 
@@ -65,8 +65,6 @@ static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
 
 int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t line_num)
 {
-    DGraph->outadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
-    DGraph->inadj = (struct adj_node **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
         DGraph->outadj[v] = NULL;

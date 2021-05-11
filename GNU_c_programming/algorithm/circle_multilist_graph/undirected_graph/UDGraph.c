@@ -16,8 +16,8 @@ struct adj_multiline
 struct UDGraph_info
 {
     /* the closest adjacency node */
-    struct adj_multiline **adj;
-    size_t *degree;
+    struct adj_multiline *adj[NODE_NUM];
+    size_t degree[NODE_NUM];
     size_t line_num;
 };
 
@@ -112,8 +112,6 @@ static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct und
 
 int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_t line_num)
 {
-    UDGraph->degree = (size_t *)malloc(NODE_NUM * sizeof(size_t));
-    UDGraph->adj = (struct adj_multiline **)malloc(NODE_NUM * 8UL);
     for (size_t v = 0; v < NODE_NUM; v++)
         UDGraph->adj[v] = NULL;
     for (size_t e = 0; e < line_num; e++)
@@ -213,8 +211,7 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
 
 static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2)
 {
-    for (int v = 0; v < NODE_NUM; v++)
-        timestamp[v] = -1;
+    memset(timestamp, -1, NODE_NUM * sizeof(int));
     timestamp[node1] = 0;
     timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1);
     if (timestamp[node2] == 0)
