@@ -26,7 +26,7 @@ static _Bool is_a_bipartite(const struct UDGraph_info *UDGraph)
     int color_set[NODE_NUM];
     memset(color_set, -1, NODE_NUM * sizeof(int));
     for (int v = 0; v < NODE_NUM; v++)
-        if (color_set[v] = -1 && color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set) == 0)
+        if (color_set[v] == -1 && color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set) == 0)
             return 0;
     return 1;
 }
