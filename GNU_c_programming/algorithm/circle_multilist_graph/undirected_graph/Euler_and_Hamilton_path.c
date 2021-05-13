@@ -61,14 +61,14 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     return start_node;
 }
 
+static int *odd_deg_node;
+static size_t odd_deg_num = 0;
 struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, int src)
 {
-    size_t odd_deg_num = 0;
-    int *odd_deg_node;
     for (size_t v = 0; v < NODE_NUM; v++)
         if (UDGraph->degree[v] >> 1 == 1)
         {
-            odd_deg_node = (int *)realloc(++odd_deg_node, odd_deg_num * sizeof(int));
+            odd_deg_node = (int *)realloc(odd_deg_node, ++odd_deg_num * sizeof(int));
             odd_deg_node[odd_deg_num - 1] = v;
         }
     if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )

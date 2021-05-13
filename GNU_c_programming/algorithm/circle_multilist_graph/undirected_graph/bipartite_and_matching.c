@@ -5,9 +5,24 @@
 #include <string.h>
 #include "UDGraph.c"
 
+static int *nodex;
+static size_t x_num = 0;
+static int *nodey;
+static size_t y_num = 0;
+
 static _Bool color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int init_color, int *color_set)
 {
     color_set[node_id] = init_color % 2;
+    if (color_set[node_id] == 0)
+    {
+        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+        nodex[x_num - 1] = node_id;
+    }
+    else
+    {
+        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+        nodey[y_num - 1] = node_id;
+    }
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
@@ -23,15 +38,23 @@ static _Bool color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGra
 
 static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
 {
-    int color_set[NODE_NUM];
-    memset(color_set, -1, NODE_NUM * sizeof(int));
+    int color_set[NODE_NUM] = {-1};
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1 && color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set) == 0)
+        {
+            free(nodex); free(nodey);
+            x_num = 0; y_num = 0;
             return 0;
+        }
     return 1;
 }
 
-struct undirc_line* Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct adj_multiline *find_augmenting_path(const struct UDGraph_info *UDGraph, struct adj_multiline *alternating_path)
+{
+
+}
+
+struct adj_multiline* Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     if (is_bipartite(UDGraph) == 0)
     {
