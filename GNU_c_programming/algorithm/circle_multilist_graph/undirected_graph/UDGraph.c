@@ -188,9 +188,7 @@ int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_
     }
 }
 
-/* timestamp in the traversal to the whole undirected graph */
-static int volatile timestamp[NODE_NUM] = {-1};
-static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int init_time)
+static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int init_time, int *timestamp)
 {
     timestamp[node_id] = init_time;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
@@ -211,9 +209,10 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
 
 static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2)
 {
-    memset(timestamp, -1, NODE_NUM * sizeof(int));
+   /* timestamp in the traversal to the whole undirected graph */
+    int timestamp[NODE_NUM] = {-1};
     timestamp[node1] = 0;
-    timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1);
+    timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
     if (timestamp[node2] == 0)
         return 0;
     else return 1;

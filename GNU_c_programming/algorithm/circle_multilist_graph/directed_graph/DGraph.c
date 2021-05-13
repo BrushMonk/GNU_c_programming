@@ -150,9 +150,7 @@ static int find_disjt_root(int *disjt_set, int node_id)
     }
 }
 
-/* timestamp in the traversal to the whole directed graph */
-static int volatile timestamp[NODE_NUM] = {-1};
-static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time)
+static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *timestamp)
 {
     timestamp[node_id] = init_time;
     struct adj_node *next_adj;
@@ -174,7 +172,7 @@ static int volatile SCC_stack[NODE_NUM];
 /* The top of strongly connected stack */
 static _Atomic(int) top_in_SCC_stack = -1;
 /* find strongly connected components from a node */
-static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *disjt_set)
+static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *timestamp, int *disjt_set)
 {
     /* the number of strongly connected components */
     size_t SCC_num = 0;
@@ -210,17 +208,16 @@ static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, in
 and count the total number */
 size_t find_all_SCC_in_DGraph(const struct DGraph_info *DGraph)
 {
+    /* timestamp in the traversal to the whole directed graph */
+    int timestamp[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM];
     for (int v = 0; v < NODE_NUM; v++)
-    {
         disjt_set[v] = v;
-        timestamp[v] = -1;
-    }
     /* the number of strongly connected components */
     size_t SCC_num = 0;
     for (int v = 0; v < NODE_NUM; v++)
         if (timestamp[v] == -1)
-            SCC_num += get_SCC_from_a_node_in_DGraph(DGraph, v, 0, disjt_set);
+            SCC_num += get_SCC_from_a_node_in_DGraph(DGraph, v, 0, timestamp, disjt_set);
     return SCC_num;
 }
 
