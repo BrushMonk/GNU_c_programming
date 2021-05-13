@@ -21,7 +21,7 @@ static _Bool color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGra
     return 1;
 }
 
-static _Bool is_a_bipartite(const struct UDGraph_info *UDGraph)
+static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
 {
     int color_set[NODE_NUM];
     memset(color_set, -1, NODE_NUM * sizeof(int));
@@ -33,9 +33,9 @@ static _Bool is_a_bipartite(const struct UDGraph_info *UDGraph)
 
 struct undirc_line* Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_a_bipartite(UDGraph) == 0)
+    if (is_bipartite(UDGraph) == 0)
     {
-        fputs("The undirected graph is not a bipartite graph.\n", stderr);
+        fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
 }
