@@ -49,9 +49,20 @@ static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
     return 1;
 }
 
-struct adj_multiline *find_augmenting_path(const struct UDGraph_info *UDGraph, struct adj_multiline *alternating_path)
+struct adj_multiline **find_augmenting_path(const struct UDGraph_info *UDGraph, struct adj_multiline **alternating_path, size_t *line_num_in_path, _Bool *marky)
 {
-
+    struct adj_multiline *adj_line = UDGraph->adj[nodex[0]];
+    while (adj_line != NULL)
+    {
+        if (adj_line->ismarked == 1)
+            adj_line = (adj_line->i_node == nodex[0]) ? adj_line->i_next : adj_line->j_next;
+        else break;
+    }
+    int aug_node = nodex[0] == adj_line->i_node ? adj_line->j_node : adj_line->i_node;
+    if ()
+    for (size_t e = 0; e < *line_num_in_path + 1; e++)
+    {
+    }
 }
 
 struct adj_multiline* Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
@@ -61,6 +72,8 @@ struct adj_multiline* Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
+    _Bool marky[y_num] = {0};
+
 }
 
 struct undirc_line* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
