@@ -49,20 +49,13 @@ static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
     return 1;
 }
 
-int get_matched_nodeid(const struct UDGraph_info *UDGraph, int node_id)
-{
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    while (adj_line != NULL)
-    {
-        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
-        if (adj_line->ismarked == 1)
-            return adj_id;
-        else adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
-    }
-    return -1;
-}
+/* a matching in undircted graph */
+struct matching
+{   struct adj_multiline **matched_line;
+    size_t line_num;
+    size_t e;};
 
-_Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct adj_multiline ***alter_path, size_t *segment_num, int node_id, _Bool *isvisited, _Bool *ismatched)
+_Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *opti_matching, int node_id, _Bool *isvisited, _Bool *ismatched)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
@@ -71,18 +64,19 @@ _Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct adj_multil
         if (!isvisited[adj_id])
         {
             isvisited[adj_id] = 1;
-            if (ismatched[adj_id] == 0 || find_augmenting_path(UDGraph, alter_path, segment_num, isvisited, ismatched))
+            if (ismatched[adj_id] == 0 || find_augmenting_path(UDGraph, opti_matching, adj_id, isvisited, ismatched))
             {
                 if (ismatched[adj_id] == 0)
                 {
-                    *alter_path = (struct adj_multiline **)realloc(*alter_path, ++(*segment_num) * 8UL);
-                    *segment_num = 0;
+                    opti_matching->line_num++;
+                    opti_matching->matched_line = (struct adj_multiline **)realloc(opti_matching->matched_line, opti_matching->line_num * 8UL);
+                    opti_matching->e = 0;
                     ismatched[adj_id] = 1;
                     ismatched[node_id] = 1;
                 }
                 adj_line->ismarked = !adj_line->ismarked;
                 if (adj_line->ismarked)
-                    *alter_path[*segment_num++] = adj_line;
+                    opti_matching->matched_line[opti_matching->e++] = adj_line;
                 return 1;
             }
         }
@@ -99,14 +93,15 @@ struct adj_multiline** Hungarian_algorithm_in_UDGraph(const struct UDGraph_info 
         return NULL;
     }
     *segment_num = 0;
-    struct adj_multiline **alter_path;
+    struct matching *opti_matching;
+    *opti_matching = (struct matching){0};
     _Bool isvisited[NODE_NUM] = {0}; _Bool ismatched[NODE_NUM] = {0};
     for (int i = 0; i < x_num; i++)
     {
         memset(isvisited, 0, sizeof(isvisited));
         if (ismatched[nodex[i]] = 0 ||
-        find_augmenting_path(UDGraph, &alter_path, segment_num, nodex[i], isvisited, ismatched) == 0)
-            return alter_path;
+        find_augmenting_path(UDGraph, opti_matching, nodex[i], isvisited, ismatched) == 0)
+            return opti_matching;
     }
 }
 

@@ -197,7 +197,7 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
         int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
         if (timestamp[adj_id] == -1)
         {
-            Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, adj_id, init_time + 1);
+            Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, adj_id, init_time + 1, timestamp);
             timestamp[node_id] = timestamp[adj_id] < timestamp[node_id] ? timestamp[adj_id] : timestamp[node_id];
         }
         else if (timestamp[adj_id] < timestamp[node_id])
