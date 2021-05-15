@@ -4,12 +4,12 @@
 #include <inttypes.h>
 #include <string.h>
 
-int64_t* get_union(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t len2)
+int64_t* get_union(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t len2, size_t *len3)
 {
     int64_t tmp1[len1], tmp2[len2], arr3[len1 + len2];
     size_t i, j, k;
-    memcpy(tmp1, arr1, len1 * sizeof(int64_t));
-    memcpy(tmp2, arr2, len2 * sizeof(int64_t));
+    memcpy(tmp1, arr1, sizeof(tmp1));
+    memcpy(tmp2, arr2, sizeof(tmp2));
     memset(arr3, 0, len1 + len2);
     /* sort tmp1 from small to large */
     for (size_t depth = 1; depth < len1; depth <<= 1 )
@@ -38,28 +38,26 @@ int64_t* get_union(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t
             tmp2[k++] = arr2[j++];
     }
     /* get the union of tmp1 and tmp2 and assign the union to array3 */
-    for ( i = 0, j = 0, k = 0; i < len1 && j < len2;)
+    for ( i = 0, j = 0, *len3 = 0; i < len1 && j < len2;)
     {
         if ( tmp1[i] == tmp2[j] )
         {
-            arr3[k++] = tmp1[i];
+            arr3[*len3++] = tmp1[i];
             i++; j++; continue;
         }
-        arr3[k++] = ( tmp1[i] < tmp2[j] ) ? tmp1[i++] : tmp2[j++];
+        arr3[*len3++] = ( tmp1[i] < tmp2[j] ) ? tmp1[i++] : tmp2[j++];
     }
-    for ( k = 0; arr3[k] != 0 && k < len1 + len2; k++ );
-    ;
-    arr3 = (int64_t *)realloc(arr3, k * sizeof(int64_t));
+    arr3 = (int64_t *)realloc(arr3, (*len3) * sizeof(int64_t));
     return arr3;
 }
 
-int64_t* get_intersec(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t len2)
+int64_t* get_intersec(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t len2, size_t *len3)
 {
-    size_t i, j, k = len1 < len2 ? len1 : len2;
-    int64_t tmp1[len1], tmp2[len2], arr3[k];
-    memcpy(tmp1, arr1, len1 * sizeof(int64_t));
-    memcpy(tmp2, arr2, len2 * sizeof(int64_t));
-    memset(arr3, 0, k * sizeof(int64_t));
+    size_t i, j, k;
+    int64_t tmp1[len1], tmp2[len2], arr3[len1 < len2 ? len1 : len2];
+    memcpy(tmp1, arr1, sizeof(tmp1));
+    memcpy(tmp2, arr2, sizeof(tmp2));
+    memset(arr3, 0, sizeof(arr3));
     /* sort tmp1 from small to large */
     for ( size_t depth = 1; depth < len1; depth <<= 1 )
     for ( size_t left = 0; left < len1; left += depth )
@@ -87,11 +85,9 @@ int64_t* get_intersec(const int64_t *arr1, size_t len1, const int64_t *arr2, siz
             tmp2[k++] = arr2[j++];
     }
     /* get the intersection of tmp1 and tmp2 and assign the intersection to array3 */
-    for ( i = 0, j = 0, k = 0; i < len1 && j < len2; i++, j++ )
+    for ( i = 0, j = 0, *len3 = 0; i < len1 && j < len2; i++, j++ )
         if ( tmp1[i] == tmp2[j] )
-            arr3[k++] = tmp1[i];
-    for ( k = 0; arr3[k] != 0 && k < len1 + len2; k++ );
-    ;
-    arr3 = (int64_t *)realloc(arr3, k * sizeof(int64_t));
+            arr3[*len3++] = tmp1[i];
+    arr3 = (int64_t *)realloc(arr3, (*len3) * sizeof(int64_t));
     return arr3;
 }

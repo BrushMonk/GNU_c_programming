@@ -269,7 +269,7 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     return MST_root;
 }
 
-static void merge_sort(struct adj_multiline **restrict arr, size_t len)
+static void merge_sort_undirc_line(struct adj_multiline **restrict arr, size_t len)
 {
     struct adj_multiline *sub_arr[len];
     for (size_t e = 0; e < len; e++)
@@ -315,7 +315,7 @@ static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_i
             cur = cur->i_node == v ? cur->i_next : cur->j_next;
         }
     }
-    merge_sort(lines_set, UDGraph->line_num);
+    merge_sort_undirc_line(lines_set, UDGraph->line_num);
     for (size_t v = 0; v < NODE_NUM; v++)
     {
         cur = UDGraph->adj[v];
