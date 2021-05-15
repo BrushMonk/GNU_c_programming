@@ -12,15 +12,10 @@ static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, i
     while (adj_line != NULL)
     {
         /* next node id in all adjacenct nodes */
-        int adj_id = adj_line->i_node == node_id ? adj_line->j_node : adj_line->i_node;
-        if (is_a_bridge_in_UDGraph(UDGraph, adj_line->i_node, adj_line->j_node))
-            next_id = adj_id;
+        next_id = adj_line->i_node == node_id ? adj_line->j_node : adj_line->i_node;
         /* if the adjacenct line is not a bridge, jump out of this loop. */
-        else
-        {
-            next_id = adj_id;
+        if ( is_a_bridge_in_UDGraph(UDGraph, adj_line->i_node, adj_line->j_node) == 0 )
             break;
-        }
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
     *dist = adj_line->weight;
