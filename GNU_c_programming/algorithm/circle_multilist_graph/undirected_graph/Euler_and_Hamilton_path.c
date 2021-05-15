@@ -25,7 +25,7 @@ static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, i
     }
     *dist = adj_line->weight;
     if (adj_line != NULL)
-        delete_a_undirc_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
+        delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
     return next_id;
 }
 

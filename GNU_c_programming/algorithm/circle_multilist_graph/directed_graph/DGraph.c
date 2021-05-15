@@ -99,7 +99,7 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t lin
     return 0;
 }
 
-int delete_a_dirc_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
+int delete_a_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
 {
     struct adj_node *cur, *last;
     last = NULL;

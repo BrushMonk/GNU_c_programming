@@ -171,7 +171,7 @@ static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, cons
         struct tree_node *cand;
         *cand = (struct tree_node){next_adj->node_id,
         next_adj->weight + node->dist * flag
-        , 0 , node->node_id, 0, 0};
+        , 0, node->node_id, 0, 0};
         if (decrease_binomial_key(heap, cand->node_id, cand->dist) == NO_NODEID)
             insert_a_node_in_binomial_heap(heap, cand);
         else

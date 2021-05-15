@@ -169,9 +169,9 @@ static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node,
     {
         /* candidate inserted into unvisited set */
         struct tree_node *cand;
-        *cand = (struct tree_node){0,
+        *cand = (struct tree_node){-1,
         adj_line->weight + node->dist * flag
-        , 0 , node->node_id, 0, 0};
+        , 0, node->node_id, 0, 0};
         cand->node_id = (adj_line->i_node != node->node_id) ? adj_line->i_node : adj_line->j_node;
         if (decrease_binomial_key(heap, cand->node_id, cand->dist) == NO_NODEID)
             insert_a_node_in_binomial_heap(heap, cand);

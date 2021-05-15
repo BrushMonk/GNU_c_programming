@@ -123,7 +123,7 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
     return 0;
 }
 
-int delete_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
+int delete_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
     struct adj_multiline *cur, *last;
     cur = UDGraph->adj[line.i_node]; last = NULL;
