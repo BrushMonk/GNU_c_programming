@@ -59,12 +59,10 @@ struct adj_multiline *get_match_line(const struct UDGraph_info *UDGraph, int nod
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
-        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
-        if (adj_line->ismarked == 1)
-            return adj_line;
+        if (adj_line->ismarked == 1) break;
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    return NULL;
+    return adj_line;
 }
 
 size_t find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *max_matching, int node_id, _Bool *isvisited)
