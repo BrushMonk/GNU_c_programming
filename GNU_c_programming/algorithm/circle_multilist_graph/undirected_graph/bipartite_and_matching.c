@@ -52,10 +52,9 @@ static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
 /* a matching in undircted graph */
 struct matching
 {   struct adj_multiline **matched_line;
-    size_t line_num;
-    size_t e;};
+    size_t line_num;};
 
-_Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *opti_matching, int node_id, _Bool *isvisited, _Bool *ismatched)
+_Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *opti_matching, int node_id, _Bool *isvisited, _Bool *ismatched, size_t *line_count)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
@@ -64,19 +63,19 @@ _Bool find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *
         if (!isvisited[adj_id])
         {
             isvisited[adj_id] = 1;
-            if (ismatched[adj_id] == 0 || find_augmenting_path(UDGraph, opti_matching, adj_id, isvisited, ismatched))
+            if (ismatched[adj_id] == 0 || find_augmenting_path(UDGraph, opti_matching, adj_id, isvisited, ismatched, line_count))
             {
                 if (ismatched[adj_id] == 0)
                 {
                     opti_matching->line_num++;
                     opti_matching->matched_line = (struct adj_multiline **)realloc(opti_matching->matched_line, opti_matching->line_num * 8UL);
-                    opti_matching->e = 0;
+                    *line_count = 0;
                     ismatched[adj_id] = 1;
                     ismatched[node_id] = 1;
                 }
                 adj_line->ismarked = !adj_line->ismarked;
                 if (adj_line->ismarked)
-                    opti_matching->matched_line[opti_matching->e++] = adj_line;
+                    opti_matching->matched_line[*line_count++] = adj_line;
                 return 1;
             }
         }
@@ -96,11 +95,12 @@ struct adj_multiline** Hungarian_algorithm_in_UDGraph(const struct UDGraph_info 
     struct matching *opti_matching;
     *opti_matching = (struct matching){0};
     _Bool isvisited[NODE_NUM] = {0}; _Bool ismatched[NODE_NUM] = {0};
+    size_t *line_count;
     for (int i = 0; i < x_num; i++)
     {
         memset(isvisited, 0, sizeof(isvisited));
         if (ismatched[nodex[i]] = 0 ||
-        find_augmenting_path(UDGraph, opti_matching, nodex[i], isvisited, ismatched) == 0)
+        find_augmenting_path(UDGraph, opti_matching, nodex[i], isvisited, ismatched, line_count) == 0)
             return opti_matching;
     }
 }
