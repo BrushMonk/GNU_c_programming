@@ -65,7 +65,7 @@ struct adj_multiline *get_match_line(const struct UDGraph_info *UDGraph, int nod
     return adj_line;
 }
 
-size_t find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching *max_matching, int node_id, _Bool *isvisited, size_t *count)
+size_t find_augmenting_path(const struct UDGraph_info *UDGraph, int node_id, _Bool *isvisited)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
@@ -78,19 +78,11 @@ size_t find_augmenting_path(const struct UDGraph_info *UDGraph, struct matching 
             int adj_match;
             if (adj_match_line != NULL)
                 adj_match = (adj_match_line->i_node != adj_id) ? adj_match_line->i_node : adj_match_line->j_node;
-            if (adj_match_line == NULL || find_augmenting_path(UDGraph, max_matching, adj_match, isvisited))
+            if (adj_match_line == NULL || find_augmenting_path(UDGraph, adj_match, isvisited))
             {
-                if (adj_match_line == NULL)
-                {
-                    /*******************************/
-                    *count = max_matching->line_num;
-                    max_matching->line_num++;
-                    max_matching->matched_line = (struct adj_multiline **)realloc(max_matching->matched_line, max_matching->line_num * 8UL);
-                    /*******************************/
-                }
-                else adj_match_line->ismarked = 0;
+                if (adj_match_line != NULL)
+                    adj_match_line->ismarked = 0;
                 adj_line->ismarked = 1;
-                max_matching->matched_line[*count++] = adj_line;
                 return 1;
             }
         }
@@ -113,7 +105,24 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     {
         memset(isvisited, 0, sizeof(isvisited));
         if (get_match_line(UDGraph, nodex[i]) == NULL)
-            find_augmenting_path(UDGraph, max_matching, nodex[i], isvisited);
+            max_matching->line_num += find_augmenting_path(UDGraph, nodex[i], isvisited);
+    }
+    max_matching->matched_line = (struct adj_multiline **)malloc(max_matching->line_num * 8UL);
+    memset(isvisited, 0, sizeof(isvisited));
+    for (size_t v = 0, e = 0; v < NODE_NUM; v++)
+    {
+        if (isvisited[v]) continue;
+        struct adj_multiline *cur = UDGraph->adj[v];
+        while (cur != NULL)
+        {
+            if (cur->ismarked == 1 && !isvisited[cur->i_node] && !isvisited[cur->j_node] )
+            {
+                max_matching->matched_line[e++] = cur;
+                isvisited[cur->i_node] = isvisited[cur->j_node] = 1;
+                break;
+            }
+            cur = cur->i_node == v ? cur->i_next : cur->j_next;
+        }
     }
     return max_matching;
 }
