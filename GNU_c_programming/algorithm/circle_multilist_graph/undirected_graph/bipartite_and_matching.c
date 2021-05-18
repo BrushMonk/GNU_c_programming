@@ -72,7 +72,7 @@ size_t find_augmenting_path(const struct UDGraph_info *UDGraph, int node_id, _Bo
         {
             isvisited[adj_id] = 1;
             struct adj_multiline *adj_match_line = get_match_line(UDGraph, adj_id);
-            int adj_match;
+            int adj_match = -1;
             if (adj_match_line != NULL)
                 adj_match = (adj_match_line->i_node != adj_id) ? adj_match_line->i_node : adj_match_line->j_node;
             if (adj_match_line == NULL || find_augmenting_path(UDGraph, adj_match, isvisited))
