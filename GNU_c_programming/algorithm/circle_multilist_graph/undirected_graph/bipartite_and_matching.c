@@ -115,7 +115,7 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
         struct adj_multiline *cur = UDGraph->adj[v];
         while (cur != NULL)
         {
-            if (cur->ismarked == 1 && !isvisited[cur->i_node] && !isvisited[cur->j_node] )
+            if (cur->ismarked == 1)
             {
                 max_matching->matched_line[e++] = cur;
                 isvisited[cur->i_node] = isvisited[cur->j_node] = 1;
