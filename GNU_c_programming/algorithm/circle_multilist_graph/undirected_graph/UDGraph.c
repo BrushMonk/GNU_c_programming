@@ -118,7 +118,6 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
     {
         if (add_a_undirc_line_in_UDGraph(UDGraph, lines[e]) == -1)
             return -1;
-        else continue;
     }
     return 0;
 }
