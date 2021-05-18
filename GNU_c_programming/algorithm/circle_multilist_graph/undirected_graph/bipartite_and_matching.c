@@ -88,7 +88,7 @@ size_t find_augmenting_path(const struct UDGraph_info *UDGraph, int node_id, _Bo
     return 0;
 }
 
-struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, size_t *segment_num)
+struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     if (is_bipartite(UDGraph) == 0)
     {
@@ -98,7 +98,7 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     struct matching *max_matching;
     *max_matching = (struct matching){0, 0};
     _Bool isvisited[NODE_NUM] = {0};
-    for (int i = 0; i < x_num; i++)
+    for (size_t i = 0; i < x_num; i++)
     {
         memset(isvisited, 0, sizeof(isvisited));
         if (get_match_line(UDGraph, nodex[i]) == NULL)
@@ -124,7 +124,14 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     return max_matching;
 }
 
-struct undirc_line* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct matching* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-
+    if (is_bipartite(UDGraph) == 0)
+    {
+        fputs("The undirected graph is not bipartite.\n", stderr);
+        return NULL;
+    }
+    struct matching *opti_matching;
+    *opti_matching = (struct matching){0, 0};
+    return opti_matching;
 }
