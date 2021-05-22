@@ -80,15 +80,22 @@ unsigned *func_return_to_ptr(char *, const struct cpu_specs *);
 a pointer to function is used as a parameter in an another function:
 ```cpp
 #include <stdlib.h>
-int compar(const void *a,const void *b)
+/* sort array from small to great */
+int compar1(const void *a,const void *b)
 {
     return (*(int*)a - *(int*)b);
+}
+/* sort array from great to small */
+int compar2(const void *a,const void *b)
+{
+    return (*(int*)b - *(int*)a);
 }
 int main(void)
 {
     size_t len = 5;
     int array[len] = {5,2,1,3,4};
-    qsort(array, len, sizeof(int), compar);
+    qsort(array, len, sizeof(int), compar1);
+    qsort(array, len, sizeof(int), compar2);
     return 0;
 }
 ```

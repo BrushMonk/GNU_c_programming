@@ -5,8 +5,10 @@
 #include <string.h>
 #include "UDGraph.c"
 
+/* x node subset from bipartite graph */
 static int *nodex;
 static size_t x_num = 0;
+/* y node subset from bipartite graph */
 static int *nodey;
 static size_t y_num = 0;
 
@@ -97,11 +99,11 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     }
     struct matching *max_matching; *max_matching = (struct matching){0};
     _Bool isvisited[NODE_NUM] = {0};
-    for (size_t i = 0; i < x_num; i++)
+    for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         memset(isvisited, 0, sizeof(isvisited));
-        if (get_match_line(UDGraph, nodex[i]) == NULL)
-            max_matching->line_num += find_augmenting_path(UDGraph, nodex[i], isvisited);
+        if (get_match_line(UDGraph, nodex[xcount]) == NULL)
+            max_matching->line_num += find_augmenting_path(UDGraph, nodex[xcount], isvisited);
     }
     max_matching->matched_line = (struct adj_multiline **)malloc(max_matching->line_num * 8UL);
     memset(isvisited, 0, sizeof(isvisited));
@@ -129,20 +131,38 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
-    struct matching *opti_matching;
-    struct UDGraph_info *opti_subGraph; *opti_subGraph = (struct UDGraph_info){0};
-    for (int v = 0; v < NODE_NUM; v++)
+    size_t xcount;
+    int64_t assign_val[NODE_NUM] = {0};
+    _Bool isvisited[NODE_NUM] = {0};
+    struct matching *perf_matching;
+    struct UDGraph_info *perf_subGraph; *perf_subGraph = (struct UDGraph_info){0};
+    for (xcount = 0; xcount < x_num; xcount++)
     {
-        struct adj_multiline *adj_line = UDGraph->adj[v], *last;
+        struct adj_multiline *adj_line = UDGraph->adj[nodex[xcount]], *last;
         while (adj_line != NULL)
         {
             last = adj_line;
-            adj_line = (adj_line->i_node == v) ? adj_line->i_next : adj_line->j_next;
+            adj_line = adj_line->i_node == nodex[xcount] ? adj_line->i_next : adj_line->j_next;
         }
         if (last != NULL)
-            add_a_undirc_line_in_UDGraph(opti_subGraph, (struct undirc_line){last->i_node, last->j_node, last->weight});
+        {
+            assign_val[nodex[xcount]] = last->weight;
+            struct adj_multiline *adj_line = UDGraph->adj[nodex[xcount]];
+            while (adj_line != NULL)
+            {
+                if (adj_line->weight == assign_val[nodex[xcount]])
+                    add_a_undirc_line_in_UDGraph(perf_subGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, assign_val[nodex[xcount]]});
+                adj_line = adj_line->i_node == nodex[xcount] ? adj_line->i_next : adj_line->j_next;
+            }
+        }
     }
-    opti_matching = Hungarian_algorithm_in_UDGraph(opti_subGraph);
-    if (opti_matching->line_num != (x_num < y_num ? x_num : y_num))
-    return opti_matching;
+    for (xcount = 0; xcount < x_num; xcount++)
+    {
+        memset(isvisited, 0, sizeof(isvisited));
+        if (get_match_line(UDGraph, nodex[xcount]) == NULL && find_augmenting_path(UDGraph, nodex[xcount], isvisited))
+            perf_matching->line_num++;
+        else break;
+    }
+    if (perf_matching->line_num != (x_num < y_num ? x_num : y_num))
+    return perf_matching;
 }
