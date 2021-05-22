@@ -211,10 +211,7 @@ static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node
    /* timestamp in the traversal to the whole undirected graph */
     int timestamp[NODE_NUM] = {-1};
     timestamp[node1] = 0;
-    timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
-    if (timestamp[node2] == 0)
-        return 0;
-    else return 1;
+    return timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
 }
 
 /* a node in undirected tree */
