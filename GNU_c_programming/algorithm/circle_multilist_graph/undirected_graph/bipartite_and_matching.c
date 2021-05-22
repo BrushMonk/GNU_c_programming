@@ -95,8 +95,7 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
-    struct matching *max_matching;
-    *max_matching = (struct matching){0, 0};
+    struct matching *max_matching; *max_matching = (struct matching){0};
     _Bool isvisited[NODE_NUM] = {0};
     for (size_t i = 0; i < x_num; i++)
     {
@@ -123,7 +122,7 @@ struct matching *Hungarian_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     return max_matching;
 }
 
-struct matching* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     if (is_bipartite(UDGraph) == 0)
     {
@@ -131,6 +130,19 @@ struct matching* Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UD
         return NULL;
     }
     struct matching *opti_matching;
-    *opti_matching = (struct matching){0, 0};
+    struct UDGraph_info *opti_subGraph; *opti_subGraph = (struct UDGraph_info){0};
+    for (int v = 0; v < NODE_NUM; v++)
+    {
+        struct adj_multiline *adj_line = UDGraph->adj[v], *last;
+        while (adj_line != NULL)
+        {
+            last = adj_line;
+            adj_line = (adj_line->i_node == v) ? adj_line->i_next : adj_line->j_next;
+        }
+        if (last != NULL)
+            add_a_undirc_line_in_UDGraph(opti_subGraph, (struct undirc_line){last->i_node, last->j_node, last->weight});
+    }
+    opti_matching = Hungarian_algorithm_in_UDGraph(opti_subGraph);
+    if (opti_matching->line_num != (x_num < y_num ? x_num : y_num))
     return opti_matching;
 }
