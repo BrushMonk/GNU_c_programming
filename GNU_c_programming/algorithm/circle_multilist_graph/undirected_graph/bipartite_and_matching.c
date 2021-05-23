@@ -164,7 +164,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     /* slack value used for decrease node weight */
     int64_t *slack;
     _Bool isvisited[NODE_NUM] = {0};
-    struct matching *perf_matching;
+    struct matching *perf_matching; *perf_matching = (struct matching){0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         if (UDGraph->adj[nodex[xcount]] != NULL)
