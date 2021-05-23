@@ -71,15 +71,13 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
     else
     {
         struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
-        int64_t tmp_dist;
         struct undirc_line lines[odd_deg_num * (odd_deg_num - 1) / 2];
         for (size_t u = 0, w = 0; u < odd_deg_num; u++)
             for (size_t v = u + 1; v < odd_deg_num; v++)
             {
-                dist_path[w] = Dijkstra_algorithm_in_UDGraph(UDGraph, odd_deg_node[u], odd_deg_node[v], &tmp_dist);
+                dist_path[w] = Dijkstra_algorithm_in_UDGraph(UDGraph, odd_deg_node[u], odd_deg_node[v]);
                 lines[w].i_node = odd_deg_node[u];
                 lines[w].j_node = odd_deg_node[v];
-                lines[w].weight = tmp_dist;
                 w++;
             }
         /* complete graph made up of odd nodes in original undirected graph */
