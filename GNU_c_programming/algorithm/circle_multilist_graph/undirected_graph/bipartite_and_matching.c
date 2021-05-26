@@ -52,26 +52,6 @@ static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
     return 1;
 }
 
-static struct adj_multiline** get_all_marked_lines_in_UDGraph(const struct UDGraph_info *UDGraph, size_t marked_num, _Bool *isvisited)
-{
-    struct adj_multiline **matched_line = (struct adj_multiline **)malloc(marked_num * 8UL);
-    for (size_t v = 0, e = 0; v < NODE_NUM; v++)
-    {
-        if (!isvisited[v])
-        {
-            struct adj_multiline *cur = UDGraph->adj[v];
-            while (cur != NULL && cur->ismarked == 0)
-                cur = cur->i_node == v ? cur->i_next : cur->j_next;
-            if (cur != NULL)
-            {
-                matched_line[e++] = cur;
-                isvisited[cur->i_node] = isvisited[cur->j_node] = 1;
-            }
-        }
-    }
-    return matched_line;
-}
-
 /* a matching in undircted graph */
 struct matching
 {   struct adj_multiline **matched_line;
@@ -202,8 +182,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
-    memset(isvisited, 0, sizeof(isvisited));
-    perf_matching->matched_line = get_all_marked_lines_in_UDGraph(UDGraph, perf_matching->line_num, isvisited);
+    perf_matching->matched_line = get_all_marked_lines_in_UDGraph(UDGraph, perf_matching->line_num);
     return perf_matching;
 }
 
@@ -284,7 +263,6 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
-    memset(isvisited, 0, sizeof(isvisited));
-    perf_matching->matched_line = get_all_marked_lines_in_UDGraph(UDGraph, perf_matching->line_num, isvisited);
+    perf_matching->matched_line = get_all_marked_lines_in_UDGraph(UDGraph, perf_matching->line_num);
     return perf_matching;
 }
