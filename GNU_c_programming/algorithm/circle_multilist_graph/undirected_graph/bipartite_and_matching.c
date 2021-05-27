@@ -91,10 +91,12 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
                 return 1;
             }
         }
+        /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
     /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path */
+    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    Then we jump out of this recursion. */
     return 0;
 }
 
@@ -109,6 +111,7 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
     _Bool isvisited[NODE_NUM] = {0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
+        /* reset all nodes UDGraph unvisited */
         memset(isvisited, 0, sizeof(isvisited));
         if (get_match_line(UDGraph, nodex[xcount]) == NULL)
             max_matching->line_num += update_augmenting_path_in_UWGraph(UDGraph, nodex[xcount], isvisited);
@@ -151,10 +154,12 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             else if (adj_line->weight - node_weight[x_node] + node_weight[y_node] < *slack)
                 *slack = (adj_line->weight - node_weight[x_node] + node_weight[y_node]);
         }
+        /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
     /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path */
+    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    Then we jump out of this recursion. */
     return 0;
 }
 
@@ -177,8 +182,9 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        while(1)
+        while (1)
         {
+            /* reset all nodes UDGraph unvisited */
             memset(isvisited, 0, sizeof(isvisited));
             *slack = LLONG_MAX;
             if (update_min_augmenting_path_in_UDGraph(UDGraph, nodex[xcount], isvisited, node_weight, slack))
@@ -237,10 +243,12 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             else if (node_weight[x_node] + node_weight[y_node] - adj_line->weight < *slack)
                 *slack = (node_weight[x_node] + node_weight[y_node] - adj_line->weight);
         }
+        /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
     /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path */
+    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    Then we jump out of this recursion. */
     return 0;
 }
 
@@ -271,6 +279,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     {
         while(1)
         {
+            /* reset all nodes UDGraph unvisited */
             memset(isvisited, 0, sizeof(isvisited));
             *slack = LLONG_MAX;
             if (update_max_augmenting_path_in_UDGraph(UDGraph, nodex[xcount], isvisited, node_weight, slack))
