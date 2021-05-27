@@ -111,7 +111,7 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
     _Bool isvisited[NODE_NUM] = {0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        /* reset all nodes UDGraph unvisited */
+        /* reset all nodes unvisited in UDGraph */
         memset(isvisited, 0, sizeof(isvisited));
         if (get_match_line(UDGraph, nodex[xcount]) == NULL)
             max_matching->line_num += update_augmenting_path_in_UWGraph(UDGraph, nodex[xcount], isvisited);
@@ -184,7 +184,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     {
         while (1)
         {
-            /* reset all nodes UDGraph unvisited */
+            /* reset all nodes unvisited in UDGraph */
             memset(isvisited, 0, sizeof(isvisited));
             *slack = LLONG_MAX;
             if (update_min_augmenting_path_in_UDGraph(UDGraph, nodex[xcount], isvisited, node_weight, slack))
@@ -197,10 +197,10 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 for (size_t i = 0; i < NODE_NUM; i++)
                 {
                     if (isvisited[nodex[i]])
-                        /* increase x node by slack value */
+                        /* increase visited x node weight by slack value */
                         node_weight[nodex[i]] += *slack;
                     if (isvisited[nodey[i]])
-                        /* increase y node by slack value */
+                        /* increase visited y node weight by slack value */
                         node_weight[nodey[i]] += *slack;
                 }
             }
@@ -277,9 +277,9 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        while(1)
+        while (1)
         {
-            /* reset all nodes UDGraph unvisited */
+            /* reset all nodes unvisited in UDGraph */
             memset(isvisited, 0, sizeof(isvisited));
             *slack = LLONG_MAX;
             if (update_max_augmenting_path_in_UDGraph(UDGraph, nodex[xcount], isvisited, node_weight, slack))
@@ -292,10 +292,10 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 for (size_t i = 0; i < NODE_NUM; i++)
                 {
                     if (isvisited[nodex[i]])
-                        /* increase x node by slack value */
+                        /* increase visited x node weight by slack value */
                         node_weight[nodex[i]] -= *slack;
                     if (isvisited[nodey[i]])
-                        /* decrease y node by slack value */
+                        /* decrease visited y node weight by slack value */
                         node_weight[nodey[i]] += *slack;
                 }
             }
