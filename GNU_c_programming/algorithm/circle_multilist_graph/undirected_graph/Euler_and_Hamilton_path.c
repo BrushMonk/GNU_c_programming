@@ -5,23 +5,19 @@
 #include <string.h>
 #include "shortest_path_in_UDGraph.c"
 
-static int find_next_nodeid_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id, int64_t *dist)
+static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    int next_id = -1;
     while (adj_line != NULL)
     {
-        /* next node id in all adjacenct nodes */
-        next_id = adj_line->i_node == node_id ? adj_line->j_node : adj_line->i_node;
         /* if the adjacenct line is not a bridge, jump out of this loop. */
         if ( is_a_bridge_in_UDGraph(UDGraph, adj_line->i_node, adj_line->j_node) == 0 )
             break;
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    *dist = adj_line->weight;
     if (adj_line != NULL)
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
-    return next_id;
+    return adj_line;
 }
 
 struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
@@ -39,18 +35,22 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     struct tree_node *start_node;
     *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
+    struct adj_multiline *cur_line; *cur_line = (struct adj_multiline){0};
     int cur_id = src;
-    int64_t dist = 0;
-    while (cur_id == -1)
+    while (cur_id != -1)
     {
         if (last != NULL)
         {
-            *path_node = (struct tree_node){cur_id, dist, 0, 0, 0};
+            *path_node = (struct tree_node){cur_id, cur_line->weight, 0, 0, 0};
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
         last = path_node;
-        cur_id = find_next_nodeid_in_undirc_Euler_path(unvis_UDGraph, cur_id, &dist);
+        cur_line = find_next_line_in_undirc_Euler_path(unvis_UDGraph, cur_id);
+        if (cur_line == NULL)
+            cur_id = -1;
+        else
+            cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
     }
     free(unvis_UDGraph);
     return start_node;
