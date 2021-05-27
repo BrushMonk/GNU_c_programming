@@ -71,7 +71,7 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
-        /* visit those nodes who are unvisited */
+        /* visit those unvisited nodes */
         if (!isvisited[y_node])
         {
             isvisited[y_node] = 1;
@@ -127,7 +127,7 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
-        /* visit those nodes who are unvisited */
+        /* visit those unvisited nodes */
         if (!isvisited[y_node])
         {
             /* if this line is in subGraph */
@@ -216,7 +216,7 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
-        /* visit those nodes who are unvisited */
+        /* visit those unvisited nodes */
         if (!isvisited[y_node])
         {
             /* if this line is in subGraph */
