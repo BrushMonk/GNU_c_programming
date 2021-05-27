@@ -47,10 +47,8 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
         else path_node = start_node;
         last = path_node;
         cur_line = find_next_line_in_undirc_Euler_path(unvis_UDGraph, cur_id);
-        if (cur_line == NULL)
-            cur_id = -1;
-        else
-            cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
+        if (cur_line == NULL) cur_id = -1;
+        else cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
     }
     free(unvis_UDGraph);
     return start_node;
