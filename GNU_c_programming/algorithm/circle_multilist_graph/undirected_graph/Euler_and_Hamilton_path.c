@@ -35,20 +35,25 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     struct tree_node *start_node;
     *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
-    struct adj_multiline *cur_line; *cur_line = (struct adj_multiline){0};
+    struct adj_multiline *cur_line;
     int cur_id = src;
+    int64_t dist = 0;
     while (cur_id != -1)
     {
         if (last != NULL)
         {
-            *path_node = (struct tree_node){cur_id, cur_line->weight, 0, 0, 0};
+            *path_node = (struct tree_node){cur_id, dist, 0, 0, 0};
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
         last = path_node;
         cur_line = find_next_line_in_undirc_Euler_path(unvis_UDGraph, cur_id);
         if (cur_line == NULL) cur_id = -1;
-        else cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
+        else
+        {
+            dist += cur_line->weight;
+            cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
+        }
     }
     free(unvis_UDGraph);
     return start_node;
