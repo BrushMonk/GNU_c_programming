@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "DGraph.c"
+#include "cblas.h"
 
 struct binomial_node
 {   struct tree_node *node;
@@ -264,4 +265,11 @@ struct tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int
     }
     free(&unvisited); free(visited);
     return MST_root;
+}
+
+int64_t *Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
+{
+    int64_t *dist = (int64_t *)malloc(sizeof(int64_t) * NODE_NUM * NODE_NUM);
+    memset(dist, -1, sizeof(int64_t) * NODE_NUM * NODE_NUM);
+    return dist;
 }
