@@ -117,8 +117,8 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
 }
@@ -179,8 +179,8 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
 }
@@ -268,8 +268,8 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched,
-    we are unable to find a augmenting path. Therefore this is the maximum alternating path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
 }

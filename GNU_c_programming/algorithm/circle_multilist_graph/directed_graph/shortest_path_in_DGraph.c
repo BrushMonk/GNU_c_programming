@@ -269,7 +269,12 @@ struct tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int
 
 int64_t *Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
 {
-    int64_t *dist = (int64_t *)malloc(sizeof(int64_t) * NODE_NUM * NODE_NUM);
-    memset(dist, -1, sizeof(int64_t) * NODE_NUM * NODE_NUM);
+    int64_t dist[NODE_NUM*NODE_NUM] = {-1};
+    for (int v = 0; v < NODE_NUM; v++)
+    {
+        struct adj_node *in_adj, *out_adj;
+        for (in_adj = DGraph->inadj[v]; in_adj != NULL; in_adj = in_adj->next)
+            for (out_adj = DGraph->outadj[v]; out_adj != NULL; out_adj = out_adj->next)
+    }
     return dist;
 }
