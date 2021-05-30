@@ -73,18 +73,23 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         return Fleury_algorithm_in_UDGraph(UDGraph, src);
     else
     {
-        struct tree_node *dist_path[odd_deg_num * (odd_deg_num - 1) / 2];
-        struct undirc_line lines[odd_deg_num * (odd_deg_num - 1) / 2];
+        struct tree_node *dist_path[odd_deg_num*(odd_deg_num-1)/2];
+        struct undirc_line lines[odd_deg_num*(odd_deg_num-1)/2];
         for (size_t u = 0, w = 0; u < odd_deg_num; u++)
             for (size_t v = u + 1; v < odd_deg_num; v++)
             {
                 dist_path[w] = Dijkstra_algorithm_in_UDGraph(UDGraph, odd_deg_node[u], odd_deg_node[v]);
                 lines[w].i_node = odd_deg_node[u];
                 lines[w].j_node = odd_deg_node[v];
+                struct tree_node *head;
+                *head = (struct tree_node){0};
+                for (head->next[0] = dist_path[w]; head->next[0] != NULL; head = head->next[0]);
+                ;
+                lines[w].weight = head->dist;
                 w++;
             }
         /* complete graph made up of odd nodes in original undirected graph */
         struct UDGraph_info *odd_nodes_CGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
-        init_UDGraph(odd_nodes_CGraph, lines, odd_deg_num * (odd_deg_num - 1) / 2);
+        init_UDGraph(odd_nodes_CGraph, lines, odd_deg_num*(odd_deg_num-1)/2);
     }
 }
