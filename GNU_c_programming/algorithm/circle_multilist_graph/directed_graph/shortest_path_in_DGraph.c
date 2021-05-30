@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "DGraph.c"
-#include "cblas.h"
 
 struct binomial_node
 {   struct tree_node *node;
@@ -267,14 +266,20 @@ struct tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int
     return MST_root;
 }
 
-int64_t *Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
+int64_t** Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
 {
-    int64_t dist[NODE_NUM*NODE_NUM] = {-1};
+    int64_t dist[NODE_NUM][NODE_NUM] = {-1};
     for (int v = 0; v < NODE_NUM; v++)
     {
         struct adj_node *in_adj, *out_adj;
         for (in_adj = DGraph->inadj[v]; in_adj != NULL; in_adj = in_adj->next)
             for (out_adj = DGraph->outadj[v]; out_adj != NULL; out_adj = out_adj->next)
+            {
+                if (dist[v][out_adj->node_id] == -1 || dist[v][out_adj->node_id] > out_adj->weight)
+                    dist[v][out_adj->node_id] = out_adj->weight;
+                if (dist[in_adj->node_id][out_adj->node_id] == -1 || dist[in_adj->node_id][out_adj->node_id] > in_adj->weight + out_adj->weight)
+                    dist[in_adj->node_id][out_adj->node_id] = in_adj->weight + out_adj->weight;
+            }
     }
     return dist;
 }
