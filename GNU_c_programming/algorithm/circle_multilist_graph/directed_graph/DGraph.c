@@ -158,7 +158,7 @@ static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGra
     {
         if (timestamp[next_adj->node_id] == -1)
         {
-            Tarjan_algorithm_from_a_node_in_DGraph(DGraph, next_adj->node_id, init_time + 1);
+            Tarjan_algorithm_from_a_node_in_DGraph(DGraph, next_adj->node_id, init_time+1, timestamp);
             timestamp[node_id] = timestamp[next_adj->node_id] < timestamp[node_id] ? timestamp[next_adj->node_id] : timestamp[node_id];
         }
         else if (timestamp[next_adj->node_id] < timestamp[node_id])
@@ -184,7 +184,7 @@ static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, in
         cur_id = next_adj->node_id;
         if (timestamp[cur_id] == -1)
         {
-            SCC_num += get_SCC_from_a_node_in_DGraph(DGraph, cur_id, init_time + 1, disjt_set);
+            SCC_num += get_SCC_from_a_node_in_DGraph(DGraph, cur_id, init_time+1, timestamp, disjt_set);
             timestamp[node_id] = timestamp[cur_id] < timestamp[node_id] ? timestamp[cur_id] : timestamp[node_id];
             disjt_set[node_id] = timestamp[cur_id] < timestamp[node_id] ? disjt_set[cur_id] : disjt_set[node_id];
         }
