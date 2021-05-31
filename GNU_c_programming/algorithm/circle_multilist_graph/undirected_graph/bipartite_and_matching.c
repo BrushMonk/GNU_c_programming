@@ -214,7 +214,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            else
+            else if (*slack != LLONG_MAX)
             {
                 for (size_t i = 0; i < NODE_NUM; i++)
                 {
@@ -226,6 +226,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                         node_weight[nodey[i]] += *slack;
                 }
             }
+            else break;
         }
     }
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
@@ -309,7 +310,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            else
+            else if (*slack != LLONG_MAX)
             {
                 for (size_t i = 0; i < NODE_NUM; i++)
                 {
@@ -321,6 +322,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                         node_weight[nodey[i]] += *slack;
                 }
             }
+            else break;
         }
     }
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
