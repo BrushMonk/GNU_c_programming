@@ -46,11 +46,11 @@ static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
     struct binomial_node *i;
     *i = (struct binomial_node){0};
     for (i->sibling = heap->head; i->sibling != NULL; i = i->sibling)
-    if (i->sibling->node->dist < min->node->dist)
-    {
-        min = i->sibling;
-        prev_of_min = i;
-    }
+        if (i->sibling->node->dist < min->node->dist)
+        {
+            min = i->sibling;
+            prev_of_min = i;
+        }
     /* delete minimum-key node */
     if (prev_of_min == NULL)
         heap->head = min->sibling;

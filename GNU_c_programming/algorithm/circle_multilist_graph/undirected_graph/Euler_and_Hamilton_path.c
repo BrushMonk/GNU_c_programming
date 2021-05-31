@@ -82,8 +82,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
                 lines[w].i_node = odd_deg_node[u];
                 lines[w].j_node = odd_deg_node[v];
                 struct tree_node *head;
-                *head = (struct tree_node){0};
-                for (head->next[0] = dist_path[w]; head->next[0] != NULL; head = head->next[0]);
+                for (head = dist_path[w]; head->next[0] != NULL; head = head->next[0]);
                 ;
                 lines[w].weight = head->dist;
                 w++;
