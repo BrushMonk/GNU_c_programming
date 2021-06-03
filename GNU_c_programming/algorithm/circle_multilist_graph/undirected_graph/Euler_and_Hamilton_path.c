@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "shortest_path_in_UDGraph.c"
 
 static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
@@ -59,8 +60,49 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     return start_node;
 }
 
+static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodestack, int64_t *weightstack, int top, int node_id)
+{
+    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    while (adj_line != NULL)
+    {
+        delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
+        if (UDGraph->adj[node_id] == NULL)
+        {
+            if (top == SCHAR_MAX)
+            {
+                perror("node_stack overflow:");
+                delete_all_lines_in_UDGraph(UDGraph);
+                exit(-1);
+            }
+            else
+            {
+                top++;
+                nodestack[top] = node_id;
+                weightstack[top] = adj_line->weight;
+            }
+        }
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
+        push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, top, adj_id);
+        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
+    }
+    return;
+}
+
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
+    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
+    struct undirc_line lines[UDGraph->line_num];
+    for (size_t e = 0; e < UDGraph->line_num; e++)
+    {
+        lines[e].i_node = line_set[e]->i_node;
+        lines[e].j_node = line_set[e]->j_node;
+        lines[e].weight = line_set[e]->weight;
+    }
+    struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
+    init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
+    int nodestack[SHRT_MAX]; int64_t weightstack[SHRT_MAX]; int top = -1;
+    push_nodeid_into_nodestack(unvis_UDGraph, nodestack, weightstack, top, src);
+
 }
 
 static int *odd_deg_node;
