@@ -67,7 +67,7 @@ static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodest
         int adj_id = (UDGraph->adj[node_id]->i_node != node_id) ? UDGraph->adj[node_id]->i_node : UDGraph->adj[node_id]->j_node;
         int64_t tmp_weight = UDGraph->adj[node_id]->weight;
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
-        push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, top, adj_id);
+        push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, adj_id);
         if (UDGraph->adj[node_id] == NULL)
         {
             if (top == INT_MAX)
