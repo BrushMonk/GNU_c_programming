@@ -16,8 +16,6 @@ static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_
             break;
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    if (adj_line != NULL)
-        delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
     return adj_line;
 }
 
@@ -54,23 +52,25 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
         {
             dist += cur_line->weight;
             cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
+            delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){cur_line->i_node, cur_line->j_node, cur_line->weight});
         }
     }
     free(unvis_UDGraph);
     return start_node;
 }
 
-static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodestack, int64_t *weightstack, int top, int node_id)
+static _Atomic(int) top = -1;
+static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodestack, int64_t *weightstack, int node_id)
 {
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    while (adj_line != NULL)
+    while (UDGraph->adj[node_id] != NULL)
     {
-        delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){adj_line->i_node, adj_line->j_node, adj_line->weight});
-        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
+        int adj_id = (UDGraph->adj[node_id]->i_node != node_id) ? UDGraph->adj[node_id]->i_node : UDGraph->adj[node_id]->j_node;
+        int64_t tmp_weight = UDGraph->adj[node_id]->weight;
+        delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
         push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, top, adj_id);
         if (UDGraph->adj[node_id] == NULL)
         {
-            if (top == SCHAR_MAX)
+            if (top == INT_MAX)
             {
                 perror("node_stack overflow:");
                 delete_all_lines_in_UDGraph(UDGraph);
@@ -80,11 +80,10 @@ static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodest
             {
                 top++;
                 nodestack[top] = node_id;
-                weightstack[top] = adj_line->weight;
+                weightstack[top] = tmp_weight;
             }
             return;
         }
-        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
     return;
 }
@@ -101,9 +100,26 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     }
     struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
     init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
-    int nodestack[SHRT_MAX]; int64_t weightstack[SHRT_MAX]; int top = -1;
-    push_nodeid_into_nodestack(unvis_UDGraph, nodestack, weightstack, top, src);
-
+    int nodestack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
+    push_nodeid_into_nodestack(unvis_UDGraph, nodestack, weightstack, src);
+    struct tree_node *start_node;
+    int64_t dist = 0;
+    *start_node = (struct tree_node){nodestack[top], weightstack[top], 0, -1, 0};
+    struct tree_node *last = NULL, *path_node;
+    while (top == -1)
+    {
+        dist += weightstack[top];
+        if (last != NULL)
+        {
+            *path_node = (struct tree_node){nodestack[top], dist, 0, 0, 0};
+            insert_leaf_in_tree_node(last, path_node);
+        }
+        else path_node = start_node;
+        last = path_node;
+        top--;
+    }
+    free(unvis_UDGraph);
+    return start_node;
 }
 
 static int *odd_deg_node;
@@ -117,7 +133,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_node[odd_deg_num - 1] = v;
         }
     if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
-        return Fleury_algorithm_in_UDGraph(UDGraph, src);
+        return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
     else
     {
         struct tree_node *dist_path[odd_deg_num*(odd_deg_num-1)/2];

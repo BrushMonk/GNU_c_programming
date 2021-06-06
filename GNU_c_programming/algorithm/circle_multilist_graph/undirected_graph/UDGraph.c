@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
-#define NODE_NUM 1024
+#define NODE_NUM SHRT_MAX
 /* adjacency multilist line */
 struct adj_multiline
 {   int i_node, j_node;
