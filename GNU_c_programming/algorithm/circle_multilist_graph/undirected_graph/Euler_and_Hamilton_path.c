@@ -62,30 +62,30 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
 static _Atomic(int) top = -1;
 static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodestack, int64_t *weightstack, int node_id)
 {
+    int64_t tmp_weight;
     while (UDGraph->adj[node_id] != NULL)
     {
         int adj_id = (UDGraph->adj[node_id]->i_node != node_id) ? UDGraph->adj[node_id]->i_node : UDGraph->adj[node_id]->j_node;
-        int64_t tmp_weight = UDGraph->adj[node_id]->weight;
+        tmp_weight = UDGraph->adj[node_id]->weight;
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
         push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, adj_id);
-        if (UDGraph->adj[node_id] == NULL)
-        {
-            if (top == INT_MAX)
-            {
-                perror("node_stack overflow:");
-                delete_all_lines_in_UDGraph(UDGraph);
-                exit(-1);
-            }
-            else
-            {
-                top++;
-                nodestack[top] = node_id;
-                weightstack[top] = tmp_weight;
-            }
-            return;
-        }
     }
-    return;
+    if (UDGraph->adj[node_id] == NULL)
+    {
+        if (top == INT_MAX)
+        {
+            perror("node_stack overflow:");
+            delete_all_lines_in_UDGraph(UDGraph);
+            exit(-1);
+        }
+        else
+        {
+            top++;
+            nodestack[top] = node_id;
+            weightstack[top] = tmp_weight;
+        }
+        return;
+    }
 }
 
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
@@ -132,7 +132,7 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_node = (int *)realloc(odd_deg_node, ++odd_deg_num * sizeof(int));
             odd_deg_node[odd_deg_num - 1] = v;
         }
-    if ( odd_deg_num == 0 || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
+    if ( (odd_deg_num == 0 && UDGraph->degree[src] != 0) || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
         return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
     else
     {
