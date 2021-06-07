@@ -175,11 +175,7 @@ static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node,
         cand->node_id = (adj_line->i_node != node->node_id) ? adj_line->i_node : adj_line->j_node;
         if (decrease_binomial_key(heap, cand->node_id, cand->dist) == NO_NODEID)
             insert_a_node_in_binomial_heap(heap, cand);
-        else
-        {
-            free(cand);
-            continue;
-        }
+        else free(cand);
         adj_line = (adj_line->i_node == node->node_id) ? adj_line->i_next : adj_line->j_next;
     }
     return;
@@ -229,14 +225,12 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     struct tree_node *path_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
-        *path_node = (struct tree_node){i->node_id, i->dist, 0, i->parent_id, 0, 0};
+        *path_node = (struct tree_node){i->node_id, i->dist, 0, i->parent_id, i->parent, 0};
         if (last != NULL)
         {
             path_node->child_num = 1;
             path_node->next = (struct tree_node **)malloc(8UL);
             path_node->next[0] = last;
-            last->parent = path_node;
-            last->parent_id = path_node->node_id;
         }
         last = path_node;
     }
