@@ -60,7 +60,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
 }
 
 static _Atomic(int) top = -1;
-static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodestack, int64_t *weightstack, int node_id)
+static void push_id_and_weight_to_stack(struct UDGraph_info *UDGraph, int *idstack, int64_t *weightstack, int node_id)
 {
     int64_t tmp_weight;
     while (UDGraph->adj[node_id] != NULL)
@@ -68,7 +68,7 @@ static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodest
         int adj_id = (UDGraph->adj[node_id]->i_node != node_id) ? UDGraph->adj[node_id]->i_node : UDGraph->adj[node_id]->j_node;
         tmp_weight = UDGraph->adj[node_id]->weight;
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
-        push_nodeid_into_nodestack(UDGraph, nodestack, weightstack, adj_id);
+        push_id_and_weight_to_stack(UDGraph, idstack, weightstack, adj_id);
     }
     if (UDGraph->adj[node_id] == NULL)
     {
@@ -81,7 +81,7 @@ static void push_nodeid_into_nodestack(struct UDGraph_info *UDGraph, int *nodest
         else
         {
             top++;
-            nodestack[top] = node_id;
+            idstack[top] = node_id;
             weightstack[top] = tmp_weight;
         }
         return;
@@ -100,18 +100,18 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     }
     struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
     init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
-    int nodestack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
-    push_nodeid_into_nodestack(unvis_UDGraph, nodestack, weightstack, src);
+    int idstack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
+    push_id_and_weight_to_stack(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *start_node;
     int64_t dist = 0;
-    *start_node = (struct tree_node){nodestack[top], weightstack[top], 0, -1, 0};
+    *start_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
     while (top == -1)
     {
         dist += weightstack[top];
         if (last != NULL)
         {
-            *path_node = (struct tree_node){nodestack[top], dist, 0, 0, 0};
+            *path_node = (struct tree_node){idstack[top], dist, 0, 0, 0};
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
