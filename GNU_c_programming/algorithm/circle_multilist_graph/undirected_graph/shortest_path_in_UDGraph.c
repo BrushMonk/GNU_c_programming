@@ -225,7 +225,7 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
         delete_all_nodes_in_undirc_tree(SPT_root);
         return SPT_root = NULL;
     }
-    /* copy DGraph_node to shortest_path */
+    /* copy tree_node to shortest_path */
     struct tree_node *path_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
