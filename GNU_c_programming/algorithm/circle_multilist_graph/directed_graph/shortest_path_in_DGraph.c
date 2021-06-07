@@ -224,19 +224,22 @@ struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph,
         return SPT_root = NULL;
     }
     /* copy tree_node to shortest_list */
-    struct tree_node *list_node, *last;
+    struct tree_node *path_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
-        list_node = copy_to_dirc_shortest_list(i);
+        *path_node = (struct tree_node){i->node_id, i->dist, 0, i->parent_id, 0, 0};
         if (last != NULL)
         {
-            list_node->next[0] = last;
-            last->parent = list_node;
+            path_node->child_num = 1;
+            path_node->next = (struct tree_node **)malloc(8UL);
+            path_node->next[0] = last;
+            last->parent = path_node;
+            last->parent_id = path_node->node_id;
         }
-        last = list_node;
+        last = path_node;
     }
     delete_all_nodes_in_dirc_tree(SPT_root);
-    return list_node;
+    return path_node;
 }
 
 #define PRIM 0

@@ -229,11 +229,14 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     struct tree_node *path_node, *last;
     for (struct tree_node *i = cur; i != NULL; i = i->parent)
     {
-        path_node = copy_to_undirc_shortest_list(i);
+        *path_node = (struct tree_node){i->node_id, i->dist, 0, i->parent_id, 0, 0};
         if (last != NULL)
         {
+            path_node->child_num = 1;
+            path_node->next = (struct tree_node **)malloc(8UL);
             path_node->next[0] = last;
             last->parent = path_node;
+            last->parent_id = path_node->node_id;
         }
         last = path_node;
     }

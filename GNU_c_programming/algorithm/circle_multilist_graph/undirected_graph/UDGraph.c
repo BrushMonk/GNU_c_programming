@@ -265,15 +265,3 @@ static void delete_all_nodes_in_undirc_tree(struct tree_node *node)
     free(node);
     return;
 }
-
-static struct tree_node *copy_to_undirc_shortest_list(struct tree_node *node)
-{
-    struct tree_node *list_node = (struct tree_node *)malloc(sizeof(struct tree_node));
-    memset(list_node, 0, sizeof(struct tree_node));
-    list_node->next = (struct tree_node **)malloc(8UL);
-    list_node->child_num = 1;
-    list_node->dist = node->dist;
-    list_node->node_id = node->node_id;
-    list_node->parent_id = node->parent_id;
-    return list_node;
-}
