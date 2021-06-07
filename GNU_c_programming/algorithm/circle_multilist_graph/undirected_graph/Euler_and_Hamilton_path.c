@@ -70,22 +70,19 @@ static void push_id_and_weight_to_stack(struct UDGraph_info *UDGraph, int *idsta
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
         push_id_and_weight_to_stack(UDGraph, idstack, weightstack, adj_id);
     }
-    if (UDGraph->adj[node_id] == NULL)
+    if (top == INT_MAX)
     {
-        if (top == INT_MAX)
-        {
-            perror("node_stack overflow:");
-            delete_all_lines_in_UDGraph(UDGraph);
-            exit(-1);
-        }
-        else
-        {
-            top++;
-            idstack[top] = node_id;
-            weightstack[top] = tmp_weight;
-        }
-        return;
+        perror("node_stack overflow:");
+        delete_all_lines_in_UDGraph(UDGraph);
+        exit(-1);
     }
+    else
+    {
+        top++;
+        idstack[top] = node_id;
+        weightstack[top] = tmp_weight;
+    }
+    return;
 }
 
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
