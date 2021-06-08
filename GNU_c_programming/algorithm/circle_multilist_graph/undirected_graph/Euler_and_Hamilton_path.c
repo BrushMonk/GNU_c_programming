@@ -60,7 +60,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
 }
 
 static _Atomic(int) top = -1;
-static void push_id_and_weight_to_stack(struct UDGraph_info *UDGraph, int *idstack, int64_t *weightstack, int node_id)
+static void trav_loop_until_end_and_push_into_stack_in_UDGraph(struct UDGraph_info *UDGraph, int *idstack, int64_t *weightstack, int node_id)
 {
     int64_t tmp_weight;
     while (UDGraph->adj[node_id] != NULL)
@@ -68,7 +68,7 @@ static void push_id_and_weight_to_stack(struct UDGraph_info *UDGraph, int *idsta
         int adj_id = (UDGraph->adj[node_id]->i_node != node_id) ? UDGraph->adj[node_id]->i_node : UDGraph->adj[node_id]->j_node;
         tmp_weight = UDGraph->adj[node_id]->weight;
         delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){UDGraph->adj[node_id]->i_node, UDGraph->adj[node_id]->j_node, UDGraph->adj[node_id]->weight});
-        push_id_and_weight_to_stack(UDGraph, idstack, weightstack, adj_id);
+        trav_loop_until_end_and_push_into_stack_in_UDGraph(UDGraph, idstack, weightstack, adj_id);
     }
     if (top == INT_MAX)
     {
@@ -98,7 +98,7 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
     init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
     int idstack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
-    push_id_and_weight_to_stack(unvis_UDGraph, idstack, weightstack, src);
+    trav_loop_until_end_and_push_into_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *start_node;
     int64_t dist = 0;
     *start_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
