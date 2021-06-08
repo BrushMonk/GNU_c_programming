@@ -52,7 +52,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
         {
             dist += cur_line->weight;
             cur_id = cur_line->i_node == cur_id ? cur_line->j_node : cur_line->i_node;
-            delete_a_line_in_UDGraph(UDGraph, (struct undirc_line){cur_line->i_node, cur_line->j_node, cur_line->weight});
+            delete_a_line_in_UDGraph(unvis_UDGraph, (struct undirc_line){cur_line->i_node, cur_line->j_node, cur_line->weight});
         }
     }
     free(unvis_UDGraph);
