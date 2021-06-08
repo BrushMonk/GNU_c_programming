@@ -41,7 +41,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     {
         if (last != NULL)
         {
-            *path_node = (struct tree_node){cur_id, dist, 0, 0, 0};
+            *path_node = (struct tree_node){cur_id, dist, 0, -1, 0};
             insert_leaf_in_tree_node(last, path_node);
         }
         else path_node = start_node;
