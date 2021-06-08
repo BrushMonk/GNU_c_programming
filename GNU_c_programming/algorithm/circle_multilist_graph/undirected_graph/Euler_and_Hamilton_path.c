@@ -99,24 +99,26 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
     int idstack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
     trav_loop_until_end_and_push_into_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
-    struct tree_node *start_node;
-    int64_t dist = 0;
-    *start_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
     while (top == -1)
     {
-        dist += weightstack[top];
         if (last != NULL)
         {
-            *path_node = (struct tree_node){idstack[top], dist, 0, 0, 0};
-            insert_leaf_in_tree_node(last, path_node);
+            *path_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
+            insert_leaf_in_tree_node(path_node, last);
         }
-        else path_node = start_node;
         last = path_node;
         top--;
     }
     free(unvis_UDGraph);
-    return start_node;
+    path_node->dist = 0;
+    int64_t tmp_dist = 0;
+    for (struct tree_node *i = path_node; i != NULL; i = i->next[0])
+    {
+        tmp_dist += i->dist;
+        i->dist = tmp_dist;
+    }
+    return path_node;
 }
 
 static int *odd_deg_node;

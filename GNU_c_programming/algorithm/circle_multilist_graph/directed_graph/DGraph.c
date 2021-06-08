@@ -256,6 +256,7 @@ static size_t insert_leaf_in_tree_node(struct tree_node *node, struct tree_node 
     }
     node->next[pos] = new_leaf;
     new_leaf->parent = node;
+    new_leaf->parent_id = node->node_id;
     node->child_num++;
     return pos;
 }
