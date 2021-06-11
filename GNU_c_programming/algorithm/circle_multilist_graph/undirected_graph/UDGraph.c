@@ -215,6 +215,10 @@ static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node
     return timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
 }
 
+static _Bool is_a_cut_vertex_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id)
+{
+}
+
 /* a node in undirected tree */
 struct tree_node
 {   int node_id;
