@@ -209,13 +209,13 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
 
 static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2)
 {
-   /* timestamp in the traversal to the whole undirected graph */
+    /* timestamp in the traversal to the whole undirected graph */
     int timestamp[NODE_NUM] = {-1};
     timestamp[node1] = 0;
     return timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
 }
 
-static _Bool is_a_cut_vertex_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id)
+static _Bool is_a_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id)
 {
 }
 
