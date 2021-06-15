@@ -211,12 +211,29 @@ static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node
 {
     /* timestamp in the traversal to the whole undirected graph */
     int timestamp[NODE_NUM] = {-1};
-    timestamp[node1] = 0;
-    return timestamp[node2] = Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node2, 1, timestamp);
+    Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node1, 0, timestamp);
+    return timestamp[node2] == 1;
 }
 
 static _Bool is_a_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id)
 {
+    size_t sub_tree_num = 0;
+    /* timestamp in the traversal to the whole undirected graph */
+    int timestamp[NODE_NUM] = {-1};
+    timestamp[node_id] = 0;
+    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    while (adj_line != NULL && sub_tree_num < 2)
+    {
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
+        if (timestamp[adj_id] == -1)
+        {
+            Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, adj_id, 1, timestamp);
+            sub_tree_num++;
+        }
+        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
+    }
+    if (sub_tree_num < 2 || UDGraph->adj[node_id] == NULL) return 0;
+    else return 1;
 }
 
 /* a node in undirected tree */
