@@ -232,8 +232,7 @@ static _Bool is_a_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int no
         }
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    if (sub_tree_num < 2 || UDGraph->adj[node_id] == NULL) return 0;
-    else return 1;
+    return sub_tree_num >= 2;
 }
 
 /* a node in undirected tree */
