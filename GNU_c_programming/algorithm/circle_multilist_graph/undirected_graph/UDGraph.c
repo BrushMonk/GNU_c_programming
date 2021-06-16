@@ -54,7 +54,7 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
     UDGraph->line_num = 0;
     return;
 }
-
+/*************************************************
 static struct adj_multiline *insert_a_line_in_adj_multilist(struct adj_multiline *adj, struct adj_multiline *new_line)
 {
     struct adj_multiline *cur;
@@ -83,7 +83,7 @@ static struct adj_multiline *insert_a_line_in_adj_multilist(struct adj_multiline
         return NULL;
     }
 }
-
+******************************************************/
 static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
     if (line.i_node >= NODE_NUM || line.j_node >= NODE_NUM || line.i_node < 0 || line.j_node < 0)
