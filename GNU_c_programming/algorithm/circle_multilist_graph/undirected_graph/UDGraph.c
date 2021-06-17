@@ -55,7 +55,7 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
     return;
 }
 
-static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
+static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
     if (line.i_node >= NODE_NUM || line.j_node >= NODE_NUM || line.i_node < 0 || line.j_node < 0)
     {
@@ -112,7 +112,7 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
         UDGraph->adj[v] = NULL;
     for (size_t e = 0; e < line_num; e++)
     {
-        if (add_a_undirc_line_in_UDGraph(UDGraph, lines[e]) == -1)
+        if (add_a_line_in_UDGraph(UDGraph, lines[e]) == -1)
             return -1;
     }
     return 0;
