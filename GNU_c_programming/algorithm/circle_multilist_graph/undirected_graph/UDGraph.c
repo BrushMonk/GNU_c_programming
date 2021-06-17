@@ -99,6 +99,20 @@ static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct und
     new_line->i_node = line.i_node;
     new_line->j_node = line.j_node;
     new_line->weight = line.weight;
+    struct adj_multiline *cur, *last;
+    cur = UDGraph->adj[line.i_node]; last = NULL;
+    while (cur != NULL)
+    {
+        last = cur;
+        cur = (cur->i_node == line.i_node) ? cur->i_next : cur->j_next;
+    }
+    cur = UDGraph->adj[line.j_node]; last = NULL;
+    while (cur != NULL)
+    {
+        last = cur;
+        cur = (cur->i_node == line.j_node) ? cur->i_next : cur->j_next;
+    }
+    /*********************************/
     if (UDGraph->adj[line.i_node] == NULL)
         UDGraph->adj[line.i_node] = new_line;
     else UDGraph->adj[line.i_node] = insert_a_line_in_adj_multilist(UDGraph->adj[line.i_node], new_line);
@@ -106,6 +120,7 @@ static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct und
     if (UDGraph->adj[line.j_node] == NULL)
         UDGraph->adj[line.j_node] = new_line;
     else UDGraph->adj[line.j_node] = insert_a_line_in_adj_multilist(UDGraph->adj[line.j_node], new_line);
+    /*********************************/
     UDGraph->degree[line.j_node]++;
     UDGraph->line_num++;
     return 0;
