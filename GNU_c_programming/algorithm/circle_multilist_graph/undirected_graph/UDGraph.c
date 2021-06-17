@@ -73,10 +73,8 @@ static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_lin
     struct adj_multiline *cur, *last;
 
     cur = UDGraph->adj[line.i_node], last = NULL;
-    while (cur != NULL)
+    while (cur != NULL && cur->weight < line.weight)
     {
-        if (last != NULL && last->weight < line.weight)
-            break;
         last = cur;
         cur = (cur->i_node == line.i_node) ? cur->i_next : cur->j_next;
     }
@@ -88,10 +86,8 @@ static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_lin
     else UDGraph->adj[line.i_node] = new_line;
 
     cur = UDGraph->adj[line.j_node]; last = NULL;
-    while (cur != NULL)
+    while (cur != NULL && cur->weight < line.weight)
     {
-        if (last != NULL && last->weight < line.weight)
-            break;
         last = cur;
         cur = (cur->i_node == line.j_node) ? cur->i_next : cur->j_next;
     }
@@ -101,6 +97,8 @@ static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_lin
     else if (last != NULL && last->j_node == line.j_node)
         last->j_next = new_line;
     else UDGraph->adj[line.j_node] = new_line;
+
+    UDGraph->degree[line.i_node]++;
     UDGraph->degree[line.j_node]++;
     UDGraph->line_num++;
     return 0;
