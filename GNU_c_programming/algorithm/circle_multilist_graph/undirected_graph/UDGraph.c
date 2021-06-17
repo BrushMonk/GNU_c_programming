@@ -54,36 +54,7 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
     UDGraph->line_num = 0;
     return;
 }
-/*************************************************
-static struct adj_multiline *insert_a_line_in_adj_multilist(struct adj_multiline *adj, struct adj_multiline *new_line)
-{
-    struct adj_multiline *cur;
-    *cur =  (struct adj_multiline){0};
-    if (adj->i_node == new_line->i_node)
-    {
-        for(cur->i_next = adj; cur->i_next != NULL && cur->i_next->weight < new_line->weight; cur = cur->i_next);
-        ;
-        new_line->i_next = cur->i_next;
-        cur->i_next = new_line;
-        if (new_line->i_next == adj) adj = new_line;
-        return adj;
-    }
-    if (adj->j_node == new_line->j_node)
-    {
-        for(cur->j_next = adj; cur->j_next != NULL && cur->j_next->weight < new_line->weight; cur = cur->j_next);
-        ;
-        new_line->j_next = cur->j_next;
-        cur->j_next = new_line;
-        if (new_line->j_next == adj) adj = new_line;
-        return adj;
-    }
-    else
-    {
-        fputs("error: Non-existent node in undirected graph!\n", stderr);
-        return NULL;
-    }
-}
-******************************************************/
+
 static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
     if (line.i_node >= NODE_NUM || line.j_node >= NODE_NUM || line.i_node < 0 || line.j_node < 0)
@@ -100,27 +71,36 @@ static int add_a_undirc_line_in_UDGraph(struct UDGraph_info *UDGraph, struct und
     new_line->j_node = line.j_node;
     new_line->weight = line.weight;
     struct adj_multiline *cur, *last;
-    cur = UDGraph->adj[line.i_node]; last = NULL;
+
+    cur = UDGraph->adj[line.i_node], last = NULL;
     while (cur != NULL)
     {
+        if (last != NULL && last->weight < line.weight)
+            break;
         last = cur;
         cur = (cur->i_node == line.i_node) ? cur->i_next : cur->j_next;
     }
+    new_line->i_next = cur;
+    if (last != NULL && last->i_node == line.i_node)
+        last->i_next = new_line;
+    else if (last != NULL && last->j_node == line.i_node)
+        last->j_next = new_line;
+    else UDGraph->adj[line.i_node] = new_line;
+
     cur = UDGraph->adj[line.j_node]; last = NULL;
     while (cur != NULL)
     {
+        if (last != NULL && last->weight < line.weight)
+            break;
         last = cur;
         cur = (cur->i_node == line.j_node) ? cur->i_next : cur->j_next;
     }
-    /*********************************/
-    if (UDGraph->adj[line.i_node] == NULL)
-        UDGraph->adj[line.i_node] = new_line;
-    else UDGraph->adj[line.i_node] = insert_a_line_in_adj_multilist(UDGraph->adj[line.i_node], new_line);
-    UDGraph->degree[line.i_node]++;
-    if (UDGraph->adj[line.j_node] == NULL)
-        UDGraph->adj[line.j_node] = new_line;
-    else UDGraph->adj[line.j_node] = insert_a_line_in_adj_multilist(UDGraph->adj[line.j_node], new_line);
-    /*********************************/
+    new_line->j_next = cur;
+    if (last != NULL && last->i_node == line.j_node)
+        last->i_next = new_line;
+    else if (last != NULL && last->j_node == line.j_node)
+        last->j_next = new_line;
+    else UDGraph->adj[line.j_node] = new_line;
     UDGraph->degree[line.j_node]++;
     UDGraph->line_num++;
     return 0;
