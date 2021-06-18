@@ -48,6 +48,7 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
             }
             free(tmp);
         }
+        UDGraph->adj[v] == NULL;
     }
     memset(UDGraph->adj, 0, NODE_NUM * 8UL);
     memset(UDGraph->degree, 0, NODE_NUM * sizeof(size_t));

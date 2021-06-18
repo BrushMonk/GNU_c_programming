@@ -56,6 +56,7 @@ static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
             cur = cur->next;
             free(tmp);
         }
+        DGraph->outadj[v] = NULL;
     }
     memset(DGraph->inadj, 0, NODE_NUM * 8UL);
     memset(DGraph->outadj, 0, NODE_NUM * 8UL);
