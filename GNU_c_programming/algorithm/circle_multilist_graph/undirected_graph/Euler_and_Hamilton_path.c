@@ -133,9 +133,12 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
             odd_deg_node = (int *)realloc(odd_deg_node, ++odd_deg_num * sizeof(int));
             odd_deg_node[odd_deg_num - 1] = v;
         }
-    if ( (odd_deg_num == 0 && UDGraph->degree[src] != 0) || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1) )
-        return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
-    else
+    if (!UDGraph->degree[src])
+    {
+        fprintf(stderr, "There is no postman path from node %d.\n", src);
+        return NULL;
+    }
+    else if ( (odd_deg_num > 2) || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 0) )
     {
         struct tree_node *dist_path[odd_deg_num*(odd_deg_num-1)/2];
         struct undirc_line lines[odd_deg_num*(odd_deg_num-1)/2];
@@ -155,4 +158,5 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         struct UDGraph_info *odd_nodes_CGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
         init_UDGraph(odd_nodes_CGraph, lines, odd_deg_num*(odd_deg_num-1)/2);
     }
+    return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
 }
