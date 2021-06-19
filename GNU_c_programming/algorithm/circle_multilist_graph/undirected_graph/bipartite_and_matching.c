@@ -328,3 +328,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
 }
+
+struct matching* blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+{
+}
