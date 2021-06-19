@@ -73,11 +73,11 @@ int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t lin
     }
     for (size_t e = 0; e < line_num; e++)
     {
-        if (lines[e].src >= NODE_NUM || lines[e].dest >= NODE_NUM)
+        if (lines[e].src >= NODE_NUM || lines[e].dest >= NODE_NUM || lines[e].src < 0 || lines[e].dest < 0)
         {
             fputs("line node_id error. Fail to initialize directed graph!\n", stderr);
             delete_all_lines_in_DGraph(DGraph);
-            return -1;
+            exit(-1);
         }
         /* use weight-ascending order to creat an adjacency list */
         struct adj_node *new_src_node = (struct adj_node *)malloc(sizeof(struct adj_node));

@@ -263,6 +263,10 @@ struct tree_node *Prim_algorithm_in_DGraph(const struct DGraph_info *DGraph, int
     return MST_root;
 }
 
+struct tree_node *Bellman_Ford_algorithm_in_DGraph(const struct DGraph_info *DGraph, int src, int dest)
+{
+}
+
 int64_t** Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
 {
     static int64_t dist[NODE_NUM][NODE_NUM] = {-1};

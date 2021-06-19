@@ -61,8 +61,6 @@ static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_lin
     if (line.i_node >= NODE_NUM || line.j_node >= NODE_NUM || line.i_node < 0 || line.j_node < 0)
     {
         fputs("line node_id error. Fail to initialize undirected graph!\n", stderr);
-        delete_all_lines_in_UDGraph(UDGraph);
-        UDGraph = NULL;
         return -1;
     }
     /* use weight-ascending order to creat an adjacency multilist */
@@ -112,7 +110,11 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
     for (size_t e = 0; e < line_num; e++)
     {
         if (add_a_line_in_UDGraph(UDGraph, lines[e]) == -1)
-            return -1;
+        {
+            delete_all_lines_in_UDGraph(UDGraph);
+            UDGraph = NULL;
+            exit(-1);
+        }
     }
     return 0;
 }
