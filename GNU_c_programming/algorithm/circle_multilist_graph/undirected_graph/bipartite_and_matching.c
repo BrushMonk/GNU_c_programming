@@ -352,13 +352,34 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
+int update_disjoint_set_in_a_blossom(const struct UDGraph_info *UDGraph, int disjt_set[], int node_id, int unmatched_id)
+{
+    disjt_set[node_id] = node_id;
+    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    while (adj_line != NULL)
+    {
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
+        if (disjt_set[adj_id] == -1)
+        {
+            update_disjoint_set_in_a_blossom(UDGraph, disjt_set, adj_id, unmatched_id);
+            disjt_set[node_id] = (disjt_set[adj_id] == unmatched_id) ? disjt_set[adj_id] : disjt_set[node_id];
+        }
+        else if (disjt_set[adj_id] == unmatched_id)
+            disjt_set[node_id] = unmatched_id;
+        adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
+    }
+    return disjt_set[node_id];
+}
+
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     int unmatched_id = -1;
     unmatched_id = is_bipartite(UDGraph);
     if (unmatched_id == -1)
     {
-        fputs("The undirected graph doesn't have a odd cycle.\n", stderr);
+        fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
         return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
     }
+    int disjt_set[NODE_NUM] = {-1};
+    update_disjoint_set_in_a_blossom(UDGraph, disjt_set, unmatched_id, unmatched_id);
 }
