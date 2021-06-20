@@ -13,16 +13,16 @@ static size_t x_num = 0;
 static int *nodey;
 static size_t y_num = 0;
 
-static _Bool color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int *color_set)
+static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int *color_set)
 {
     color_set[node_id] = init_color;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    if (color_set[node_id] == 0 && adj_line != NULL)
+    if (color_set[node_id] == 0)
     {
         nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
         nodex[x_num - 1] = node_id;
     }
-    else if (color_set[node_id] == 1 && adj_line != NULL)
+    else
     {
         nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
         nodey[y_num - 1] = node_id;
@@ -30,26 +30,28 @@ static _Bool color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGra
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
-        if (color_set[adj_id] == -1)
-            return color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set);
+        int unmatched_id = -1;
+        if (color_set[adj_id] == -1 && unmatched_id == color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set))
+        {
+            if (unmatched_id != -1) return unmatched_id;
+        }
         else if (color_set[adj_id] != init_color)
-            return 0;
+            return adj_id;
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    return 1;
+    return -1;
 }
 
-static _Bool is_bipartite(const struct UDGraph_info *UDGraph)
+static int is_bipartite(const struct UDGraph_info *UDGraph)
 {
     int color_set[NODE_NUM] = {-1};
+    int unmatched_id = -1;
     for (int v = 0; v < NODE_NUM; v++)
-        if (color_set[v] == -1 && color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set) == 0)
+        if (color_set[v] == -1 && unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set))
         {
-            free(nodex); free(nodey);
-            x_num = 0; y_num = 0;
-            return 0;
+            if (unmatched_id != -1) return unmatched_id;
         }
-    return 1;
+    return -1;
 }
 
 /* a matching in undircted graph */
@@ -123,11 +125,14 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
     return 0;
 }
 
+/* the worst complexity of Hungarian algorithm is O(n^2) */
 struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) == 0)
+    if (is_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
+        free(nodex); free(nodey);
+        x_num = 0; y_num = 0;
         return NULL;
     }
     struct matching *max_matching; *max_matching = (struct matching){0};
@@ -186,11 +191,14 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
     return 0;
 }
 
+/* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) == 0)
+    if (is_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
+        free(nodex); free(nodey);
+        x_num = 0; y_num = 0;
         return NULL;
     }
     int64_t node_weight[NODE_NUM] = {0};
@@ -220,6 +228,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[j]];
+            if (min_slack == MAX_SLACK) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* increase visited x node weight by minimum slack value */
@@ -281,11 +290,14 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
     return 0;
 }
 
+/* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) == 0)
+    if (is_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
+        free(nodex); free(nodey);
+        x_num = 0; y_num = 0;
         return NULL;
     }
     int64_t node_weight[NODE_NUM] = {0};
@@ -321,6 +333,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[j]];
+            if (min_slack == MAX_SLACK) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* decrease visited x node weight by minimum slack value */
