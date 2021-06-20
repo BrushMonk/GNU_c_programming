@@ -31,7 +31,7 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
         int unmatched_id = -1;
-        if (color_set[adj_id] == -1 && unmatched_id == color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set))
+        if (color_set[adj_id] == -1 && unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set))
         {
             if (unmatched_id != -1) return unmatched_id;
         }
@@ -223,7 +223,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            int min_slack = MAX_SLACK;
+            int64_t min_slack = MAX_SLACK;
             for (size_t j = 0; j < y_num; j++)
                 if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
                     /* search for minimum slack from unvisited y nodes */
@@ -328,7 +328,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            int min_slack = MAX_SLACK;
+            int64_t min_slack = MAX_SLACK;
             for (size_t j = 0; j < y_num; j++)
                 if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
                     /* search for minimum slack from unvisited y nodes */
@@ -352,6 +352,13 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
-struct matching* blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
+    int unmatched_id = -1;
+    unmatched_id = is_bipartite(UDGraph);
+    if (unmatched_id == -1)
+    {
+        fputs("The undirected graph doesn't have a odd cycle.\n", stderr);
+        return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
+    }
 }
