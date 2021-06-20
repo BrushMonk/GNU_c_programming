@@ -102,6 +102,7 @@ static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
     return min->node;
 }
 
+/* worst comlexity of inserting a node in binomial heap is O(log n) */
 static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct tree_node *const cand)
 {
     struct binomial_node *new_node = (struct binomial_node *)malloc(sizeof(struct binomial_node));

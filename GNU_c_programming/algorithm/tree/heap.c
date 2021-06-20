@@ -89,6 +89,7 @@ struct binomial_node
     struct binomial_node *parent;
     struct binomial_node *sibling;};
 
+/* the complexity of lookup in binomial heap is O(n) */
 struct binomial_node *lookup_a_key_in_binomial_heap(struct binomial_node *node, int unkown_key)
 {
     struct binomial_node *match_node;

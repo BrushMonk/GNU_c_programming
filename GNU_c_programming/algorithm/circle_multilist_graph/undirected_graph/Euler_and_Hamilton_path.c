@@ -6,6 +6,21 @@
 #include <limits.h>
 #include "shortest_path_in_UDGraph.c"
 
+struct UDGraph_info *get_UDGraph_replic(const struct UDGraph_info *UDGraph)
+{
+    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
+    struct undirc_line lines[UDGraph->line_num];
+    for (size_t e = 0; e < UDGraph->line_num; e++)
+    {
+        lines[e].i_node = line_set[e]->i_node;
+        lines[e].j_node = line_set[e]->j_node;
+        lines[e].weight = line_set[e]->weight;
+    }
+    struct UDGraph_info *UDGraph_replic = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
+    init_UDGraph(UDGraph_replic, lines, UDGraph->line_num);
+    return UDGraph_replic;
+}
+
 static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
@@ -21,16 +36,7 @@ static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_
 
 struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
-    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
-    struct undirc_line lines[UDGraph->line_num];
-    for (size_t e = 0; e < UDGraph->line_num; e++)
-    {
-        lines[e].i_node = line_set[e]->i_node;
-        lines[e].j_node = line_set[e]->j_node;
-        lines[e].weight = line_set[e]->weight;
-    }
-    struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
-    init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
+    struct UDGraph_info *unvis_UDGraph = get_UDGraph_replic(UDGraph);
     struct tree_node *start_node;
     *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
@@ -89,16 +95,7 @@ static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info
 
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
-    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
-    struct undirc_line lines[UDGraph->line_num];
-    for (size_t e = 0; e < UDGraph->line_num; e++)
-    {
-        lines[e].i_node = line_set[e]->i_node;
-        lines[e].j_node = line_set[e]->j_node;
-        lines[e].weight = line_set[e]->weight;
-    }
-    struct UDGraph_info *unvis_UDGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
-    init_UDGraph(unvis_UDGraph, lines, UDGraph->line_num);
+    struct UDGraph_info *unvis_UDGraph = get_UDGraph_replic(UDGraph);
     int idstack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
     trav_loop_until_end_and_push_to_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *last = NULL, *path_node;
@@ -138,7 +135,9 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         fprintf(stderr, "There is no postman path from node %d.\n", src);
         return NULL;
     }
-    else if ( (odd_deg_num > 2) || (odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 0) )
+    else if ( odd_deg_num == 0 || odd_deg_num == 2 && UDGraph->degree[src] >> 1 == 1 )
+        return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
+    else
     {
         struct tree_node *dist_path[odd_deg_num*(odd_deg_num-1)/2];
         struct undirc_line lines[odd_deg_num*(odd_deg_num-1)/2];
@@ -158,5 +157,4 @@ struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, in
         struct UDGraph_info *odd_nodes_CGraph = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
         init_UDGraph(odd_nodes_CGraph, lines, odd_deg_num*(odd_deg_num-1)/2);
     }
-    return Hierholzer_algorithm_in_UDGraph(UDGraph, src);
 }

@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+/* the complexity of merge sort is O(nlog n) */
 void merge_sort_via_recur(int32_t *restrict arr, size_t left, size_t right)
 {
     if (left == right) return;
@@ -25,6 +26,7 @@ void merge_sort_via_recur(int32_t *restrict arr, size_t left, size_t right)
     free(sub_arr);
     return;
 }
+/* the complexity of merge sort is O(nlog n) */
 void merge_sort_via_nested_loop(int32_t *restrict arr, size_t len)
 {
     int32_t sub_arr[len];
@@ -46,6 +48,7 @@ void merge_sort_via_nested_loop(int32_t *restrict arr, size_t len)
     return;
 }
 
+/* the complexity of insertion sort is O(n^2) */
 void insertion_sort(int32_t *restrict arr, ptrdiff_t len)
 {
     for(ptrdiff_t i = 0; i < len; i++)
@@ -63,6 +66,7 @@ void insertion_sort(int32_t *restrict arr, ptrdiff_t len)
     return;
 }
 
+/* the complexity of selection sort is O(n^2) */
 void selection_sort(int32_t **ptr_to_ptr, size_t len)
 {
     int32_t *tmp;
