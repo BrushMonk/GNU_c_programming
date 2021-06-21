@@ -352,7 +352,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
-static int contract_blossom_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[], int disjt_set[])
+static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[], int disjt_set[])
 {
     color_set[node_id] = init_color;
     disjt_set[node_id] = node_id;
@@ -371,7 +371,7 @@ static int contract_blossom_in_UDGraph(const struct UDGraph_info *UDGraph, int n
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
         int unmatched_id = -1;
-        if (color_set[adj_id] == -1 && unmatched_id = contract_blossom_in_UDGraph(UDGraph, adj_id, !init_color, color_set, disjt_set))
+        if (color_set[adj_id] == -1 && unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, adj_id, !init_color, color_set, disjt_set))
         {
             if (unmatched_id != -1)
             {
@@ -395,7 +395,7 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         for (int v = 0; v < NODE_NUM; v++)
             if (color_set[v] == -1)
             {
-                unmatched_id = contract_blossom_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
+                unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
             }
     if (unmatched_id != -1)
         return perf_matching;
