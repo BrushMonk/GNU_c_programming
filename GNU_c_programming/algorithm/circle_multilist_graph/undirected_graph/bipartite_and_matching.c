@@ -13,7 +13,7 @@ static size_t x_num = 0;
 static int *nodey;
 static size_t y_num = 0;
 
-static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int *color_set)
+static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
 {
     color_set[node_id] = init_color;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
@@ -352,34 +352,56 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
-int update_disjoint_set_in_a_blossom(const struct UDGraph_info *UDGraph, int disjt_set[], int node_id, int unmatched_id)
+static int contract_blossom_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[], int disjt_set[])
 {
+    color_set[node_id] = init_color;
     disjt_set[node_id] = node_id;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    if (color_set[node_id] == 0)
+    {
+        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+        nodex[x_num - 1] = node_id;
+    }
+    else
+    {
+        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+        nodey[y_num - 1] = node_id;
+    }
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
-        if (disjt_set[adj_id] == -1)
+        int unmatched_id = -1;
+        if (color_set[adj_id] == -1 && unmatched_id = contract_blossom_in_UDGraph(UDGraph, adj_id, !init_color, color_set, disjt_set))
         {
-            update_disjoint_set_in_a_blossom(UDGraph, disjt_set, adj_id, unmatched_id);
-            disjt_set[node_id] = (disjt_set[adj_id] == unmatched_id) ? disjt_set[adj_id] : disjt_set[node_id];
+            if (unmatched_id != -1)
+            {
+                disjt_set[node_id] = unmatched_id;
+                return unmatched_id;
+            }
         }
-        else if (disjt_set[adj_id] == unmatched_id)
-            disjt_set[node_id] = unmatched_id;
+        else if (color_set[adj_id] != init_color)
+            return adj_id;
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
-    return disjt_set[node_id];
+    return -1;
 }
 
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
+    struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
-    unmatched_id = is_bipartite(UDGraph);
-    if (unmatched_id == -1)
+    int disjt_set[NODE_NUM] = {-1};
+    int color_set[NODE_NUM] = {-1};
+        for (int v = 0; v < NODE_NUM; v++)
+            if (color_set[v] == -1)
+            {
+                unmatched_id = contract_blossom_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
+            }
+    if (unmatched_id != -1)
+        return perf_matching;
+    else
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
         return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
     }
-    int disjt_set[NODE_NUM] = {-1};
-    update_disjoint_set_in_a_blossom(UDGraph, disjt_set, unmatched_id, unmatched_id);
 }
