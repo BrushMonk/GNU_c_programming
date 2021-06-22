@@ -31,8 +31,9 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
         int unmatched_id = -1;
-        if (color_set[adj_id] == -1 && unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set))
+        if (color_set[adj_id] == -1)
         {
+            unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, adj_id, !init_color, color_set);
             if (unmatched_id != -1) return unmatched_id;
         }
         else if (color_set[adj_id] != init_color)
@@ -47,8 +48,9 @@ static int is_bipartite(const struct UDGraph_info *UDGraph)
     int color_set[NODE_NUM] = {-1};
     int unmatched_id = -1;
     for (int v = 0; v < NODE_NUM; v++)
-        if (color_set[v] == -1 && unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set))
+        if (color_set[v] == -1)
         {
+            unmatched_id = color_nodes_from_a_node_in_UDGraph(UDGraph, v, 0, color_set);
             if (unmatched_id != -1) return unmatched_id;
         }
     return -1;
