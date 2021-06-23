@@ -17,16 +17,6 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
 {
     color_set[node_id] = init_color;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    if (color_set[node_id] == 0)
-    {
-        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
-        nodex[x_num - 1] = node_id;
-    }
-    else
-    {
-        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
-        nodey[y_num - 1] = node_id;
-    }
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
@@ -43,9 +33,8 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     return -1;
 }
 
-static int is_bipartite(const struct UDGraph_info *UDGraph)
+static int is_bipartite(const struct UDGraph_info *UDGraph, int color_set[])
 {
-    int color_set[NODE_NUM] = {-1};
     int unmatched_id = -1;
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
@@ -130,12 +119,27 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
 /* the worst complexity of Hungarian algorithm is O(n^2) */
 struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    int color_set[NODE_NUM] = {-1};
+    if (is_bipartite(UDGraph, color_set) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
-        free(nodex); free(nodey);
-        x_num = 0; y_num = 0;
         return NULL;
+    }
+    else
+    {
+        for (int v = 0; v < NODE_NUM; v++)
+        {
+            if (color_set[v] == 0)
+            {
+                nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+                nodex[x_num - 1] = v;
+            }
+            else
+            {
+                nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+                nodey[y_num - 1] = v;
+            }
+        }
     }
     struct matching *max_matching; *max_matching = (struct matching){0};
     _Bool isvisited[NODE_NUM] = {0};
@@ -196,12 +200,27 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    int color_set[NODE_NUM] = {-1};
+    if (is_bipartite(UDGraph, color_set) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
-        free(nodex); free(nodey);
-        x_num = 0; y_num = 0;
         return NULL;
+    }
+    else
+    {
+        for (int v = 0; v < NODE_NUM; v++)
+        {
+            if (color_set[v] == 0)
+            {
+                nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+                nodex[x_num - 1] = v;
+            }
+            else
+            {
+                nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+                nodey[y_num - 1] = v;
+            }
+        }
     }
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
@@ -295,12 +314,27 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    int color_set[NODE_NUM] = {-1};
+    if (is_bipartite(UDGraph, color_set) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
-        free(nodex); free(nodey);
-        x_num = 0; y_num = 0;
         return NULL;
+    }
+    else
+    {
+        for (int v = 0; v < NODE_NUM; v++)
+        {
+            if (color_set[v] == 0)
+            {
+                nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+                nodex[x_num - 1] = v;
+            }
+            else
+            {
+                nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+                nodey[y_num - 1] = v;
+            }
+        }
     }
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
