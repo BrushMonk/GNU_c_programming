@@ -402,6 +402,19 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     else
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
+            for (int v = 0; v < NODE_NUM; v++)
+        {
+            if (color_set[v] == 0)
+            {
+                nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+                nodex[x_num - 1] = v;
+            }
+            else
+            {
+                nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+                nodey[y_num - 1] = v;
+            }
+        }
         return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
     }
 }
