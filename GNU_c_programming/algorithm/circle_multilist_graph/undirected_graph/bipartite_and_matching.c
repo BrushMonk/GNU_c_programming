@@ -97,6 +97,7 @@ static struct matching* get_all_matched_lines_in_UDGraph(const struct UDGraph_in
 
 static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool *isvisited)
 {
+    isvisited[x_node] = 1;
     struct adj_multiline *adj_line = UDGraph->adj[x_node];
     while (adj_line != NULL)
     {
