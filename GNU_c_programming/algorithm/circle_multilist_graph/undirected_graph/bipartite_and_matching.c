@@ -225,11 +225,11 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 break;
             }
             int64_t min_slack = MAX_SLACK;
-            for (size_t j = 0; j < y_num; j++)
-                if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
+            for (size_t ycount = 0; ycount < y_num; ycount++)
+                if (!isvisited[nodey[ycount]] && min_slack > slack[nodey[ycount]])
                     /* search for minimum slack from unvisited y nodes */
-                    min_slack = slack[nodey[j]];
-            if (min_slack == MAX_SLACK) break;
+                    min_slack = slack[nodey[ycount]];
+            if (min_slack >= MAX_SLACK) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* increase visited x node weight by minimum slack value */
@@ -328,11 +328,11 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 break;
             }
             int64_t min_slack = MAX_SLACK;
-            for (size_t j = 0; j < y_num; j++)
-                if (!isvisited[nodey[j]] && min_slack > slack[nodey[j]])
+            for (size_t ycount = 0; ycount < y_num; ycount++)
+                if (!isvisited[nodey[ycount]] && min_slack > slack[nodey[ycount]])
                     /* search for minimum slack from unvisited y nodes */
-                    min_slack = slack[nodey[j]];
-            if (min_slack == MAX_SLACK) break;
+                    min_slack = slack[nodey[ycount]];
+            if (min_slack >= MAX_SLACK) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* decrease visited x node weight by minimum slack value */
@@ -382,11 +382,11 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int unmatched_id = -1;
     int disjt_set[NODE_NUM] = {-1};
     int color_set[NODE_NUM] = {-1};
-        for (int v = 0; v < NODE_NUM; v++)
-            if (color_set[v] == -1)
-            {
-                unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
-            }
+    for (int v = 0; v < NODE_NUM; v++)
+        if (color_set[v] == -1)
+        {
+            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
+        }
     if (unmatched_id != -1)
         return perf_matching;
     else
