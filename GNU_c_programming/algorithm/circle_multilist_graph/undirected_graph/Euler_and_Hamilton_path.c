@@ -120,8 +120,8 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     return path_node;
 }
 
-static int *odd_deg_node;
-static size_t odd_deg_num = 0;
+static int volatile *odd_deg_node;
+static _Atomic(size_t) odd_deg_num = 0;
 struct tree_node *Chinese_postman_problem(const struct UDGraph_info *UDGraph, int src)
 {
     for (size_t v = 0; v < NODE_NUM; v++)

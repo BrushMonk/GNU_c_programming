@@ -7,11 +7,11 @@
 #include "UDGraph.c"
 #define MAX_SLACK 0x7f7f7f7f7f7f7f7f
 /* x node subset from bipartite graph */
-static int *nodex;
-static size_t x_num = 0;
+static int volatile *nodex;
+static _Atomic(size_t) x_num = 0;
 /* y node subset from bipartite graph */
-static int *nodey;
-static size_t y_num = 0;
+static int volatile *nodey;
+static _Atomic(size_t) y_num = 0;
 
 static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
 {
@@ -391,18 +391,17 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     else
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
-            for (int v = 0; v < NODE_NUM; v++)
+        for (int v = 0; v < NODE_NUM; v++)
         {
-            if (color_set[v] == 0)
-            {
-                nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
-                nodex[x_num - 1] = v;
-            }
-            else
-            {
-                nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
-                nodey[y_num - 1] = v;
-            }
+            if (color_set[v] == 0) x_num++;
+            else y_num++;
+        }
+        nodex = (int *)malloc(x_num * sizeof(int));
+        nodey = (int *)malloc(y_num * sizeof(int));
+        for (int v = 0, xcount = 0, ycount = 0; v < NODE_NUM; v++)
+        {
+            if (color_set[v] == 0) nodex[xcount++] = v;
+            else nodey[ycount++] = v;
         }
         return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
     }
