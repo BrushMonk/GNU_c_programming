@@ -45,16 +45,15 @@ static int is_bipartite(const struct UDGraph_info *UDGraph)
         }
     for (int v = 0; v < NODE_NUM; v++)
     {
-        if (color_set[v] == 0)
-        {
-            nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
-            nodex[x_num - 1] = v;
-        }
-        else
-        {
-            nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
-            nodey[y_num - 1] = v;
-        }
+        if (color_set[v] == 0) x_num++;
+        else y_num++;
+    }
+    nodex = (int *)malloc(x_num * sizeof(int));
+    nodey = (int *)malloc(y_num * sizeof(int));
+    for (int v = 0, xcount = 0, ycount = 0; v < NODE_NUM; v++)
+    {
+        if (color_set[v] == 0) nodex[xcount++] = v;
+        else nodey[ycount++] = v;
     }
     return -1;
 }
@@ -357,16 +356,6 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
     color_set[node_id] = init_color;
     disjt_set[node_id] = node_id;
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
-    if (color_set[node_id] == 0)
-    {
-        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
-        nodex[x_num - 1] = node_id;
-    }
-    else
-    {
-        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
-        nodey[y_num - 1] = node_id;
-    }
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
