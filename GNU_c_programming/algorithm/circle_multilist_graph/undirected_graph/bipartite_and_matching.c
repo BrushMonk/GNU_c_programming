@@ -13,13 +13,6 @@ static _Atomic(size_t) x_num = 0;
 static int volatile *nodey;
 static _Atomic(size_t) y_num = 0;
 
-void delete_nodex_and_nodey_sets(void)
-{
-    x_num = 0; y_num = 0;
-    free(nodex); free(nodey);
-    return;
-}
-
 static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
 {
     color_set[node_id] = init_color;
@@ -154,7 +147,7 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
         if (get_matched_line(UDGraph, nodex[xcount]) == NULL)
             max_matching->line_num += update_augmenting_path_in_UWGraph(UDGraph, nodex[xcount], isvisited);
     }
-    delete_nodex_and_nodey_sets();
+    x_num = 0; y_num = 0; free(nodex); free(nodey);
     max_matching = get_all_matched_lines_in_UDGraph(UDGraph, max_matching);
     return max_matching;
 }
@@ -252,7 +245,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
-    delete_nodex_and_nodey_sets();
+    x_num = 0; y_num = 0; free(nodex); free(nodey);
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
 }
@@ -356,7 +349,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
-    delete_nodex_and_nodey_sets();
+    x_num = 0; y_num = 0; free(nodex); free(nodey);
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
 }
