@@ -64,7 +64,7 @@ struct matching
     size_t line_num;
     int64_t weight_sum;};
 
-static struct adj_multiline *get_match_line(const struct UDGraph_info *UDGraph, int node_id)
+static struct adj_multiline *get_matched_line(const struct UDGraph_info *UDGraph, int node_id)
 {
     struct adj_multiline *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL && adj_line->ismarked == 0)
@@ -105,7 +105,7 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
         if (!isvisited[y_node])
         {
             isvisited[y_node] = 1;
-            struct adj_multiline *y_match_line = get_match_line(UDGraph, y_node);
+            struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
             int y_match = -1;
             if (y_match_line != NULL)
                 y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
@@ -144,14 +144,14 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
     {
         /* reset all nodes unvisited in UDGraph */
         memset(isvisited, 0, sizeof(isvisited));
-        if (get_match_line(UDGraph, nodex[xcount]) == NULL)
+        if (get_matched_line(UDGraph, nodex[xcount]) == NULL)
             max_matching->line_num += update_augmenting_path_in_UWGraph(UDGraph, nodex[xcount], isvisited);
     }
     max_matching = get_all_matched_lines_in_UDGraph(UDGraph, max_matching);
     return max_matching;
 }
 
-static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool *isvisited, int64_t *node_weight, int64_t *slack)
+static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
     struct adj_multiline *adj_line = UDGraph->adj[x_node];
@@ -165,7 +165,7 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             if (node_weight[x_node] - node_weight[y_node] == adj_line->weight)
             {
                 isvisited[y_node] = 1;
-                struct adj_multiline *y_match_line = get_match_line(UDGraph, y_node);
+                struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
                 int y_match = -1;
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
@@ -248,7 +248,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
-static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool *isvisited, int64_t *node_weight, int64_t slack[])
+static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
     struct adj_multiline *adj_line = UDGraph->adj[x_node];
@@ -262,7 +262,7 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             if (node_weight[x_node] + node_weight[y_node] == adj_line->weight)
             {
                 isvisited[y_node] = 1;
-                struct adj_multiline *y_match_line = get_match_line(UDGraph, y_node);
+                struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
                 int y_match = -1;
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
