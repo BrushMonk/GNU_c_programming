@@ -13,6 +13,13 @@ static _Atomic(size_t) x_num = 0;
 static int volatile *nodey;
 static _Atomic(size_t) y_num = 0;
 
+void delete_nodex_and_nodey_sets(void)
+{
+    x_num = 0; y_num = 0;
+    free(nodex); free(nodey);
+    return;
+}
+
 static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
 {
     color_set[node_id] = init_color;
@@ -46,14 +53,14 @@ static int is_bipartite(const struct UDGraph_info *UDGraph)
     for (int v = 0; v < NODE_NUM; v++)
     {
         if (color_set[v] == 0) x_num++;
-        else y_num++;
+        else if (color_set[v] == 1) y_num++;
     }
     nodex = (int *)malloc(x_num * sizeof(int));
     nodey = (int *)malloc(y_num * sizeof(int));
     for (int v = 0, xcount = 0, ycount = 0; v < NODE_NUM; v++)
     {
         if (color_set[v] == 0) nodex[xcount++] = v;
-        else nodey[ycount++] = v;
+        else if (color_set[v] == 1) nodey[ycount++] = v;
     }
     return -1;
 }
@@ -147,6 +154,7 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
         if (get_matched_line(UDGraph, nodex[xcount]) == NULL)
             max_matching->line_num += update_augmenting_path_in_UWGraph(UDGraph, nodex[xcount], isvisited);
     }
+    delete_nodex_and_nodey_sets();
     max_matching = get_all_matched_lines_in_UDGraph(UDGraph, max_matching);
     return max_matching;
 }
@@ -244,6 +252,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
+    delete_nodex_and_nodey_sets();
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
 }
@@ -347,6 +356,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             }
         }
     }
+    delete_nodex_and_nodey_sets();
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
 }
@@ -370,7 +380,10 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
             }
         }
         else if (color_set[adj_id] != init_color)
+        {
+            color_set[adj_id] = init_color;
             return adj_id;
+        }
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     }
     return -1;
@@ -380,30 +393,38 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
 {
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
+    size_t odd_cycle_num = 0;
     int disjt_set[NODE_NUM] = {-1};
     int color_set[NODE_NUM] = {-1};
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {
             unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
+            if (unmatched_id != -1)
+            {
+                odd_cycle_num++;
+                for (int v = 0; v < NODE_NUM; v++)
+                {
+                    if (color_set[v] == 0 && disjt_set[v] == v)
+                    {
+                        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
+                        nodex[x_num - 1] = v;
+                    }
+                    else if (color_set[v] == 1  && disjt_set[v] == v)
+                    {
+                        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
+                        nodey[y_num - 1] = v;
+                    }
+                }
+            }
         }
-    if (unmatched_id != -1)
-        return perf_matching;
-    else
+    if (odd_cycle_num == 0)
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
-        for (int v = 0; v < NODE_NUM; v++)
-        {
-            if (color_set[v] == 0) x_num++;
-            else y_num++;
-        }
-        nodex = (int *)malloc(x_num * sizeof(int));
-        nodey = (int *)malloc(y_num * sizeof(int));
-        for (int v = 0, xcount = 0, ycount = 0; v < NODE_NUM; v++)
-        {
-            if (color_set[v] == 0) nodex[xcount++] = v;
-            else nodey[ycount++] = v;
-        }
         return max_Kuhn_Munkres_algorithm_in_UDGraph(UDGraph);
+    }
+    else
+    {
+        return perf_matching;
     }
 }
