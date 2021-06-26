@@ -164,7 +164,7 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
 static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
-    struct adj_multiline *adj_line = UDGraph->adj[node->node_id];
+    struct adj_line *adj_line = UDGraph->adj[node->node_id];
     while (adj_line != NULL)
     {
         /* candidate inserted into unvisited set */
@@ -265,9 +265,9 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     return MST_root;
 }
 
-static void merge_sort_undirc_line(struct adj_multiline **restrict arr, size_t len)
+static void merge_sort_undirc_line(struct adj_line **restrict arr, size_t len)
 {
-    struct adj_multiline *sub_arr[len];
+    struct adj_line *sub_arr[len];
     for (size_t e = 0; e < len; e++)
         sub_arr[e] = arr[e];
 
@@ -293,11 +293,11 @@ static int find_disjt_root(int *disjt_set, int node_id)
 }
 
 /* get the set made up of all UDGraph lines in order from small to great */
-static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_info *UDGraph)
+static struct adj_line **get_lines_set_in_ascd_order(const struct UDGraph_info *UDGraph)
 {
     /* a set made up of all UDGraph lines in order from small to great */
-    struct adj_multiline **lines_set = (struct adj_multiline **)malloc(UDGraph->line_num * 8UL);
-    struct adj_multiline *cur;
+    struct adj_line **lines_set = (struct adj_line **)malloc(UDGraph->line_num * 8UL);
+    struct adj_line *cur;
     for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->line_num; v++)
     {
         cur = UDGraph->adj[v];
@@ -327,7 +327,7 @@ static struct adj_multiline **get_lines_set_in_ascd_order(const struct UDGraph_i
 
 struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    struct adj_multiline **lines_set = get_lines_set_in_ascd_order(UDGraph);
+    struct adj_line **lines_set = get_lines_set_in_ascd_order(UDGraph);
     /* a set made up of all UDGraph nodes */
     struct tree_node *nodes_set[NODE_NUM];
     /* disjoint set of node id */

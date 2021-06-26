@@ -8,7 +8,7 @@
 
 struct UDGraph_info *get_UDGraph_replic(const struct UDGraph_info *UDGraph)
 {
-    struct adj_multiline **line_set = get_lines_set_in_ascd_order(UDGraph);
+    struct adj_line **line_set = get_lines_set_in_ascd_order(UDGraph);
     struct undirc_line lines[UDGraph->line_num];
     for (size_t e = 0; e < UDGraph->line_num; e++)
     {
@@ -21,9 +21,9 @@ struct UDGraph_info *get_UDGraph_replic(const struct UDGraph_info *UDGraph)
     return UDGraph_replic;
 }
 
-static struct adj_multiline* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
+static struct adj_line* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
 {
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
         /* if the adjacenct line is not a bridge, jump out of this loop. */
@@ -40,7 +40,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     struct tree_node *start_node;
     *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
-    struct adj_multiline *cur_line;
+    struct adj_line *cur_line;
     int cur_id = src;
     int64_t dist = 0;
     while (cur_id != -1)

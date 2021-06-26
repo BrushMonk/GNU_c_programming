@@ -16,7 +16,7 @@ static _Atomic(size_t) y_num = 0;
 static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
 {
     color_set[node_id] = init_color;
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
@@ -33,7 +33,7 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     return -1;
 }
 
-static int is_bipartite(const struct UDGraph_info *UDGraph)
+static int judge_bipartite(const struct UDGraph_info *UDGraph)
 {
     int color_set[NODE_NUM] = {-1};
     int unmatched_id = -1;
@@ -60,13 +60,13 @@ static int is_bipartite(const struct UDGraph_info *UDGraph)
 
 /* a matching in undircted graph */
 struct matching
-{   struct adj_multiline **matched_line;
+{   struct adj_line **matched_line;
     size_t line_num;
     int64_t weight_sum;};
 
-static struct adj_multiline *get_matched_line(const struct UDGraph_info *UDGraph, int node_id)
+static struct adj_line *get_matched_line(const struct UDGraph_info *UDGraph, int node_id)
 {
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL && adj_line->ismarked == 0)
         adj_line = (adj_line->i_node == node_id) ? adj_line->i_next : adj_line->j_next;
     return adj_line;
@@ -75,12 +75,12 @@ static struct adj_multiline *get_matched_line(const struct UDGraph_info *UDGraph
 static struct matching* get_all_matched_lines_in_UDGraph(const struct UDGraph_info *UDGraph, struct matching *__matching)
 {
     _Bool *isvisited[NODE_NUM] = {0};
-    __matching->matched_line = (struct adj_multiline **)malloc(__matching->line_num * 8UL);
+    __matching->matched_line = (struct adj_line **)malloc(__matching->line_num * 8UL);
     for (size_t v = 0, e = 0; v < NODE_NUM; v++)
     {
         if (!isvisited[v])
         {
-            struct adj_multiline *cur = UDGraph->adj[v];
+            struct adj_line *cur = UDGraph->adj[v];
             while (cur != NULL && cur->ismarked == 0)
                 cur = cur->i_node == v ? cur->i_next : cur->j_next;
             if (cur != NULL)
@@ -97,7 +97,7 @@ static struct matching* get_all_matched_lines_in_UDGraph(const struct UDGraph_in
 static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool *isvisited)
 {
     isvisited[x_node] = 1;
-    struct adj_multiline *adj_line = UDGraph->adj[x_node];
+    struct adj_line *adj_line = UDGraph->adj[x_node];
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
@@ -105,7 +105,7 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
         if (!isvisited[y_node])
         {
             isvisited[y_node] = 1;
-            struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
+            struct adj_line *y_match_line = get_matched_line(UDGraph, y_node);
             int y_match = -1;
             if (y_match_line != NULL)
                 y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
@@ -133,7 +133,7 @@ static size_t update_augmenting_path_in_UWGraph(const struct UDGraph_info *UDGra
 /* the worst complexity of Hungarian algorithm is O(n^2) */
 struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    if (judge_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
@@ -155,7 +155,7 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
 static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
-    struct adj_multiline *adj_line = UDGraph->adj[x_node];
+    struct adj_line *adj_line = UDGraph->adj[x_node];
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
@@ -166,7 +166,7 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             if (node_weight[x_node] - node_weight[y_node] == adj_line->weight)
             {
                 isvisited[y_node] = 1;
-                struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
+                struct adj_line *y_match_line = get_matched_line(UDGraph, y_node);
                 int y_match = -1;
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
@@ -198,7 +198,7 @@ static size_t update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *U
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    if (judge_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
@@ -253,7 +253,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
 static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
-    struct adj_multiline *adj_line = UDGraph->adj[x_node];
+    struct adj_line *adj_line = UDGraph->adj[x_node];
     while (adj_line != NULL)
     {
         int y_node = (adj_line->i_node != x_node) ? adj_line->i_node : adj_line->j_node;
@@ -264,7 +264,7 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
             if (node_weight[x_node] + node_weight[y_node] == adj_line->weight)
             {
                 isvisited[y_node] = 1;
-                struct adj_multiline *y_match_line = get_matched_line(UDGraph, y_node);
+                struct adj_line *y_match_line = get_matched_line(UDGraph, y_node);
                 int y_match = -1;
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
@@ -296,7 +296,7 @@ static size_t update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *U
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
 struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    if (is_bipartite(UDGraph) != -1)
+    if (judge_bipartite(UDGraph) != -1)
     {
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
@@ -308,7 +308,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        struct adj_multiline *cur = UDGraph->adj[nodex[xcount]], *last;
+        struct adj_line *cur = UDGraph->adj[nodex[xcount]], *last;
         while (cur != NULL)
         {
             last = cur;
@@ -358,7 +358,7 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
 {
     color_set[node_id] = init_color;
     disjt_set[node_id] = node_id;
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;

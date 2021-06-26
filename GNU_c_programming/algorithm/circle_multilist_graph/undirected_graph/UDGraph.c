@@ -7,9 +7,9 @@
 
 #define NODE_NUM SHRT_MAX
 /* adjacency multilist line */
-struct adj_multiline
+struct adj_line
 {   int i_node, j_node;
-    struct adj_multiline *i_next, *j_next;
+    struct adj_line *i_next, *j_next;
     int64_t weight;
     _Bool ismarked;};
 
@@ -17,7 +17,7 @@ struct adj_multiline
 struct UDGraph_info
 {
     /* the closest adjacency node */
-    struct adj_multiline *adj[NODE_NUM];
+    struct adj_line *adj[NODE_NUM];
     size_t degree[NODE_NUM];
     size_t line_num;
 };
@@ -30,10 +30,10 @@ static void delete_all_lines_in_UDGraph(struct UDGraph_info *UDGraph)
 {
     for (size_t v = 0; v < NODE_NUM; v++)
     {
-        struct adj_multiline *cur = UDGraph->adj[v];
+        struct adj_line *cur = UDGraph->adj[v];
         while (cur != NULL)
         {
-            struct adj_multiline *tmp = cur;
+            struct adj_line *tmp = cur;
             if (cur->i_node == v)
             {
                 if (UDGraph->adj[cur->j_node] == cur)
@@ -64,12 +64,12 @@ static int add_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_lin
         return -1;
     }
     /* use weight-ascending order to creat an adjacency multilist */
-    struct adj_multiline *new_line = (struct adj_multiline *)malloc(sizeof(struct adj_multiline));
-    memset(new_line, 0, sizeof(struct adj_multiline));
+    struct adj_line *new_line = (struct adj_line *)malloc(sizeof(struct adj_line));
+    memset(new_line, 0, sizeof(struct adj_line));
     new_line->i_node = line.i_node;
     new_line->j_node = line.j_node;
     new_line->weight = line.weight;
-    struct adj_multiline *cur, *last;
+    struct adj_line *cur, *last;
 
     cur = UDGraph->adj[line.i_node], last = NULL;
     while (cur != NULL && cur->weight < line.weight)
@@ -121,7 +121,7 @@ int init_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line lines[], size_
 
 int delete_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line line)
 {
-    struct adj_multiline *cur, *last;
+    struct adj_line *cur, *last;
     cur = UDGraph->adj[line.i_node]; last = NULL;
     while (cur != NULL)
     {
@@ -187,7 +187,7 @@ int delete_a_line_in_UDGraph(struct UDGraph_info *UDGraph, struct undirc_line li
 static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int init_time, int *timestamp)
 {
     timestamp[node_id] = init_time;
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
@@ -217,7 +217,7 @@ static _Bool is_a_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int no
     /* timestamp in the traversal to the whole undirected graph */
     int timestamp[NODE_NUM] = {-1};
     timestamp[node_id] = 0;
-    struct adj_multiline *adj_line = UDGraph->adj[node_id];
+    struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL && sub_tree_num < 2)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
