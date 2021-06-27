@@ -6,6 +6,7 @@
 #include <limits.h>
 #include "shortest_path_in_UDGraph.c"
 
+/* get a replication of undirected graph */
 struct UDGraph_info *get_UDGraph_replic(const struct UDGraph_info *UDGraph)
 {
     struct adj_line **line_set = get_lines_set_in_ascd_order(UDGraph);

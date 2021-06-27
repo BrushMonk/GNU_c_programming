@@ -11,7 +11,7 @@ struct adj_line
 {   int i_node, j_node;
     struct adj_line *i_next, *j_next;
     int64_t weight;
-    _Bool ismarked;};
+    _Atomic(_Bool) ismarked;};
 
 /* weighted undirected graph infomation */
 struct UDGraph_info
