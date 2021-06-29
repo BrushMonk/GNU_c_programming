@@ -2,24 +2,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <limits.h>
+#include <stdint.h>
 static _Atomic(enum {left, right}) side;
 struct bin_node
 {   int key;
     struct bin_node *next[2];};
 
-// *queue[SHRT_MAX] is an array consist of pointers.
-static struct bin_node* volatile queue[SHRT_MAX];
+// *queue[INT16_MAX] is an array consist of pointers.
+static struct bin_node* volatile queue[INT16_MAX];
 static _Atomic(ptrdiff_t) front = 0, rear = 0;
 static void enqueue(struct bin_node *node)
 {
-    if (front == (rear + 1) % SHRT_MAX)
+    if (front == (rear + 1) % INT16_MAX)
     {
         fputs("queue overflow\n", stderr);
         exit(-1);
     }
     queue[rear++] = node;
-    rear %= SHRT_MAX;
+    rear %= INT16_MAX;
 }
 static struct bin_node* dequeue(void)
 {
@@ -30,7 +30,7 @@ static struct bin_node* dequeue(void)
     }
     struct bin_node *element = queue[front];
     front++;
-    front %= SHRT_MAX;
+    front %= INT16_MAX;
     return element;
 }
 

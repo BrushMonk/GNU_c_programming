@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <stdint.h>
 #include <inttypes.h>
 #include <time.h>
 #include <string.h>
@@ -14,7 +14,7 @@ struct AVL_node {
     /*balance factor */
     int_fast8_t bf;};
 static _Atomic(ptrdiff_t) top = -1;
-static struct AVL_node* volatile stack[SHRT_MAX];
+static struct AVL_node* volatile stack[INT16_MAX];
 
 /* pop up out of stack */
 static struct AVL_node* popup(void)
@@ -29,7 +29,7 @@ static struct AVL_node* popup(void)
 /* push struct AVL_node stack */
 static void push(struct AVL_node *node)
 {
-    if (top == SHRT_MAX)
+    if (top == INT16_MAX)
     {
         perror("stack overflow");
         exit(-1);
@@ -275,15 +275,15 @@ int32_t* Fisher_Yates_shuffle(int32_t *restrict array, size_t len, size_t shuffl
 
 int main(void)
 {
-    int32_t arr[INT_MAX];
-    for (size_t i = 0; i < (size_t)INT_MAX; i++) arr[i] = (int32_t)i;
-    int32_t *key_arr = Fisher_Yates_shuffle(arr, (size_t)INT_MAX, USHRT_MAX);
+    int32_t arr[INT32_MAX];
+    for (size_t i = 0; i < (size_t)INT32_MAX; i++) arr[i] = (int32_t)i;
+    int32_t *key_arr = Fisher_Yates_shuffle(arr, (size_t)INT32_MAX, UINT16_MAX);
     struct AVL_node **AVL_tree;
     *AVL_tree = NULL;
-    for (size_t i = 0; i < USHRT_MAX; i++)
+    for (size_t i = 0; i < UINT16_MAX; i++)
         insert_a_key_in_AVL(AVL_tree, key_arr[i]);
-    key_arr = Fisher_Yates_shuffle(key_arr, USHRT_MAX, USHRT_MAX);
-    for (size_t i = 0; i < USHRT_MAX; i++)
+    key_arr = Fisher_Yates_shuffle(key_arr, UINT16_MAX, UINT16_MAX);
+    for (size_t i = 0; i < UINT16_MAX; i++)
     {
         delete_a_key_and_fill_from_left_subtree_in_AVL(AVL_tree, key_arr[i++]);
         delete_a_key_and_fill_from_right_subtree_in_AVL(AVL_tree, key_arr[i]);

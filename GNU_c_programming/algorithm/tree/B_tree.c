@@ -1,11 +1,11 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include <limits.h>
+#include <inttypes.h>
 /* MAX_DEGREE is the maximum number of children */
 #define MAX_DEGREE 128
 struct B_node {
@@ -16,7 +16,7 @@ struct B_node {
     _Bool isleaf;};
 
 static _Atomic(int8_t) top_in_node_stack = -1;
-static struct B_node* volatile node_stack[SCHAR_MAX];
+static struct B_node* volatile node_stack[INT8_MAX];
 /* pop up out of node_stack */
 static struct B_node* popup_node(void)
 {
@@ -30,7 +30,7 @@ static struct B_node* popup_node(void)
 /* push struct B_node into node_stack */
 static void push_node(struct B_node *node)
 {
-    if (top_in_node_stack == SCHAR_MAX)
+    if (top_in_node_stack == INT8_MAX)
     {
         perror("node_stack overflow:");
         exit(-1);
@@ -39,7 +39,7 @@ static void push_node(struct B_node *node)
 }
 
 static _Atomic(int8_t) top_in_pos_stack = -1;
-static int16_t volatile pos_stack[SCHAR_MAX];
+static int16_t volatile pos_stack[INT8_MAX];
 /* pop up out of pos_stack */
 static int16_t popup_pos(void)
 {
@@ -53,7 +53,7 @@ static int16_t popup_pos(void)
 /* push position number into pos_stack */
 static void push_pos(int16_t pos)
 {
-    if (top_in_pos_stack == SCHAR_MAX)
+    if (top_in_pos_stack == INT8_MAX)
     {
         perror("pos_stack overflow:");
         exit(-1);

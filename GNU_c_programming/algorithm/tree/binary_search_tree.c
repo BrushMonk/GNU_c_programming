@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stddef.h>
-#include <limits.h>
+#include <stdint.h>
 struct bin_node {
     int32_t node_id;
     struct bin_node *left, *right;};
 
-// *stack[SHRT_MAX] is an array consist of pointers.
-static struct bin_node* volatile stack[SHRT_MAX];
+// *stack[INT16_MAX] is an array consist of pointers.
+static struct bin_node* volatile stack[INT16_MAX];
 static _Atomic(ptrdiff_t) top = -1;
 /* pop up out of stack */
 static struct bin_node* popup(void)
@@ -22,7 +22,7 @@ static struct bin_node* popup(void)
 /* push into stack */
 static void push(struct bin_node *node)
 {
-    if (top == SHRT_MAX){
+    if (top == INT16_MAX){
     perror("stack overflow");
     exit(-1);}
     stack[++top] = node;
