@@ -1,9 +1,4 @@
 #pragma once
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
 #include "shortest_path_in_UDGraph.c"
 
 /* get a replication of undirected graph */
@@ -79,7 +74,7 @@ static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info
         trav_loop_until_end_and_push_to_stack_in_UDGraph(UDGraph, idstack, weightstack, adj_id);
     }
     /* push the lineless node into the stack */
-    if (top == INT_MAX)
+    if (top == NODE_NUM << 8)
     {
         perror("node_stack overflow:");
         delete_all_lines_in_UDGraph(UDGraph);
@@ -97,7 +92,7 @@ static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
     struct UDGraph_info *unvis_UDGraph = get_UDGraph_replic(UDGraph);
-    int idstack[INT_MAX]; int64_t weightstack[INT_MAX]; top = -1;
+    int idstack[NODE_NUM << 8]; int64_t weightstack[NODE_NUM << 8]; top = -1;
     trav_loop_until_end_and_push_to_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *last = NULL, *path_node;
     while (top == -1)

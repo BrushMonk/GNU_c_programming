@@ -1,10 +1,10 @@
 #pragma once
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define NODE_NUM 1024
+#define NODE_NUM INT16_MAX
 /* adjacency list node */
 struct adj_node
 {   int node_id;

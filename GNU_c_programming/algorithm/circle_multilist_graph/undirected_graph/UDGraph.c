@@ -1,11 +1,10 @@
 #pragma once
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
-#define NODE_NUM SHRT_MAX
+#define NODE_NUM INT16_MAX
 /* adjacency multilist line */
 struct adj_line
 {   int i_node, j_node;

@@ -1,12 +1,5 @@
 #pragma once
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <wchar.h>
 #include "UDGraph.c"
-#define MAX_SLACK 0x7fffffff7fffffff
 /* x node subset from bipartite graph */
 static int volatile *nodex;
 static _Atomic(size_t) x_num = 0;
@@ -216,7 +209,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        wmemset(slack, INT_MAX, sizeof(slack));
+        memcpy(slack, (int64_t[y_num]){INT64_MAX}, sizeof(slack));
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -226,12 +219,12 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            int64_t min_slack = MAX_SLACK;
+            int64_t min_slack = INT64_MAX;
             for (size_t ycount = 0; ycount < y_num; ycount++)
                 if (!isvisited[nodey[ycount]] && min_slack > slack[nodey[ycount]])
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[ycount]];
-            if (min_slack >= MAX_SLACK) break;
+            if (min_slack >= INT64_MAX) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* increase visited x node weight by minimum slack value */
@@ -320,7 +313,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        wmemset(slack, INT_MAX, sizeof(slack));
+        memcpy(slack, (int64_t[y_num]){INT64_MAX}, sizeof(slack));
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -330,12 +323,12 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                 perf_matching->line_num++;
                 break;
             }
-            int64_t min_slack = MAX_SLACK;
+            int64_t min_slack = INT64_MAX;
             for (size_t ycount = 0; ycount < y_num; ycount++)
                 if (!isvisited[nodey[ycount]] && min_slack > slack[nodey[ycount]])
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[ycount]];
-            if (min_slack >= MAX_SLACK) break;
+            if (min_slack >= INT64_MAX) break;
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* decrease visited x node weight by minimum slack value */
