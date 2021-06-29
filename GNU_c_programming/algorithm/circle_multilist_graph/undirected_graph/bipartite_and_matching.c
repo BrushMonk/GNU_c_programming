@@ -1,10 +1,10 @@
 #pragma once
 #include "UDGraph.c"
 /* x node subset from bipartite graph */
-static int volatile *nodex;
+static int *volatile nodex;
 static _Atomic(size_t) x_num = 0;
 /* y node subset from bipartite graph */
-static int volatile *nodey;
+static int *volatile nodey;
 static _Atomic(size_t) y_num = 0;
 
 static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
@@ -68,7 +68,7 @@ static struct adj_line *get_matched_line(const struct UDGraph_info *UDGraph, int
 
 static struct matching* get_all_matched_lines_in_UDGraph(const struct UDGraph_info *UDGraph, struct matching *__matching)
 {
-    _Bool *isvisited[NODE_NUM] = {0};
+    _Bool isvisited[NODE_NUM] = {0};
     __matching->matched_line = (struct adj_line **)malloc(__matching->line_num * 8UL);
     for (size_t v = 0, e = 0; v < NODE_NUM; v++)
     {
@@ -209,7 +209,9 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        memcpy(slack, (int64_t[y_num]){INT64_MAX}, sizeof(slack));
+        for (size_t ycount = 0; ycount < y_num; ycount++)
+        /* reset all slack value INT64_MAX */
+            slack[ycount] = INT64_MAX;
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -313,7 +315,9 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        memcpy(slack, (int64_t[y_num]){INT64_MAX}, sizeof(slack));
+        for (size_t ycount = 0; ycount < y_num; ycount++)
+        /* reset all slack value INT64_MAX */
+            slack[ycount] = INT64_MAX;
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
