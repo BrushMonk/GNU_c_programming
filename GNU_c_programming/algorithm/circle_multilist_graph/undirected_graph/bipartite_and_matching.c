@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <wchar.h>
 #include "UDGraph.c"
-#define MAX_SLACK 0x7f7f7f7f7f7f7f7f
+#define MAX_SLACK 0x7fffffff7fffffff
 /* x node subset from bipartite graph */
 static int volatile *nodex;
 static _Atomic(size_t) x_num = 0;
@@ -215,7 +216,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        memset(slack, 0x7f, sizeof(slack));
+        wmemset(slack, INT_MAX, sizeof(slack));
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -319,7 +320,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        memset(slack, 0x7f, sizeof(slack));
+        wmemset(slack, INT_MAX, sizeof(slack));
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
