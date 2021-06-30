@@ -199,8 +199,6 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
-    /* slack value used for increasing node weight */
-    int64_t slack[y_num];
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
@@ -209,9 +207,8 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        for (size_t ycount = 0; ycount < y_num; ycount++)
-        /* reset all slack value INT64_MAX */
-            slack[ycount] = INT64_MAX;
+        /* slack value used for increasing node weight */
+        int64_t slack[y_num] = {INT64_MAX};
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -299,8 +296,6 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
-    /* slack value used for variating node weight */
-    int64_t slack[y_num];
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
@@ -315,9 +310,8 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
-        for (size_t ycount = 0; ycount < y_num; ycount++)
-        /* reset all slack value INT64_MAX */
-            slack[ycount] = INT64_MAX;
+        /* slack value used for variating node weight */
+        int64_t slack[y_num] = {INT64_MAX};
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
