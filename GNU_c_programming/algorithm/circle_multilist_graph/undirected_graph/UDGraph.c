@@ -281,3 +281,7 @@ static void delete_all_nodes_in_undirc_tree(struct tree_node *node)
     free(node);
     return;
 }
+
+int latest_common_ancestor_in_undirc_tree(struct tree_node *root, int node1, int node2)
+{
+}

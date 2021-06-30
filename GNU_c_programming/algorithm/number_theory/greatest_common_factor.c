@@ -1,6 +1,6 @@
 #pragma once
 #include <inttypes.h>
-uint64_t GCD_via_differ(uint64_t a, uint64_t b)
+uint64_t greatest_common_factor_via_differ(uint64_t a, uint64_t b)
 {
     uint64_t differ;
     if(b > a)
@@ -14,7 +14,7 @@ uint64_t GCD_via_differ(uint64_t a, uint64_t b)
     return a;
 }
 
-uint64_t GCD_via_divide_and_conquer(uint64_t a, uint64_t b)
+uint64_t greatest_common_factor_via_divide_and_conquer(uint64_t a, uint64_t b)
 {
     uint8_t power_of_2 = 0;
     if (a == 0) return b;
@@ -37,7 +37,7 @@ uint64_t GCD_via_divide_and_conquer(uint64_t a, uint64_t b)
     return b << power_of_2/* return b*power(2, power_of_2) */;
 }
 
-uint64_t GCD_via_remainder(uint64_t a, uint64_t b)
+uint64_t greatest_common_factor_via_remainder(uint64_t a, uint64_t b)
 {
     uint64_t remainder;
     if (b > a)
