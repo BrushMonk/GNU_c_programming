@@ -349,7 +349,6 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
 static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[], int disjt_set[])
 {
     color_set[node_id] = init_color;
-    disjt_set[node_id] = node_id;
     struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
@@ -379,8 +378,10 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
     size_t odd_cycle_num = 0;
-    int disjt_set[NODE_NUM] = {-1};
+    int disjt_set[NODE_NUM];
     int color_set[NODE_NUM] = {-1};
+    for (int v = 0; v < NODE_NUM; v++)
+        disjt_set[v] = v;
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {

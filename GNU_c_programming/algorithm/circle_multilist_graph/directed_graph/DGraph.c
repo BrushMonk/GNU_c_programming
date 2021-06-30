@@ -194,7 +194,7 @@ static size_t get_SCC_from_a_node_in_DGraph(const struct DGraph_info *DGraph, in
             timestamp[node_id] = timestamp[cur_id] < timestamp[node_id] ? timestamp[cur_id] : timestamp[node_id];
             disjt_set[node_id] = timestamp[cur_id] < timestamp[node_id] ? disjt_set[cur_id] : disjt_set[node_id];
     }
-    if (timestamp[node_id] == init_time)
+    if (timestamp[node_id] == init_time && top_in_SCC_stack != -1)
     {
         fputs("Here is strongly connected component: ", stdout);
         while(SCC_stack[top_in_SCC_stack] != node_id)

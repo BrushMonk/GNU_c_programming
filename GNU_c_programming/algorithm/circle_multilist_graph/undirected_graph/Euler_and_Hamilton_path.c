@@ -95,7 +95,7 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int idstack[NODE_NUM << 8]; int64_t weightstack[NODE_NUM << 8]; top = -1;
     trav_loop_until_end_and_push_to_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *last = NULL, *path_node;
-    while (top == -1)
+    while (top != -1)
     {
         if (last != NULL)
         {
