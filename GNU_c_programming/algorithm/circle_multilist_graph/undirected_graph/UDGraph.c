@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define NODE_NUM INT16_MAX
 /* adjacency multilist line */
@@ -202,12 +203,12 @@ static int Tarjan_algorithm_from_a_node_in_UDGraph(const struct UDGraph_info *UD
     return timestamp[node_id];
 }
 
-static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node1, int node2)
+static _Bool is_a_bridge_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id1, int node_id2)
 {
     /* timestamp in the traversal to the whole undirected graph */
     int timestamp[NODE_NUM] = {-1};
-    Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node1, 0, timestamp);
-    return timestamp[node2] == 1;
+    Tarjan_algorithm_from_a_node_in_UDGraph(UDGraph, node_id1, 0, timestamp);
+    return timestamp[node_id2] == 1;
 }
 
 static _Bool is_a_cut_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id)
@@ -282,6 +283,21 @@ static void delete_all_nodes_in_undirc_tree(struct tree_node *node)
     return;
 }
 
-int latest_common_ancestor_in_undirc_tree(struct tree_node *root, int node1, int node2)
+static int find_disjt_root(int *disjt_set, int node_id)
 {
+    return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
+}
+
+int latest_common_ancestor_in_undirc_tree(struct tree_node *node, int *disjt_set, _Bool *isvisited, int node_id,...)
+{
+    disjt_set[node->node_id] = node->node_id;
+    for (size_t i = 0; i < node->child_num; i++)
+        latest_common_ancestor_in_undirc_tree(node->next[i], node_id1, node_id2, disjt_set);
+    if ( isvisited[node_id1] && node->next[i]->node_id == node_id2 )
+        return find_disjt_root(disjt_set, node_id1);
+    else if ( isvisited[node_id2] && node->next[i]->node_id == node_id1 )
+        return find_disjt_root(disjt_set, node_id2);
+    isvisited[node->node_id] = 1;
+    disjt_set[node->node_id] = disjt_set[node->parent_id];
+    return -1;
 }

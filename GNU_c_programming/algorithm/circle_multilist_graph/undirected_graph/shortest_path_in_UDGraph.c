@@ -284,11 +284,6 @@ static void merge_sort_undirc_line(struct adj_line **restrict arr, size_t len)
     return;
 }
 
-static int find_disjt_root(int *disjt_set, int node_id)
-{
-    return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
-}
-
 /* get the set made up of all UDGraph lines in order from small to great */
 static struct adj_line **get_lines_set_in_ascd_order(const struct UDGraph_info *UDGraph)
 {

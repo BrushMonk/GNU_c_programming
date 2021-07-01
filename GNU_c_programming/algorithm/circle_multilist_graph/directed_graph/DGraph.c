@@ -142,13 +142,7 @@ int delete_a_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
 
 static int find_disjt_root(int *disjt_set, int node_id)
 {
-    if (disjt_set[node_id] == node_id)
-        return node_id;
-    else
-    {
-        disjt_set[node_id] = find_disjt_root(disjt_set, node_id);
-        return disjt_set[node_id];
-    }
+    return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
 }
 
 static int Tarjan_algorithm_from_a_node_in_DGraph(const struct DGraph_info *DGraph, int node_id, int init_time, int *timestamp)
