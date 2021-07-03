@@ -289,37 +289,40 @@ static int find_disjt_root(int *disjt_set, int node_id)
 }
 
 /* find latest common ancestor */
-int lookup_LCA_in_undirc_tree(struct tree_node *node, int *disjt_set, _Bool *isvisited, va_list ap)
+static int lookup_LCA_in_undirc_tree(struct tree_node *node, int *disjt_set, _Bool *isvisited, va_list ap)
 {
     disjt_set[node->node_id] = node->node_id;
-    for (size_t i = 0; i < node->child_num; i++)
-    {
-        /* latest common ancestor */
-        int LCA = lookup_LCA_in_undirc_tree(node->next[i], disjt_set, isvisited, ap);
-        if (LCA != -1) return LCA;
-    }
+    /* latest common ancestor */
+    int LCA = -1;
+    for (size_t i = 0; i < node->child_num && LCA == -1; i++)
+        LCA = lookup_LCA_in_undirc_tree(node->next[i], disjt_set, isvisited, ap);
     isvisited[node->node_id] = 1;
-    _Bool allvisited = 1, isleft = 0;
-    int v; va_list ap_copy;
-    __va_copy(ap_copy, ap);
-    while ((v = va_arg(ap, int)) != -1)
+    if (LCA == -1)
     {
-        allvisited *= isvisited[v];
-        if (node->node_id == v) isleft = 1;
-    }
-    if (allvisited && isleft)
-    {
-        v = va_arg(ap_copy, int);
-        if (v != node->node_id)
-            return find_disjt_root(disjt_set, v);
-        else
+        _Bool allvisited = 1, isleft = 0;
+        va_list ap_copy; __va_copy(ap_copy, ap);
+        int v;
+        while ((v = va_arg(ap, int)) != -1)
+        {
+            allvisited *= isvisited[v];
+            if (node->node_id == v) isleft = 1;
+        }
+        /* if current node is in an input nodes
+        and all input nodes have been visited, find the disjoint set */
+        if (allvisited && isleft)
         {
             v = va_arg(ap_copy, int);
-            return v == -1 ? node->node_id : find_disjt_root(disjt_set, v);
+            if (v != node->node_id)
+                return find_disjt_root(disjt_set, v);
+            else
+            {
+                v = va_arg(ap_copy, int);
+                return v == -1 ? node->node_id : find_disjt_root(disjt_set, v);
+            }
         }
+        else disjt_set[node->node_id] = node->parent_id;
     }
-    else disjt_set[node->node_id] = node->parent_id;
-    return -1;
+    return LCA;
 }
 
 /* get variadic node ids to find latest common ancestor */
