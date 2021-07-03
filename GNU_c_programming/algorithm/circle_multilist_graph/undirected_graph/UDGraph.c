@@ -289,7 +289,7 @@ static int find_disjt_root(int *disjt_set, int node_id)
 }
 
 /* find latest common ancestor */
-static int lookup_LCA_in_undirc_tree(struct tree_node *node, int disjt_set[], _Bool isvisited[], size_t id_num, va_list ap)
+static int lookup_LCA_in_undirc_tree(struct tree_node *node, int disjt_set[], _Bool isvisited[], unsigned id_num, va_list ap)
 {
     disjt_set[node->node_id] = node->node_id;
     /* latest common ancestor */
@@ -326,7 +326,7 @@ static int lookup_LCA_in_undirc_tree(struct tree_node *node, int disjt_set[], _B
 }
 
 /* get variadic node ids to find latest common ancestor */
-int get_LCA_for_nodeids_in_undirc_tree(struct tree_node *root, size_t id_num, ...)
+int get_LCA_for_nodeids_in_undirc_tree(struct tree_node *root, unsigned id_num, ...)
 {
     va_list ap;
     va_start(ap, id_num);

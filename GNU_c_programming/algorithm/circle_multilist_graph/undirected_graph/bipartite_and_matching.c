@@ -58,7 +58,7 @@ struct matching
     size_t line_num;
     int64_t weight_sum;};
 
-static struct adj_line *get_matched_line(const struct UDGraph_info *UDGraph, int node_id)
+static inline struct adj_line *get_matched_line(const struct UDGraph_info *UDGraph, int node_id)
 {
     struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL && adj_line->ismarked == 0)
@@ -346,24 +346,23 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     return perf_matching;
 }
 
-static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[], int disjt_set[])
+static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, int spouse[], int disjt_set[])
 {
-    color_set[node_id] = init_color;
     struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
         int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
         int unmatched_id = -1;
-        if (color_set[adj_id] == -1)
+        if (color_set[adj_id] == -1 && adj_line->ismarked == 0)
         {
-            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, adj_id, !init_color, color_set, disjt_set);
+            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, adj_id, spouse, disjt_set);
             if (unmatched_id != -1)
             {
                 disjt_set[node_id] = unmatched_id;
                 return unmatched_id;
             }
         }
-        else if (color_set[adj_id] != init_color)
+        else if (color_set[adj_id] != init_color && adj_line->ismarked == 0)
         {
             color_set[adj_id] = init_color;
             return adj_id;
@@ -379,24 +378,24 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int unmatched_id = -1;
     size_t odd_cycle_num = 0;
     int disjt_set[NODE_NUM];
-    int color_set[NODE_NUM] = {-1};
+    int spouse[NODE_NUM] = {-1};
     for (int v = 0; v < NODE_NUM; v++)
         disjt_set[v] = v;
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {
-            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, color_set, disjt_set);
+            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, spouse, disjt_set);
             if (unmatched_id != -1)
             {
                 odd_cycle_num++;
                 for (int v = 0; v < NODE_NUM; v++)
                 {
-                    if (color_set[v] == 0 && disjt_set[v] == v)
+                    if (spouse[v] == 0 && disjt_set[v] == v)
                     {
                         nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
                         nodex[x_num - 1] = v;
                     }
-                    else if (color_set[v] == 1  && disjt_set[v] == v)
+                    else if (spouse[v] == 1  && disjt_set[v] == v)
                     {
                         nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
                         nodey[y_num - 1] = v;
