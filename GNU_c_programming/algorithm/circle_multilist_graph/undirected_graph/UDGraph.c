@@ -289,35 +289,35 @@ static int find_disjt_root(int *disjt_set, int node_id)
 }
 
 /* find latest common ancestor */
-static int lookup_LCA_in_undirc_tree(struct tree_node *node, int *disjt_set, _Bool *isvisited, va_list ap)
+static int lookup_LCA_in_undirc_tree(struct tree_node *node, int disjt_set[], _Bool isvisited[], size_t id_num, va_list ap)
 {
     disjt_set[node->node_id] = node->node_id;
     /* latest common ancestor */
     int LCA = -1;
     for (size_t i = 0; i < node->child_num && LCA == -1; i++)
-        LCA = lookup_LCA_in_undirc_tree(node->next[i], disjt_set, isvisited, ap);
-    isvisited[node->node_id] = 1;
+        LCA = lookup_LCA_in_undirc_tree(node->next[i], disjt_set, isvisited, id_num, ap);
+    isvisited[node->node_id] = 1; int v;
     if (LCA == -1)
     {
         _Bool allvisited = 1, isleft = 0;
         va_list ap_copy; __va_copy(ap_copy, ap);
-        int v;
-        while ((v = va_arg(ap, int)) != -1)
+        for (size_t count = 0; count < id_num; count++)
         {
+            v = va_arg(ap, int);
             allvisited *= isvisited[v];
             if (node->node_id == v) isleft = 1;
         }
-        /* if current node is in an input nodes
-        and all input nodes have been visited, find the disjoint set */
+        /* if current node is in an input nodes and
+        all input nodes have been visited, find the disjoint set */
         if (allvisited && isleft)
         {
-            v = va_arg(ap_copy, int);
-            if (v != node->node_id)
-                return find_disjt_root(disjt_set, v);
+            if (id_num < 2) return node->node_id;
             else
             {
-                v = va_arg(ap_copy, int);
-                return v == -1 ? node->node_id : find_disjt_root(disjt_set, v);
+                while ((v = va_arg(ap_copy, int)) == node->node_id);
+                ;
+                va_end(ap_copy);
+                return find_disjt_root(disjt_set, v);
             }
         }
         else disjt_set[node->node_id] = node->parent_id;
@@ -326,14 +326,14 @@ static int lookup_LCA_in_undirc_tree(struct tree_node *node, int *disjt_set, _Bo
 }
 
 /* get variadic node ids to find latest common ancestor */
-int get_LCA_for_nodeids_in_undirc_tree(struct tree_node *root, int id1, ...)
+int get_LCA_for_nodeids_in_undirc_tree(struct tree_node *root, size_t id_num, ...)
 {
     va_list ap;
-    va_start(ap, id1);
+    va_start(ap, id_num);
     _Bool isvisited[NODE_NUM] = {0};
     int disjt_set[NODE_NUM];
     /* latest common ancestor */
-    int LCA = lookup_LCA_in_undirc_tree(root, disjt_set, isvisited, ap);
+    int LCA = lookup_LCA_in_undirc_tree(root, disjt_set, isvisited, id_num, ap);
     va_end(ap);
     return LCA;
 }
