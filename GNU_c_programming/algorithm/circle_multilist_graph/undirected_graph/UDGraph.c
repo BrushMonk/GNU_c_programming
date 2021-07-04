@@ -301,7 +301,7 @@ static int lookup_LCA_in_undirc_tree(struct tree_node *node, int disjt_set[], _B
     {
         _Bool allvisited = 1, isleft = 0;
         va_list ap_copy; __va_copy(ap_copy, ap);
-        for (size_t count = 0; count < id_num; count++)
+        for (unsigned i = 0; i < id_num; i++)
         {
             v = va_arg(ap, int);
             allvisited *= isvisited[v];
