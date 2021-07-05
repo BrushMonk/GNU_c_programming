@@ -328,8 +328,7 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
     {
         nodes_set[v] = (struct tree_node *)malloc(sizeof(struct tree_node));
         memset(nodes_set[v], 0, sizeof(struct tree_node));
-        nodes_set[v]->node_id = v;
-        disjt_set[v] = v;
+        disjt_set[v] = nodes_set[v]->node_id = v;
     }
     struct tree_node *MST_root = nodes_set[lines_set[0]->i_node];
     MST_root->parent_id = -1;

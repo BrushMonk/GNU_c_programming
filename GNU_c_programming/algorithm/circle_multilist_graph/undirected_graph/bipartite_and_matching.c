@@ -27,6 +27,8 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     return -1;
 }
 
+/* if the undirected graph is bipartite, return -1.
+or else return the node id who ocurs in odd cycle first. */
 static int judge_bipartite(const struct UDGraph_info *UDGraph)
 {
     int color_set[NODE_NUM] = {-1};
@@ -199,15 +201,14 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
     struct matching *perf_matching; *perf_matching = (struct matching){0};
+    /* get minimum node weight */
     for (size_t xcount = 0; xcount < x_num; xcount++)
-    {
         if (UDGraph->adj[nodex[xcount]] != NULL)
             node_weight[nodex[xcount]] = UDGraph->adj[nodex[xcount]]->weight;
-    }
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         /* slack value used for increasing node weight */
-        int64_t slack[y_num] = {INT64_MAX};
+        int64_t slack[NODE_NUM] = {INT64_MAX};
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -223,6 +224,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[ycount]];
             if (min_slack >= INT64_MAX) break;
+            /* update slack */
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* increase visited x node weight by minimum slack value */
@@ -296,6 +298,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     int64_t node_weight[NODE_NUM] = {0};
     _Bool isvisited[NODE_NUM] = {0};
     struct matching *perf_matching; *perf_matching = (struct matching){0};
+    /* get maximum node weight */
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         struct adj_line *cur = UDGraph->adj[nodex[xcount]], *last;
@@ -310,7 +313,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         /* slack value used for variating node weight */
-        int64_t slack[y_num] = {INT64_MAX};
+        int64_t slack[NODE_NUM] = {INT64_MAX};
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
@@ -326,6 +329,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                     /* search for minimum slack from unvisited y nodes */
                     min_slack = slack[nodey[ycount]];
             if (min_slack >= INT64_MAX) break;
+            /* update slack */
             for (size_t i = 0; i < x_num; i++)
                 if (isvisited[nodex[i]])
                     /* decrease visited x node weight by minimum slack value */
@@ -375,11 +379,10 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
 {
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
-    size_t odd_cycle_num = 0;
-    int disjt_set[NODE_NUM];
+    size_t odd_cycle_num[NODE_NUM] = {0};
+    int *odd_cycle[NODE_NUM] = {NULL};
     int spouse[NODE_NUM] = {-1};
-    for (int v = 0; v < NODE_NUM; v++)
-        disjt_set[v] = v;
+    int64_t node_weight[NODE_NUM] = {0};
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {
