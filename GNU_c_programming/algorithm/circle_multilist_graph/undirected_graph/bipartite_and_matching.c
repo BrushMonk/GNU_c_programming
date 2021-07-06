@@ -147,6 +147,16 @@ struct matching *Hungarian_algorithm_in_UWGraph(const struct UDGraph_info *UDGra
     return max_matching;
 }
 
+static int64_t *get_min_node_weight(const struct UDGraph_info *UDGraph)
+{
+    static int64_t node_weight[NODE_NUM] = {0};
+    /* get minimum node weight */
+    for (size_t xcount = 0; xcount < x_num; xcount++)
+        if (UDGraph->adj[nodex[xcount]] != NULL)
+            node_weight[nodex[xcount]] = UDGraph->adj[nodex[xcount]]->weight;
+    return node_weight;
+}
+
 static _Bool update_min_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
@@ -198,13 +208,9 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
-    int64_t node_weight[NODE_NUM] = {0};
-    _Bool isvisited[NODE_NUM] = {0};
+    int64_t *node_weight = get_min_node_weight(UDGraph);
     struct matching *perf_matching; *perf_matching = (struct matching){0};
-    /* get minimum node weight */
-    for (size_t xcount = 0; xcount < x_num; xcount++)
-        if (UDGraph->adj[nodex[xcount]] != NULL)
-            node_weight[nodex[xcount]] = UDGraph->adj[nodex[xcount]]->weight;
+    _Bool isvisited[NODE_NUM] = {0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         /* slack value used for increasing node weight */
@@ -242,6 +248,24 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
     x_num = 0; y_num = 0; free(nodex); free(nodey);
     perf_matching = get_all_matched_lines_in_UDGraph(UDGraph, perf_matching);
     return perf_matching;
+}
+
+static int64_t* get_max_node_weight(const struct UDGraph_info *UDGraph)
+{
+    static int64_t node_weight[NODE_NUM] = {0};
+    /* get maximum node weight */
+    for (size_t xcount = 0; xcount < x_num; xcount++)
+    {
+        struct adj_line *cur = UDGraph->adj[nodex[xcount]], *last;
+        while (cur != NULL)
+        {
+            last = cur;
+            cur = (cur->i_node == nodex[xcount]) ? cur->i_next : cur->j_next;
+        }
+        if (last != NULL)
+            node_weight[nodex[xcount]] = last->weight;
+    }
+    return node_weight;
 }
 
 static _Bool update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
@@ -295,21 +319,9 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
         fputs("The undirected graph is not bipartite.\n", stderr);
         return NULL;
     }
-    int64_t node_weight[NODE_NUM] = {0};
-    _Bool isvisited[NODE_NUM] = {0};
+    int64_t *node_weight = get_max_node_weight(UDGraph);
     struct matching *perf_matching; *perf_matching = (struct matching){0};
-    /* get maximum node weight */
-    for (size_t xcount = 0; xcount < x_num; xcount++)
-    {
-        struct adj_line *cur = UDGraph->adj[nodex[xcount]], *last;
-        while (cur != NULL)
-        {
-            last = cur;
-            cur = (cur->i_node == nodex[xcount]) ? cur->i_next : cur->j_next;
-        }
-        if (last != NULL)
-            node_weight[nodex[xcount]] = last->weight;
-    }
+    _Bool isvisited[NODE_NUM] = {0};
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         /* slack value used for variating node weight */
@@ -377,12 +389,12 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
 
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
+    int64_t *node_weight = get_max_node_weight(UDGraph);
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
     size_t odd_cycle_num[NODE_NUM] = {0};
     int *odd_cycle[NODE_NUM] = {NULL};
     int spouse[NODE_NUM] = {-1};
-    int64_t node_weight[NODE_NUM] = {0};
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {
@@ -414,4 +426,9 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     {
         return perf_matching;
     }
+}
+
+struct matching* min_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+{
+    int64_t *node_weight = get_min_node_weight(UDGraph);
 }
