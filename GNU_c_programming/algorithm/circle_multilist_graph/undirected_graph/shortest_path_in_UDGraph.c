@@ -362,6 +362,7 @@ int64_t** Floyd_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
     struct adj_line **lines_set = get_lines_set_in_ascd_order(UDGraph);
     for (size_t e = 0；e < UDGraph->line_num; e++)
         dist[lines_set[e]->j_node][lines_set[e]->i_node] = dist[lines_set[e]->i_node][lines_set[e]->j_node] = lines_set[e]->weight;
+    free(lines_set);
     for (int v = 0; v < NODE_NUM; v++)
         dist[v][v] = 0;
     for (int v = 0; v < NODE_NUM; v++)
