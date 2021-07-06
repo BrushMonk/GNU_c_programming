@@ -270,15 +270,14 @@ int64_t** Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
     static int64_t dist[NODE_NUM][NODE_NUM] = {-1};
     for (int v = 0; v < NODE_NUM; v++)
     {
-        struct adj_node *in_adj, *out_adj;
-        for (in_adj = DGraph->inadj[v]; in_adj != NULL; in_adj = in_adj->next)
-            for (out_adj = DGraph->outadj[v]; out_adj != NULL; out_adj = out_adj->next)
-            {
-                if (dist[v][out_adj->node_id] == -1 || dist[v][out_adj->node_id] > out_adj->weight)
-                    dist[v][out_adj->node_id] = out_adj->weight;
-                if (dist[in_adj->node_id][out_adj->node_id] == -1 || dist[in_adj->node_id][out_adj->node_id] > in_adj->weight + out_adj->weight)
-                    dist[in_adj->node_id][out_adj->node_id] = in_adj->weight + out_adj->weight;
-            }
+        dist[v][v] = 0;
+        dist[v][out_adj->node_id] = out_adj->weight;
     }
+    for (int v = 0; v < NODE_NUM; v++)
+        for (int i = 0; i < NODE_NUM; i++)
+            for (int j = 0; j < NODE_NUM; j++)
+                if (dist[i][v] != -1 && dist[v][j] != -1 &&
+                (dist[i][j] == -1 || dist[i][j] > dist[i][v] + dist[v][j]))
+                    dist[i][j] = dist[i][v] + dist[v][j];
     return (int64_t **)dist;
 }

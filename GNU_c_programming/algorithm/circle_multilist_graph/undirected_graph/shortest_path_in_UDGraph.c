@@ -289,8 +289,8 @@ static struct adj_line **get_lines_set_in_ascd_order(const struct UDGraph_info *
 {
     /* a set made up of all UDGraph lines in order from small to great */
     struct adj_line **lines_set = (struct adj_line **)malloc(UDGraph->line_num * 8UL);
-    struct adj_line *cur;
-    for (size_t v = 0, e = 0; v < NODE_NUM && e < UDGraph->line_num; v++)
+    struct adj_line *cur; int v; size_t e;
+    for (v = 0, e = 0; v < NODE_NUM && e < UDGraph->line_num; v++)
     {
         cur = UDGraph->adj[v];
         while (cur != NULL)
@@ -304,7 +304,7 @@ static struct adj_line **get_lines_set_in_ascd_order(const struct UDGraph_info *
         }
     }
     merge_sort_undirc_line(lines_set, UDGraph->line_num);
-    for (size_t v = 0; v < NODE_NUM; v++)
+    for (v = 0; v < NODE_NUM; v++)
     {
         cur = UDGraph->adj[v];
         while (cur != NULL)
@@ -354,4 +354,21 @@ struct tree_node *Kruskal_algorithm_in_UDGraph(const struct UDGraph_info *UDGrap
     }
     free(lines_set);
     return MST_root;
+}
+
+int64_t** Floyd_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
+{
+    static int64_t dist[NODE_NUM][NODE_NUM] = {-1};
+    struct adj_line **lines_set = get_lines_set_in_ascd_order(UDGraph);
+    for (size_t e = 0；e < UDGraph->line_num; e++)
+        dist[lines_set[e]->j_node][lines_set[e]->i_node] = dist[lines_set[e]->i_node][lines_set[e]->j_node] = lines_set[e]->weight;
+    for (int v = 0; v < NODE_NUM; v++)
+        dist[v][v] = 0;
+    for (int v = 0; v < NODE_NUM; v++)
+        for (int i = 0; i < NODE_NUM; i++)
+            for (int j = 0; j < NODE_NUM; j++)
+                if (dist[i][v] != -1 && dist[v][j] != -1 &&
+                (dist[i][j] == -1 || dist[i][j] > dist[i][v] + dist[v][j]))
+                    dist[i][j] = dist[i][v] + dist[v][j];
+    return (int64_t **)dist;
 }

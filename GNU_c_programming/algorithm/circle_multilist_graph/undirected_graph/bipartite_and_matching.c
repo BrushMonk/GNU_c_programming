@@ -236,13 +236,11 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                     /* increase visited x node weight by minimum slack value */
                     node_weight[nodex[i]] += min_slack;
             for (size_t j = 0; j < y_num; j++)
-            {
-                if (isvisited[nodey[j]])
-                    /* increase visited y node weight by minimum slack value */
-                    node_weight[nodey[j]] += min_slack;
+                isvisited[nodey[j]] ?
+                /* increase all visited y node weight by minimum slack value */
+                node_weight[nodey[j]] += min_slack :
                 /* decrease all unvisited y nodes by minimum slack value */
-                else slack[nodey[j]] -= min_slack;
-            }
+                slack[nodey[j]] -= min_slack;
         }
     }
     x_num = 0; y_num = 0; free(nodex); free(nodey);
@@ -347,13 +345,11 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
                     /* decrease visited x node weight by minimum slack value */
                     node_weight[nodex[i]] -= min_slack;
             for (size_t j = 0; j < y_num; j++)
-            {
-                if (isvisited[nodey[j]])
-                    /* increase visited y node weight by minimum slack value */
-                    node_weight[nodey[j]] += min_slack;
+                isvisited[nodey[j]] ?
+                /* increase visited y node weight by minimum slack value */
+                node_weight[nodey[j]] += min_slack :
                 /* decrease all unvisited y nodes by minimum slack value */
-                else slack[nodey[j]] -= min_slack;
-            }
+                slack[nodey[j]] -= min_slack;
         }
     }
     x_num = 0; y_num = 0; free(nodex); free(nodey);
