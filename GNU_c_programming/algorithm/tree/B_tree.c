@@ -21,20 +21,14 @@ static struct B_node* volatile node_stack[INT8_MAX];
 static struct B_node* popup_node(void)
 {
     if (top_in_node_stack == -1)
-    {
-        perror("pop up on the empty node_stack, abort:");
-        exit(-1);
-    }
+        perror("pop up on the empty node_stack, abort:"), exit(-1);
     return node_stack[top_in_node_stack--];
 }
 /* push struct B_node into node_stack */
 static void push_node(struct B_node *node)
 {
     if (top_in_node_stack == INT8_MAX)
-    {
-        perror("node_stack overflow:");
-        exit(-1);
-    }
+        perror("node_stack overflow:"), exit(-1);
     node_stack[++top_in_node_stack] = node;
 }
 
@@ -44,20 +38,14 @@ static int16_t volatile pos_stack[INT8_MAX];
 static int16_t popup_pos(void)
 {
     if (top_in_pos_stack == -1)
-    {
-        perror("pop up on the empty node_stack, abort:");
-        exit(-1);
-    }
+        perror("pop up on the empty node_stack, abort:"), exit(-1);
     return pos_stack[top_in_pos_stack--];
 }
 /* push position number into pos_stack */
 static void push_pos(int16_t pos)
 {
     if (top_in_pos_stack == INT8_MAX)
-    {
-        perror("pos_stack overflow:");
-        exit(-1);
-    }
+        perror("pos_stack overflow:"), exit(-1);
     pos_stack[++top_in_pos_stack] = pos;
 }
 
@@ -388,10 +376,7 @@ int delete_a_key_in_B_leaf_and_merge(struct B_node *leaf, int16_t del_pos)
         else
         {
             for (int16_t i = del_pos; i < leaf->last_index; i++)
-            {
-                leaf->key[i] = leaf->key[i + 1];
-                leaf->fd[i] = leaf->fd[i + 1];
-            }
+                leaf->key[i] = leaf->key[i + 1], leaf->fd[i] = leaf->fd[i + 1];
             leaf->last_index--;
             leaf->key[leaf->last_index] = 0;
             leaf->fd[leaf->last_index] = -1;
@@ -449,10 +434,7 @@ int delete_a_key_in_B_leaf_and_merge(struct B_node *leaf, int16_t del_pos)
         if (file_is_occupied_in_a_B_node(leaf, del_pos))
             return -1;
         for (int16_t i = del_pos; i < leaf->last_index; i++)
-        {
-            leaf->key[i] = leaf->key[i + 1];
-            leaf->fd[i] = leaf->fd[i + 1];
-        }
+            leaf->key[i] = leaf->key[i + 1], leaf->fd[i] = leaf->fd[i + 1];
         leaf->last_index--;
         leaf->key[leaf->last_index] = 0;
         leaf->fd[leaf->last_index] = -1;

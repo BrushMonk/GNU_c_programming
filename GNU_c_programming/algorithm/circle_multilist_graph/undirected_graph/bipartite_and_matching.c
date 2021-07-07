@@ -390,7 +390,14 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int unmatched_id = -1;
     size_t odd_cycle_num[NODE_NUM] = {0};
     int *odd_cycle[NODE_NUM] = {NULL};
-    int spouse[NODE_NUM] = {-1};
+    int spouse[NODE_NUM] = {-1}; int color_set[NODE_NUM] = {-1};
+    int disjt_set[NODE_NUM];
+    for (int v = 0; v < NODE_NUM; v++)
+    {
+        int disjt_set[NODE_NUM] = v;
+        odd_cycle[v] = (int *)realloc(odd_cycle, ++odd_cycle_num[v]* 8UL);
+        odd_cycle[v][0] = v;
+    }
     for (int v = 0; v < NODE_NUM; v++)
         if (color_set[v] == -1)
         {

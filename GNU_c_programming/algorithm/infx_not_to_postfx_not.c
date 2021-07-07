@@ -36,19 +36,13 @@ static _Atomic(ptrdiff_t) oprtr_stack_top = -1;
 static char popup_oprtr(void)
 {
     if (oprtr_stack_top == -1)
-    {
-        perror("pop() on the empty op stack, abort");
-        exit(-1);
-    }
+        perror("pop() on the empty op stack, abort"), exit(-1);
     return oprtr_stack[oprtr_stack_top--];
 }
 static void push_oprtr(char ch)
 {
     if (oprtr_stack_top == STACKSIZE)
-    {
-        perror("stack overflow");
-        exit(-1);
-    }
+        perror("stack overflow"), exit(-1);
     oprtr_stack[++oprtr_stack_top] = ch;
 }
 
@@ -82,10 +76,7 @@ static void free_postfix_not(struct postfix_op **postfix_not)
 {
     struct postfix_op *tmp;
     for(struct postfix_op *start = *postfix_not; start != NULL; free(tmp))
-    {
-        tmp = start;
-        start = start->next_op;
-    }
+        tmp = start, start = start->next_op;
     return;
 }
 

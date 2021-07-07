@@ -146,16 +146,11 @@ int16_t insert_a_key_in_a_B_plus_node(struct B_plus_node *node, int16_t new_key)
     if (node->key[insert_pos] == new_key)
         return -1;
     for (int16_t i = node->last_index + 1; i > insert_pos; i--)
-    {
-        node->key[i] = node->key[i - 1];
-        node->child[i] = node->child[i - 1];
-    }
+        node->key[i] = node->key[i - 1], node->child[i] = node->child[i - 1];
     if (node->isleaf)
         for (int16_t i = node->last_index + 1; i > insert_pos; i--)
             node->fd[i] = node->fd[i - 1];
-    node->last_index++;
-    node->key[insert_pos] = new_key;
-    node->fd[insert_pos] = -1;
+    node->last_index++, node->key[insert_pos] = new_key, node->fd[insert_pos] = -1;
     if (insert_pos == 0)
     {
         /* if new_key is the minimum, ascend to change the ancestors until root. */
@@ -222,10 +217,7 @@ int insert_a_key_in_B_plus_tree(struct B_plus_node **B_plus_tree, int16_t new_ke
         if (new_node->isleaf)
         {
             for (int16_t i = 0; i <= new_node->last_index; i++)
-            {
-                new_node->fd[i] = cur->fd[split_pos + i];
-                cur->fd[split_pos+i] = -1;
-            }
+                new_node->fd[i] = cur->fd[split_pos + i], cur->fd[split_pos+i] = -1;
             cur->sibling = new_node;
         }
         if (!cur->parent)
@@ -307,10 +299,7 @@ int delete_a_key_in_B_plus_leaf_and_merge(struct B_plus_node *leaf, int16_t del_
         else
         {
             for (int16_t i = del_pos; i < leaf->last_index; i++)
-            {
-                leaf->key[i] = leaf->key[i + 1];
-                leaf->fd[i] = leaf->fd[i + 1];
-            }
+                leaf->key[i] = leaf->key[i + 1], leaf->fd[i] = leaf->fd[i + 1];
             leaf->last_index--;
         }
         struct B_plus_node *cur = leaf;
@@ -389,10 +378,7 @@ int delete_a_key_in_B_plus_leaf_and_merge(struct B_plus_node *leaf, int16_t del_
         if (file_is_occupied_in_a_B_plus_leaf(leaf, del_pos))
             return -1;
         for (int16_t i = del_pos; i < leaf->last_index; i++)
-        {
-            leaf->key[i] = leaf->key[i + 1];
-            leaf->fd[i] = leaf->fd[i + 1];
-        }
+            leaf->key[i] = leaf->key[i + 1], leaf->fd[i] = leaf->fd[i + 1];
         leaf->last_index--;
         return 0;
     }

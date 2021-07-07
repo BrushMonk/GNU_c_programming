@@ -20,20 +20,14 @@ static struct AVL_node* volatile stack[INT16_MAX];
 static struct AVL_node* popup(void)
 {
     if (top == -1)
-    {
-        perror("popup() on the empty stack, abort");
-        exit(-1);
-    }
+        perror("popup() on the empty stack, abort"), exit(-1);
     return stack[top--];
 }
 /* push struct AVL_node stack */
 static void push(struct AVL_node *node)
 {
     if (top == INT16_MAX)
-    {
-        perror("stack overflow");
-        exit(-1);
-    }
+        perror("stack overflow"), exit(-1);
     stack[++top] = node;
 }
 
@@ -79,10 +73,8 @@ int insert_a_key_in_AVL(struct AVL_node **AVL_tree, int32_t new_key)
     if (*AVL_tree == NULL)
     {
         struct AVL_node *root = (struct AVL_node *)calloc(1, sizeof(struct AVL_node));
-        root->node_id = new_key;
+        root->node_id = new_key, root->bf = 0, *AVL_tree = root;
         root->next[left] = root->next[right] = NULL;
-        root->bf = 0;
-        *AVL_tree = root;
         printf("insert key value %" PRId32" successfully.\n", new_key);
         return 0;
     }
@@ -101,7 +93,7 @@ int insert_a_key_in_AVL(struct AVL_node **AVL_tree, int32_t new_key)
     struct AVL_node *new_node = (struct AVL_node *)calloc(1, sizeof(struct AVL_node));
     new_node->node_id = new_key;
     new_node->next[left] = new_node->next[right] = NULL;
-    new_node->bf = 0; cur = new_node;
+    new_node->bf = 0, cur = new_node;
     while (top != -1)
     {
         stack[top]->bf += (cur == stack[top]->next[left]) ? 1:-1;
@@ -132,15 +124,11 @@ int delete_a_key_and_fill_from_left_subtree_in_AVL(struct AVL_node **AVL_tree, i
     if (!cur)
     {
         fprintf(stderr, "no key value in binary search tree!\n");
-        top=-1; return -1;
+        top = -1; return -1;
     }
     /* delete a leaf node */
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-    {
-        struct AVL_node *tmp = cur;
-        cur = NULL;
-        free(tmp);
-    }
+        struct AVL_node *tmp = cur, cur = NULL, free(tmp);
     /* use the maximal node in left subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {
@@ -155,10 +143,7 @@ int delete_a_key_and_fill_from_left_subtree_in_AVL(struct AVL_node **AVL_tree, i
         stack[top]->next[right] = max_in_left_subtree->next[left];
         free(max_in_left_subtree);
         while (stack[top] != cur)
-        {
-            stack[top]->bf++;
-            popup();
-        }
+            stack[top]->bf++, popup();
         cur = cur->next[left];
     }
     /* delete a node who has one subtree */
@@ -166,9 +151,7 @@ int delete_a_key_and_fill_from_left_subtree_in_AVL(struct AVL_node **AVL_tree, i
     {
         struct AVL_node *tmp = cur;
         stack[top]->next[side] = (cur->next[left]) ? cur->next[left] : cur->next[right];
-        cur = stack[top]->next[side];
-        free(tmp);
-        cur->bf = 0;
+        cur = stack[top]->next[side], free(tmp), cur->bf = 0;
     }
     while (top != -1)
     {
@@ -203,11 +186,7 @@ int delete_a_key_and_fill_from_right_subtree_in_AVL(struct AVL_node **AVL_tree, 
     }
     /* delete a leave node */
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-    {
-        struct AVL_node *tmp = cur;
-        cur = NULL;
-        free(tmp);
-    }
+        struct AVL_node *tmp = cur, cur = NULL, free(tmp);
     /* use the minimal node in rigth subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {
@@ -222,10 +201,7 @@ int delete_a_key_and_fill_from_right_subtree_in_AVL(struct AVL_node **AVL_tree, 
         stack[top]->next[left] = min_in_right_subtree->next[right];
         free(min_in_right_subtree);
         while (stack[top] != cur)
-        {
-            stack[top]->bf--;
-            popup();
-        }
+            stack[top]->bf--, popup();
         cur = cur->next[right];
     }
     /* delete a node who has one subtree */
@@ -233,9 +209,7 @@ int delete_a_key_and_fill_from_right_subtree_in_AVL(struct AVL_node **AVL_tree, 
     {
         struct AVL_node *tmp = cur;
         stack[top]->next[side] = (cur->next[left]) ? cur->next[left] : cur->next[right];
-        cur = stack[top]->next[side];
-        free(tmp);
-        cur->bf = 0;
+        cur = stack[top]->next[side], free(tmp), cur->bf = 0;
     }
     while (top != -1)
     {

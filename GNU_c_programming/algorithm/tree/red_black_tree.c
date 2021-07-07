@@ -176,11 +176,7 @@ int delete_a_key_and_fill_from_left_subtree_in_RBT(struct RB_node **RB_tree, int
     struct RB_node *previous_of_cur = cur->parent;
     _Bool deleted_color = cur->color;
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-    {
-        struct RB_node *tmp = cur;
-        cur = NULL;
-        free(tmp);
-    }
+        struct RB_node *tmp = cur, cur = NULL, free(tmp);
     /* use the maximal node in left subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {
@@ -210,11 +206,7 @@ int delete_a_key_and_fill_from_right_subtree_in_RBT(struct RB_node **RB_tree, in
     struct RB_node *previous_of_cur = cur->parent;
     _Bool deleted_color = cur->color;
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-    {
-        struct RB_node *tmp = cur;
-        cur = NULL;
-        free(tmp);
-    }
+        struct RB_node *tmp = cur, cur = NULL, free(tmp);
     /* use the minimal node in right subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {

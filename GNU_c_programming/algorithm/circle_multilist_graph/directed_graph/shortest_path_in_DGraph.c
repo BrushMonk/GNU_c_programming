@@ -223,11 +223,7 @@ struct tree_node *Dijkstra_algorithm_in_DGraph(const struct DGraph_info *DGraph,
     {
         *path_node = (struct tree_node){i->node_id, i->dist, 0, i->parent_id, i->parent, 0};
         if (last != NULL)
-        {
-            path_node->child_num = 1;
-            path_node->next = (struct tree_node **)malloc(8UL);
-            path_node->next[0] = last;
-        }
+            path_node->child_num = 1, path_node->next = (struct tree_node **)malloc(8UL), path_node->next[0] = last;
         last = path_node;
     }
     delete_all_nodes_in_dirc_tree(SPT_root);
@@ -271,7 +267,9 @@ int64_t** Floyd_algorithm_in_DGraph(const struct DGraph_info *DGraph)
     for (int v = 0; v < NODE_NUM; v++)
     {
         dist[v][v] = 0;
-        dist[v][out_adj->node_id] = out_adj->weight;
+        for (struct adj_node *next_adj = DGraph->outadj[v];
+        next_adj != NULL; next_adj = next_adj->next)
+            dist[v][next_adj->node_id] = next_adj->weight;
     }
     for (int v = 0; v < NODE_NUM; v++)
         for (int i = 0; i < NODE_NUM; i++)

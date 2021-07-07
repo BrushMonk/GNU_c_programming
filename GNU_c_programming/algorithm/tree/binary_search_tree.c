@@ -14,17 +14,15 @@ static _Atomic(ptrdiff_t) top = -1;
 /* pop up out of stack */
 static struct bin_node* popup(void)
 {
-    if (top == -1){
-    perror("popup() on the empty stack, abort");
-    exit(-1);}
+    if (top == -1)
+        perror("popup() on the empty stack, abort"), exit(-1);
     return stack[top--];
 }
 /* push into stack */
 static void push(struct bin_node *node)
 {
-    if (top == INT16_MAX){
-    perror("stack overflow");
-    exit(-1);}
+    if (top == INT16_MAX)
+        perror("stack overflow"), exit(-1);
     stack[++top] = node;
 }
 

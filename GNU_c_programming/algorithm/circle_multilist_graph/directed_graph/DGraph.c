@@ -67,10 +67,7 @@ static void delete_all_lines_in_DGraph(struct DGraph_info *DGraph)
 int init_DGraph(struct DGraph_info *DGraph, struct dirc_line lines[], size_t line_num)
 {
     for (size_t v = 0; v < NODE_NUM; v++)
-    {
-        DGraph->outadj[v] = NULL;
-        DGraph->inadj[v] = NULL;
-    }
+        DGraph->inadj[v] = DGraph->outadj[v] = NULL;
     for (size_t e = 0; e < line_num; e++)
     {
         if (lines[e].src >= NODE_NUM || lines[e].dest >= NODE_NUM || lines[e].src < 0 || lines[e].dest < 0)
