@@ -158,7 +158,7 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
     return DECR_SUCCESS;
 }
 
-static void insert_adj_multilines_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
+static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, const struct UDGraph_info *UDGraph, struct binomial_heap *heap, _Bool flag)
 {
     /* next adjacent node */
     struct adj_line *adj_line = UDGraph->adj[node->node_id];
@@ -205,7 +205,7 @@ struct tree_node *Dijkstra_algorithm_in_UDGraph(const struct UDGraph_info *UDGra
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multilines_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
+        insert_adj_nodes_in_binomial_heap(cur, UDGraph, &unvisited, DIJKSTRA);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);
@@ -253,7 +253,7 @@ struct tree_node *Prim_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, 
     {
         /* find the minimum-dist node from binomial heap */
         cur = extract_min_binomial_node(&unvisited);
-        insert_adj_multilines_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
+        insert_adj_nodes_in_binomial_heap(cur, UDGraph, &unvisited, PRIM);
         visited[cur->node_id] = cur;
         if (cur->parent_id != -1)
             insert_leaf_in_tree_node(visited[cur->parent_id], cur);

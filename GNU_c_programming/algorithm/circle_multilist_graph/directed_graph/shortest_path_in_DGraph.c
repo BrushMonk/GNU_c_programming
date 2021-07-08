@@ -161,9 +161,7 @@ static int decrease_binomial_key(struct binomial_heap *heap, int id, int64_t new
 
 static void insert_adj_nodes_in_binomial_heap(const struct tree_node *node, const struct DGraph_info *DGraph, struct binomial_heap *heap, _Bool flag)
 {
-    /* next adjacent node */
-    struct adj_node *next_adj;
-    for (next_adj = DGraph->outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
+    for (struct adj_node *next_adj = DGraph->outadj[node->node_id]; next_adj != NULL; next_adj = next_adj->next)
     {
         /* candidate inserted into unvisited set */
         struct tree_node *cand;

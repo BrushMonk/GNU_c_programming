@@ -1,7 +1,7 @@
 #pragma once
 #include "shortest_path_in_UDGraph.c"
 
-/* get a replication of undirected graph */
+/* get a copy of undirected graph */
 static struct UDGraph_info *get_UDGraph_copy(const struct UDGraph_info *UDGraph)
 {
     struct adj_line **lines_set = get_lines_set_in_ascd_order(UDGraph);
@@ -61,7 +61,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
 }
 
 static _Atomic(int) top = -1;
-/* traverse loop in UDGraph and delete the lines where it passed by */
+/* traverse loop in UDGraph and delete the lines where traversal passed by */
 static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info *UDGraph, int *idstack, int64_t *weightstack, int node_id)
 {
     int64_t tmp_weight;
