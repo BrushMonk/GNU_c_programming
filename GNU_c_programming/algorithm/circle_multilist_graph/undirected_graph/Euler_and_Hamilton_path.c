@@ -2,19 +2,18 @@
 #include "shortest_path_in_UDGraph.c"
 
 /* get a replication of undirected graph */
-struct UDGraph_info *get_UDGraph_replic(const struct UDGraph_info *UDGraph)
+static struct UDGraph_info *get_UDGraph_copy(const struct UDGraph_info *UDGraph)
 {
-    struct adj_line **line_set = get_lines_set_in_ascd_order(UDGraph);
+    struct adj_line **lines_set = get_lines_set_in_ascd_order(UDGraph);
     struct undirc_line lines[UDGraph->line_num];
     for (size_t e = 0; e < UDGraph->line_num; e++)
-    {
-        lines[e].i_node = line_set[e]->i_node;
-        lines[e].j_node = line_set[e]->j_node;
-        lines[e].weight = line_set[e]->weight;
-    }
-    struct UDGraph_info *UDGraph_replic = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
-    init_UDGraph(UDGraph_replic, lines, UDGraph->line_num);
-    return UDGraph_replic;
+        lines[e].i_node = lines_set[e]->i_node,
+        lines[e].j_node = lines_set[e]->j_node,
+        lines[e].weight = lines_set[e]->weight;
+    free(lines_set);
+    struct UDGraph_info *UDGraph_copy = (struct UDGraph_info *)malloc(sizeof(struct UDGraph_info));
+    init_UDGraph(UDGraph_copy, lines, UDGraph->line_num);
+    return UDGraph_copy;
 }
 
 static struct adj_line* find_next_line_in_undirc_Euler_path(struct UDGraph_info *UDGraph, int node_id)
@@ -32,7 +31,7 @@ static struct adj_line* find_next_line_in_undirc_Euler_path(struct UDGraph_info 
 
 struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
-    struct UDGraph_info *unvis_UDGraph = get_UDGraph_replic(UDGraph);
+    struct UDGraph_info *unvis_UDGraph = get_UDGraph_copy(UDGraph);
     struct tree_node *start_node;
     *start_node = (struct tree_node){src, 0, 0, -1, 0};
     struct tree_node *last = NULL, *path_node;
@@ -81,17 +80,13 @@ static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info
         exit(-1);
     }
     else
-    {
-        top++;
-        idstack[top] = node_id;
-        weightstack[top] = tmp_weight;
-    }
+        top++, idstack[top] = node_id, weightstack[top] = tmp_weight;
     return;
 }
 
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
-    struct UDGraph_info *unvis_UDGraph = get_UDGraph_replic(UDGraph);
+    struct UDGraph_info *unvis_UDGraph = get_UDGraph_copy(UDGraph);
     int idstack[NODE_NUM << 8]; int64_t weightstack[NODE_NUM << 8]; top = -1;
     trav_loop_until_end_and_push_to_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *last = NULL, *path_node;
@@ -102,17 +97,13 @@ struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDG
             *path_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
             insert_leaf_in_tree_node(path_node, last);
         }
-        last = path_node;
-        top--;
+        last = path_node, top--;
     }
     free(unvis_UDGraph);
     path_node->dist = 0;
     int64_t tmp_dist = 0;
     for (struct tree_node *i = path_node; i != NULL; i = i->next[0])
-    {
-        tmp_dist += i->dist;
-        i->dist = tmp_dist;
-    }
+        tmp_dist += i->dist, i->dist = tmp_dist;
     return path_node;
 }
 
