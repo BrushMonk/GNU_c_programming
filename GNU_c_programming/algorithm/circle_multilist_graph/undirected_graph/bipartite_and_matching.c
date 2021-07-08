@@ -384,17 +384,22 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
     return -1;
 }
 
+static _Atomic(size_t) odd_cycle_num[NODE_NUM] = {0};
+int *volatile odd_cycle[NODE_NUM] = {NULL};
+
 static int volatile queue[NODE_NUM];
 static _Atomic(ptrdiff_t) front = 0, rear = 0;
-static void enqueue(int node_id)
+static void enqueue(int x_node)
 {
-    if (front == (rear + 1) % NODE_NUM)
+    if (x_node < NODE_NUM)
     {
-        fputs("queue overflow\n", stderr);
-        exit(-1);
+        if (front == (rear + 1) % NODE_NUM)
+            fputs("queue overflow\n", stderr), exit(-1);
+        queue[rear++] = x_node;
+        rear %= NODE_NUM;
     }
-    queue[rear++] = node_id;
-    rear %= NODE_NUM;
+    else for (size_t i = 0; i < odd_cycle_num[x_node]; i++)
+        enqueue(odd_cycle[x_node][i]);
 }
 static int dequeue(void)
 {
@@ -415,7 +420,11 @@ _Bool match_nodes_in_general_UDGraph(const struct UDGraph_info *UDGraph, int dis
     int pre_nodeid[NODE_NUM];
     for (size_t xcount = 0; xcount < x_num; xcount++)
         if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
-            re_nodeid[xcount] = color_set[xcount] = 0, ;
+            pre_nodeid[xcount] = color_set[xcount] = 0, enqueue(xcount);
+    if (front == rear) return 0;
+    while (1)
+    {
+    }
 }
 
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
@@ -423,8 +432,6 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int64_t *node_weight = get_max_node_weight(UDGraph);
     struct matching *perf_matching; *perf_matching = (struct matching){0};
     int unmatched_id = -1;
-    size_t odd_cycle_num[NODE_NUM] = {0};
-    int *odd_cycle[NODE_NUM] = {NULL};
     int spouse[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM]; x_num = NODE_NUM;
     for (int v = 0; v < NODE_NUM; v++)
