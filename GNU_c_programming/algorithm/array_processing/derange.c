@@ -22,10 +22,10 @@ _Bool isdisplay, int_fast8_t *restrict Peano, ptrdiff_t depth)
     {
         if ( i == Peano[depth] ) continue;
         int_fast8_t tmp = Peano[i]; Peano[i] = Peano[depth]; Peano[depth] = tmp;
-        tmp = arr[i]; arr[i] = arr[depth]; arr[depth] = tmp;
+        tmp = arr[i], arr[i] = arr[depth], arr[depth] = tmp;
         count += derange(arr, len, isdisplay, Peano, depth + 1);
-        tmp = Peano[i]; Peano[i] = Peano[depth]; Peano[depth] = tmp;
-        tmp = arr[i]; arr[i] = arr[depth]; arr[depth] = tmp;
+        tmp = Peano[i], Peano[i] = Peano[depth], Peano[depth] = tmp;
+        tmp = arr[i], arr[i] = arr[depth], arr[depth] = tmp;
     }
     return count;
 }

@@ -42,8 +42,8 @@ int64_t* get_union(const int64_t *arr1, size_t len1, const int64_t *arr2, size_t
     {
         if ( tmp1[i] == tmp2[j] )
         {
-            arr3[*len3++] = tmp1[i];
-            i++; j++; continue;
+            arr3[*len3++] = tmp1[i], i++, j++;
+            continue;
         }
         arr3[*len3++] = ( tmp1[i] < tmp2[j] ) ? tmp1[i++] : tmp2[j++];
     }
