@@ -1,4 +1,5 @@
 #pragma once
+#include <stddef.h>
 #include "UDGraph.c"
 /* x node subset from bipartite graph */
 static int *volatile nodex;
@@ -383,6 +384,40 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
     return -1;
 }
 
+static int volatile queue[NODE_NUM];
+static _Atomic(ptrdiff_t) front = 0, rear = 0;
+static void enqueue(int node_id)
+{
+    if (front == (rear + 1) % NODE_NUM)
+    {
+        fputs("queue overflow\n", stderr);
+        exit(-1);
+    }
+    queue[rear++] = node_id;
+    rear %= NODE_NUM;
+}
+static int dequeue(void)
+{
+    if (front == rear)
+    {
+        fputs("dequeue on the empty queue, abort\n", stderr);
+        exit(-1);
+    }
+    int node_id = queue[front];
+    front++;
+    front %= NODE_NUM;
+    return node_id;
+}
+
+_Bool match_nodes_in_general_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[])
+{
+    int color_set[NODE_NUM] = {-1}, slack[NODE_NUM] = {-1};
+    int pre_nodeid[NODE_NUM];
+    for (size_t xcount = 0; xcount < x_num; xcount++)
+        if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
+            re_nodeid[xcount] = color_set[xcount] = 0, ;
+}
+
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
     int64_t *node_weight = get_max_node_weight(UDGraph);
@@ -390,8 +425,8 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int unmatched_id = -1;
     size_t odd_cycle_num[NODE_NUM] = {0};
     int *odd_cycle[NODE_NUM] = {NULL};
-    int spouse[NODE_NUM] = {-1}; int color_set[NODE_NUM] = {-1};
-    int disjt_set[NODE_NUM];
+    int spouse[NODE_NUM] = {-1};
+    int disjt_set[NODE_NUM]; x_num = NODE_NUM;
     for (int v = 0; v < NODE_NUM; v++)
     {
         int disjt_set[NODE_NUM] = v;
@@ -399,27 +434,8 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
         odd_cycle[v][0] = v;
     }
     for (int v = 0; v < NODE_NUM; v++)
-        if (color_set[v] == -1)
-        {
-            unmatched_id = contract_odd_cycle_in_UDGraph(UDGraph, v, 0, spouse, disjt_set);
-            if (unmatched_id != -1)
-            {
-                odd_cycle_num++;
-                for (int v = 0; v < NODE_NUM; v++)
-                {
-                    if (spouse[v] == 0 && disjt_set[v] == v)
-                    {
-                        nodex = (int *)realloc(nodex, ++x_num * sizeof(int));
-                        nodex[x_num - 1] = v;
-                    }
-                    else if (spouse[v] == 1  && disjt_set[v] == v)
-                    {
-                        nodey = (int *)realloc(nodey, ++y_num * sizeof(int));
-                        nodey[y_num - 1] = v;
-                    }
-                }
-            }
-        }
+    {
+    }
     if (odd_cycle_num == 0)
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
