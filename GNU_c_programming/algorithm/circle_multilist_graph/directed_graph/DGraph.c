@@ -137,6 +137,9 @@ int delete_a_line_in_DGraph(struct DGraph_info *DGraph, int src, int dest)
     }
 }
 
+#define __init_disjoint_set(disjt_set, n) \
+for (int v = 0; v < n; v++)disjt_set[v] = v
+
 static int find_disjt_root(int *disjt_set, int node_id)
 {
     return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
@@ -203,8 +206,7 @@ size_t find_all_SCC_in_DGraph(const struct DGraph_info *DGraph)
     /* timestamp in the traversal to the whole directed graph */
     int timestamp[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM];
-    for (int v = 0; v < NODE_NUM; v++)
-        disjt_set[v] = v;
+    __init_disjoint_set(disjt_set, NODE_NUM);
     /* the number of strongly connected components */
     size_t SCC_num = 0;
     for (int v = 0; v < NODE_NUM; v++)

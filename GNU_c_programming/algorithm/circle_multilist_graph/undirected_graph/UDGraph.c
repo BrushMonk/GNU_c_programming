@@ -283,6 +283,9 @@ static void delete_all_nodes_in_undirc_tree(struct tree_node *node)
     return;
 }
 
+#define __init_disjoint_set(disjt_set, n) \
+for (int v = 0; v < n; v++)disjt_set[v] = v
+
 static int find_disjt_root(int *disjt_set, int node_id)
 {
     return node_id == disjt_set[node_id] ? node_id : (disjt_set[node_id] = find_disjt_root(disjt_set, node_id));
