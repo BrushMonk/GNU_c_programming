@@ -384,8 +384,12 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
     return -1;
 }
 
-static _Atomic(size_t) odd_cycle_num[NODE_NUM] = {0};
+static _Atomic(size_t) odd_cycle_num[NODE_NUM] = {1};
 int *volatile odd_cycle[NODE_NUM] = {NULL};
+#define __init_odd_cycle(odd_cycle, n) \
+    for (int v = 0; v < n; v++){ \
+    odd_cycle[v] = (int *)malloc(8UL); \
+    odd_cycle[v][0] = v;}
 
 static int volatile queue[NODE_NUM];
 static _Atomic(ptrdiff_t) front = 0, rear = 0;
@@ -436,11 +440,7 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int disjt_set[NODE_NUM];
     __init_disjoint_set(disjt_set, NODE_NUM);
     x_num = NODE_NUM;
-    for (int v = 0; v < NODE_NUM; v++)
-    {
-        odd_cycle[v] = (int *)realloc(odd_cycle, ++odd_cycle_num[v]* 8UL);
-        odd_cycle[v][0] = v;
-    }
+    __init_odd_cycle(odd_cycle, NODE_NUM);
     for (int v = 0; v < NODE_NUM; v++)
     {
     }
