@@ -57,7 +57,9 @@ void insertion_sort(int32_t *restrict arr, ptrdiff_t len)
     {
         /* compare and swap each adjacent two members from the i+1 th to the second */
         if (arr[j] < arr[j-1])
-            int32_t tmp = arr[j], arr[j] = arr[j-1], arr[j-1] = tmp;
+        {
+            int32_t tmp = arr[j]; arr[j] = arr[j-1]; arr[j-1] = tmp;
+        }
         else break;
     }
     /* if sorting arr[i+1] is done, execute next imput arr[i+2] */
@@ -91,7 +93,9 @@ void heap_sort(int32_t *restrict arr, int len)
             min_child++;
         if (arr[i] >= arr[min_child]) continue;
         else
-            int tmp = arr[i], arr[i] = arr[min_child], arr[min_child] = tmp;
+        {
+            int tmp = arr[i]; arr[i] = arr[min_child]; arr[min_child] = tmp;
+        }
     }
     for (int i = len - 1; i > 0; i--)
     /* the complexity of this procedure is O(nlog n) */

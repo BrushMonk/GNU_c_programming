@@ -248,7 +248,7 @@ int decrease_binomial_key(struct binomial_node **binomial_heap, int decreased_ke
 
 int delete_binomial_node(struct binomial_node **binomial_heap, int key_to_be_del)
 {
-    if ( decrease_binomial_key(binomial_heap, key_to_be_del, INT_MIN) < 0 )
+    if ( decrease_binomial_key(binomial_heap, key_to_be_del, INT32_MIN) < 0 )
         return -1;
     else
     {

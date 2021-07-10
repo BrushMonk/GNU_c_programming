@@ -128,7 +128,10 @@ int delete_a_key_and_fill_from_left_subtree_in_AVL(struct AVL_node **AVL_tree, i
     }
     /* delete a leaf node */
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-        struct AVL_node *tmp = cur, cur = NULL, free(tmp);
+    {
+        struct AVL_node *tmp = cur; 
+        cur = NULL, free(tmp);
+    }
     /* use the maximal node in left subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {
@@ -186,7 +189,10 @@ int delete_a_key_and_fill_from_right_subtree_in_AVL(struct AVL_node **AVL_tree, 
     }
     /* delete a leave node */
     if (cur->next[left] == NULL && cur->next[right] == NULL)
-        struct AVL_node *tmp = cur, cur = NULL, free(tmp);
+    {
+        struct AVL_node *tmp = cur;
+        cur = NULL, free(tmp);
+    }
     /* use the minimal node in rigth subtree of the current node to replace the current node */
     else if (cur->next[left] != NULL && cur->next[right] != NULL)
     {

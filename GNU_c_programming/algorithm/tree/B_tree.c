@@ -619,8 +619,8 @@ void postorder_trav_to_B_tree(struct B_node **B_tree)
             }
             else
             {
-                pos++ = popup_pos();
-                cur = node_stack[top_in_node_stack]->child[pos];
+                pos = popup_pos();
+                cur = node_stack[top_in_node_stack]->child[++pos];
             }
         }
     }
