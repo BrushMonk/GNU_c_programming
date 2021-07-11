@@ -1,7 +1,6 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <stdint.h>
 static _Atomic(enum {left, right}) side;
 struct bin_node
@@ -10,7 +9,7 @@ struct bin_node
 
 // *queue[INT16_MAX] is an array consist of pointers.
 static struct bin_node* volatile queue[INT16_MAX];
-static _Atomic(ptrdiff_t) front = 0, rear = 0;
+static _Atomic(int) front = 0, rear = 0;
 static void enqueue(struct bin_node *node)
 {
     if (front == (rear + 1) % INT16_MAX)

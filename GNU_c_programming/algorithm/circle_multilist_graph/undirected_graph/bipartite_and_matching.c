@@ -1,5 +1,4 @@
 #pragma once
-#include <stddef.h>
 #include "UDGraph.c"
 /* x node subset from bipartite graph */
 static int *volatile nodex;
@@ -366,7 +365,7 @@ int *volatile odd_cycle[NODE_NUM] = {NULL};
     odd_cycle[v][0] = v;}
 
 static int volatile queue[NODE_NUM];
-static _Atomic(ptrdiff_t) front = 0, rear = 0;
+static _Atomic(int) front = 0, rear = 0;
 static void enqueue(int x_node)
 {
     if (front == (rear + 1) % NODE_NUM)
