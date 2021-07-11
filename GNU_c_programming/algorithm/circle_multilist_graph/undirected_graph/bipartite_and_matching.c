@@ -14,7 +14,7 @@ static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph
     struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
-        int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
         int unmatched_id = -1;
         if (color_set[adj_id] == -1)
         {
@@ -363,7 +363,7 @@ static int contract_odd_cycle_in_UDGraph(const struct UDGraph_info *UDGraph, int
     struct adj_line *adj_line = UDGraph->adj[node_id];
     while (adj_line != NULL)
     {
-        int adj_id = (adj_line->i_node != node_id) ? adj_line->j_node : adj_line->i_node;
+        int adj_id = (adj_line->i_node != node_id) ? adj_line->i_node : adj_line->j_node;
         int unmatched_id = -1;
         if (color_set[adj_id] == -1 && adj_line->ismarked == 0)
         {
@@ -432,9 +432,18 @@ _Bool match_nodes_in_general_UDGraph(const struct UDGraph_info *UDGraph, int dis
     {
         while (front != rear)
         {
-            dequeue();
             if (color_set[disjt_set[queue[front]]] != 1)
-                for (int v = 0; v < NODE_NUM; v++)
+            {
+                struct adj_line *adj_line = UDGraph->adj[queue[front]];
+                while (adj_line != NULL)
+                {
+                    int adj_id = (adj_line->i_node != queue[front]) ? adj_line->i_node : adj_line->j_node;
+                    if (disjt_set[adj_id] != disjt_set[queue[front]])
+                    {}
+                    adj_line = (adj_line->i_node == queue[front]) ? adj_line->i_next : adj_line->j_next;
+                }
+            }
+            dequeue();
         }
     }
 }
