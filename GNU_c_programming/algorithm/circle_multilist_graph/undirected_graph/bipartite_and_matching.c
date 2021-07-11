@@ -239,9 +239,9 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             for (size_t j = 0; j < y_num; j++)
                 isvisited[nodey[j]] ?
                 /* increase all visited y node weight by minimum slack value */
-                node_weight[nodey[j]] += min_slack :
+                (node_weight[nodey[j]] += min_slack) :
                 /* decrease all unvisited y nodes by minimum slack value */
-                slack[nodey[j]] -= min_slack;
+                (slack[nodey[j]] -= min_slack);
         }
     }
     x_num = 0; y_num = 0; free(nodex); free(nodey);
@@ -348,9 +348,9 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDGraph(const struct UDGraph_info
             for (size_t j = 0; j < y_num; j++)
                 isvisited[nodey[j]] ?
                 /* increase visited y node weight by minimum slack value */
-                node_weight[nodey[j]] += min_slack :
+                (node_weight[nodey[j]] += min_slack) :
                 /* decrease all unvisited y nodes by minimum slack value */
-                slack[nodey[j]] -= min_slack;
+                (slack[nodey[j]] -= min_slack);
         }
     }
     x_num = 0; y_num = 0; free(nodex); free(nodey);
@@ -395,13 +395,15 @@ static int volatile queue[NODE_NUM];
 static _Atomic(ptrdiff_t) front = 0, rear = 0;
 static void enqueue(int x_node)
 {
+    if (front == (rear + 1) % NODE_NUM)
+        fputs("queue overflow\n", stderr), exit(-1);
+    queue[rear++] = x_node;
+    rear %= NODE_NUM;
+}
+static void enqueue_nodes_in_odd_cycle(int x_node)
+{
     if (x_node < NODE_NUM)
-    {
-        if (front == (rear + 1) % NODE_NUM)
-            fputs("queue overflow\n", stderr), exit(-1);
-        queue[rear++] = x_node;
-        rear %= NODE_NUM;
-    }
+        enqueue(x_node);
     else for (size_t i = 0; i < odd_cycle_num[x_node]; i++)
         enqueue(odd_cycle[x_node][i]);
 }
@@ -424,10 +426,16 @@ _Bool match_nodes_in_general_UDGraph(const struct UDGraph_info *UDGraph, int dis
     int pre_nodeid[NODE_NUM];
     for (size_t xcount = 0; xcount < x_num; xcount++)
         if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
-            pre_nodeid[xcount] = color_set[xcount] = 0, enqueue(xcount);
+            pre_nodeid[xcount] = color_set[xcount] = 0, enqueue_nodes_in_odd_cycle(xcount);
     if (front == rear) return 0;
     while (1)
     {
+        while (front != rear)
+        {
+            dequeue();
+            if (color_set[disjt_set[queue[front]]] != 1)
+                for (int v = 0; v < NODE_NUM; v++)
+        }
     }
 }
 
@@ -439,8 +447,8 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     int spouse[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM];
     __init_disjoint_set(disjt_set, NODE_NUM);
-    x_num = NODE_NUM;
     __init_odd_cycle(odd_cycle, NODE_NUM);
+    x_num = NODE_NUM;
     for (int v = 0; v < NODE_NUM; v++)
     {
     }

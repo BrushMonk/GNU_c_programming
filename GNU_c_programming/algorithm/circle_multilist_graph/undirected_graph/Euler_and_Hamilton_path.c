@@ -60,7 +60,7 @@ struct tree_node *Fleury_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph
     return start_node;
 }
 
-static _Atomic(int) top = -1;
+static _Atomic(int) stack_top = -1;
 /* traverse loop in UDGraph and delete the lines where traversal passed by */
 static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info *UDGraph, int *idstack, int64_t *weightstack, int node_id)
 {
@@ -73,31 +73,31 @@ static void trav_loop_until_end_and_push_to_stack_in_UDGraph(struct UDGraph_info
         trav_loop_until_end_and_push_to_stack_in_UDGraph(UDGraph, idstack, weightstack, adj_id);
     }
     /* push the lineless node into the stack */
-    if (top == NODE_NUM << 8)
+    if (stack_top == NODE_NUM << 8)
     {
         perror("node_stack overflow:");
         delete_all_lines_in_UDGraph(UDGraph);
         exit(-1);
     }
     else
-        top++, idstack[top] = node_id, weightstack[top] = tmp_weight;
+        stack_top++, idstack[stack_top] = node_id, weightstack[stack_top] = tmp_weight;
     return;
 }
 
 struct tree_node* Hierholzer_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph, int src)
 {
     struct UDGraph_info *unvis_UDGraph = get_UDGraph_copy(UDGraph);
-    int idstack[NODE_NUM << 8]; int64_t weightstack[NODE_NUM << 8]; top = -1;
+    int idstack[NODE_NUM << 8]; int64_t weightstack[NODE_NUM << 8]; stack_top = -1;
     trav_loop_until_end_and_push_to_stack_in_UDGraph(unvis_UDGraph, idstack, weightstack, src);
     struct tree_node *last = NULL, *path_node;
-    while (top != -1)
+    while (stack_top != -1)
     {
         if (last != NULL)
         {
-            *path_node = (struct tree_node){idstack[top], weightstack[top], 0, -1, 0};
+            *path_node = (struct tree_node){idstack[stack_top], weightstack[stack_top], 0, -1, 0};
             insert_leaf_in_tree_node(path_node, last);
         }
-        last = path_node, top--;
+        last = path_node, stack_top--;
     }
     free(unvis_UDGraph);
     path_node->dist = 0;
