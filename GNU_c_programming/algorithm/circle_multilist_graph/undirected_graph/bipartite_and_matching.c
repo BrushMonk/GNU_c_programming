@@ -393,7 +393,11 @@ static int dequeue(void)
     return node_id;
 }
 
-_Bool update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
+_Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line)
+{
+}
+
+_Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
 {
     int color_set[x_num] = {-1}, slack[x_num] = {-1};
     int pre_nodeid[NODE_NUM];
