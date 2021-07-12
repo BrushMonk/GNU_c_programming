@@ -395,7 +395,7 @@ static int dequeue(void)
 
 _Bool update_max_augmenting_path_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
 {
-    int color_set[NODE_NUM] = {-1}, slack[NODE_NUM] = {-1};
+    int color_set[x_num] = {-1}, slack[x_num] = {-1};
     int pre_nodeid[NODE_NUM];
     for (size_t xcount = 0; xcount < x_num; xcount++)
         if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
