@@ -393,13 +393,24 @@ static int dequeue(void)
     return node_id;
 }
 
-_Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line)
+_Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line, int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[])
 {
+    if (color_set[disjt_set[line->j_node]] == -1)
+    {
+        pre_nodeid[disjt_set[line->j_node]] = line->i_node; color_set[disjt_set[line->j_node]] = 1;
+        color_set[disjt_set[spouse[disjt_set[line->j_node]]]] = 0;
+        slack[disjt_set[line->j_node]] = slack[disjt_set[spouse[disjt_set[line->j_node]]]] = 0;
+        enqueue_nodes_in_odd_cycle(disjt_set[spouse[disjt_set[line->j_node]]]);
+    }
+    else if (color_set[disjt_set[line->j_node]] == 0)
+    {
+    }
 }
 
 _Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
 {
-    int color_set[x_num] = {-1}, slack[x_num] = {-1};
+    int color_set[x_num]; int64_t slack[x_num];
+    memset(color_set, -1, sizeof(color_set)), memset(slack, -1, sizeof(slack));
     int pre_nodeid[NODE_NUM];
     for (size_t xcount = 0; xcount < x_num; xcount++)
         if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
@@ -418,7 +429,8 @@ _Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph, 
                     if (disjt_set[adj_id] != disjt_set[queue[front]])
                     {
                         if (node_weight[queue[front]] + node_weight[adj_id] != adj_line->weight)
-                        else if ()
+                        else if (color_nodes_or_contract_or_augmenting_path_for_a_line(adj_line, disjt_set, spouse, color_set, pre_nodeid, slack))
+                            return 1;
                     }
                     adj_line = (adj_line->i_node == queue[front]) ? adj_line->i_next : adj_line->j_next;
                 }
