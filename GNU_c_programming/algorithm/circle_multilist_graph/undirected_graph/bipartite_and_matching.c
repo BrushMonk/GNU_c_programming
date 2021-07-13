@@ -139,7 +139,7 @@ struct matching *Hungarian_algorithm_in_UWbipar(const struct UDGraph_info *UDGra
     for (size_t xcount = 0; xcount < x_num; xcount++)
     {
         /* reset all nodes unvisited in UDGraph */
-        memset(isvisited, 0, sizeof(isvisited));
+        memset(isvisited, 0, sizeof isvisited);
         max_matching->line_num += update_augmenting_path_in_UWbipar(UDGraph, nodex[xcount], isvisited);
     }
     x_num = 0; y_num = 0; free(nodex); free(nodey);
@@ -218,7 +218,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDbipar(const struct UDGraph_info
         while (1)
         {
             /* reset all nodes unvisited in UDGraph */
-            memset(isvisited, 0, sizeof(isvisited));
+            memset(isvisited, 0, sizeof isvisited);
             if (update_min_augmenting_path_in_UDbipar(UDGraph, nodex[xcount], isvisited, node_weight, slack))
             {
                 perf_matching->line_num++;
@@ -393,6 +393,12 @@ static int dequeue(void)
     return node_id;
 }
 
+static inline int get_latest_common_ancestors(int node_id1, int node_id2)
+{
+    static int time = 0;
+    for (++time; node_id1 | node_id2 == -1;)
+}
+
 _Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line, int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[])
 {
     if (color_set[disjt_set[line->j_node]] == -1)
@@ -410,7 +416,7 @@ _Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *lin
 _Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
 {
     int color_set[x_num]; int64_t slack[x_num];
-    memset(color_set, -1, sizeof(color_set)), memset(slack, -1, sizeof(slack));
+    memset(color_set, -1, sizeof color_set), memset(slack, -1, sizeof slack);
     int pre_nodeid[NODE_NUM];
     for (size_t xcount = 0; xcount < x_num; xcount++)
         if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
