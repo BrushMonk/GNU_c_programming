@@ -24,6 +24,7 @@ static void push(struct bin_node *node)
     if (top == INT16_MAX)
         perror("stack overflow"), exit(-1);
     stack[++top] = node;
+    return;
 }
 
 struct bin_node* init_bin_root(int32_t root_key)

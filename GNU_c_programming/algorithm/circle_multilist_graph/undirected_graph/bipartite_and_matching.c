@@ -372,13 +372,15 @@ static void enqueue(int x_node)
         fputs("queue overflow\n", stderr), exit(-1);
     queue[rear++] = x_node;
     rear %= NODE_NUM;
+    return;
 }
 static void enqueue_nodes_in_odd_cycle(int x_node)
 {
     if (x_node < NODE_NUM)
         enqueue(x_node);
     else for (size_t i = 0; i < odd_cycle_num[x_node]; i++)
-        enqueue(odd_cycle[x_node][i]);
+        enqueue_nodes_in_odd_cycle(odd_cycle[x_node][i]);
+    return;
 }
 static int dequeue(void)
 {

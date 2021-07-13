@@ -29,6 +29,7 @@ static void push(struct AVL_node *node)
     if (top == INT16_MAX)
         perror("stack overflow"), exit(-1);
     stack[++top] = node;
+    return;
 }
 
 struct AVL_node* look_up_a_key_in_AVL(struct AVL_node **const AVL_tree, int32_t key)

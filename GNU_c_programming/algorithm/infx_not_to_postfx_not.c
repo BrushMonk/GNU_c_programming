@@ -44,6 +44,7 @@ static void push_oprtr(char ch)
     if (oprtr_stack_top == STACKSIZE)
         perror("stack overflow"), exit(-1);
     oprtr_stack[++oprtr_stack_top] = ch;
+    return;
 }
 
 struct postfix_op {

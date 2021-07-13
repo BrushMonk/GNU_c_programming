@@ -19,6 +19,7 @@ static void enqueue(struct bin_node *node)
     }
     queue[rear++] = node;
     rear %= INT16_MAX;
+    return;
 }
 static struct bin_node* dequeue(void)
 {

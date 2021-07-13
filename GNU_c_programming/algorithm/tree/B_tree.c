@@ -30,6 +30,7 @@ static void push_node(struct B_node *node)
     if (top_in_node_stack == INT8_MAX)
         perror("node_stack overflow:"), exit(-1);
     node_stack[++top_in_node_stack] = node;
+    return;
 }
 
 static _Atomic(int8_t) top_in_pos_stack = -1;
@@ -47,6 +48,7 @@ static void push_pos(int16_t pos)
     if (top_in_pos_stack == INT8_MAX)
         perror("pos_stack overflow:"), exit(-1);
     pos_stack[++top_in_pos_stack] = pos;
+    return;
 }
 
 static int get_string(char **ptr_to_ptr)
