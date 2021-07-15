@@ -7,7 +7,8 @@ static _Atomic(size_t) x_num = 0;
 static int *volatile nodey;
 static _Atomic(size_t) y_num = 0;
 
-static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph, int node_id, _Bool init_color, int color_set[])
+static int color_nodes_from_a_node_in_UDGraph(const struct UDGraph_info *UDGraph,
+int node_id, _Bool init_color, int color_set[])
 {
     color_set[node_id] = init_color;
     struct adj_line *adj_line = UDGraph->adj[node_id];
@@ -157,7 +158,8 @@ static int64_t *get_min_node_weight(const struct UDGraph_info *UDGraph)
     return node_weight;
 }
 
-static _Bool update_min_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
+static _Bool update_min_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph,
+int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
     struct adj_line *adj_line = UDGraph->adj[x_node];
@@ -266,7 +268,8 @@ static int64_t* get_max_node_weight(const struct UDGraph_info *UDGraph)
     return node_weight;
 }
 
-static _Bool update_max_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph, int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
+static _Bool update_max_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph,
+int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
     struct adj_line *adj_line = UDGraph->adj[x_node];
@@ -395,7 +398,8 @@ static int dequeue(void)
     return node_id;
 }
 
-static inline int get_latest_common_ancestors(int node_id1, int node_id2, int timestamp[], int disjt_set[], int spouse[], int pre_nodeid[])
+static inline int get_latest_common_ancestors(int node_id1, int node_id2,
+int timestamp[], int disjt_set[], int spouse[], int pre_nodeid[])
 {
     static int init_time = -1; ++init_time;
     while (1)
@@ -415,7 +419,8 @@ static inline int get_latest_common_ancestors(int node_id1, int node_id2, int ti
     return -1;
 }
 
-_Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line, int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[])
+_Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line,
+int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[])
 {
     static int timestamp[NODE_NUM] = {-1};
     if (color_set[disjt_set[line->j_node]] == -1)
@@ -430,7 +435,8 @@ _Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *lin
     }
 }
 
-_Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph, int disjt_set[], int spouse[], int64_t node_weight[])
+_Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph,
+int disjt_set[], int spouse[], int64_t node_weight[])
 {
     int color_set[x_num]; int64_t slack[x_num];
     memset(color_set, -1, sizeof color_set), memset(slack, -1, sizeof slack);
@@ -467,7 +473,7 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
 {
     int64_t *node_weight = get_max_node_weight(UDGraph);
     struct matching *perf_matching; *perf_matching = (struct matching){0};
-    int unmatched_id = -1;
+    /* the spouse node for every node id */
     int spouse[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM];
     __init_disjoint_set(disjt_set, NODE_NUM);
