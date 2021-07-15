@@ -395,14 +395,29 @@ static int dequeue(void)
     return node_id;
 }
 
-static inline int get_latest_common_ancestors(int node_id1, int node_id2)
+static inline int get_latest_common_ancestors(int node_id1, int node_id2, int timestamp[], int disjt_set[], int spouse[], int pre_nodeid[])
 {
-    static int time = 0;
-    for (++time; node_id1 | node_id2 == -1;)
+    static int init_time = -1; ++init_time;
+    while (1)
+    {
+        if (node_id1 != -1)
+        {
+            if (timestamp[node_id1] == init_time)
+                return node_id1;
+            timestamp[node_id1] = init_time;
+            if (spouse[node_id1] == -1)
+                node_id1 = -1;
+            else node_id1 = disjt_set[pre_nodeid[spouse[node_id1]]];
+        }
+        int tmp_id = node_id1;
+        node_id1 = node_id2, node_id2 = tmp_id;
+    }
+    return -1;
 }
 
 _Bool color_nodes_or_contract_or_augmenting_path_for_a_line(struct adj_line *line, int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[])
 {
+    static int timestamp[NODE_NUM] = {-1};
     if (color_set[disjt_set[line->j_node]] == -1)
     {
         pre_nodeid[disjt_set[line->j_node]] = line->i_node; color_set[disjt_set[line->j_node]] = 1;

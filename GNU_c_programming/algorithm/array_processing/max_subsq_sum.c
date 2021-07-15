@@ -1,6 +1,5 @@
 #pragma once
 #include <inttypes.h>
-#include <stddef.h>
 /* Given (possibly negative) integers a[1], a[2], ..., a[n],
 find the maximum value of the sum of consecutive members,
 that is, make a[i]+a[i+1]+...+a[j] to be maximum, 0<=i && i<j && j<=n. */
