@@ -455,7 +455,10 @@ int node_id, int disjt_set[], int spouse[], int64_t node_weight[])
                     if (disjt_set[adj_id] != disjt_set[queue[front]])
                     {
                         if (node_weight[queue[front]] + node_weight[adj_id] != 2 * adj_line->weight)
+                        {
                             if (!slack[disjt_set[adj_id]] || )
+                                slack[disjt_set[adj_id]] = queue[front];
+                        }
                         else if (color_nodes_or_contract_or_augmenting_path_for_a_line(adj_line, disjt_set, spouse, color_set, pre_nodeid, slack))
                             return 1;
                     }
