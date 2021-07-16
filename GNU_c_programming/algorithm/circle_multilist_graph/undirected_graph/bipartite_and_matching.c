@@ -158,7 +158,7 @@ static int64_t *get_min_node_weight(const struct UDGraph_info *UDGraph)
     return node_weight;
 }
 
-static _Bool update_min_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph,
+static _Bool update_min_augmenting_path_in_bipartite(const struct UDGraph_info *UDGraph,
 int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
@@ -178,7 +178,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
                 /* find new match x node of y node node and recur itself until y node doesn't have match x node */
-                if (y_match_line == NULL || update_min_augmenting_path_in_UDbipar(UDGraph, y_match, isvisited, node_weight, slack))
+                if (y_match_line == NULL || update_min_augmenting_path_in_bipartite(UDGraph, y_match, isvisited, node_weight, slack))
                 {
                     /* if y node has match x node, let match line unmarked */
                     if (y_match_line != NULL)
@@ -203,7 +203,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 }
 
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
-struct matching* min_Kuhn_Munkres_algorithm_in_UDbipar(const struct UDGraph_info *UDGraph)
+struct matching* min_Kuhn_Munkres_algorithm_in_bipartite(const struct UDGraph_info *UDGraph)
 {
     if (judge_bipartite(UDGraph) != -1)
     {
@@ -221,7 +221,7 @@ struct matching* min_Kuhn_Munkres_algorithm_in_UDbipar(const struct UDGraph_info
         {
             /* reset all nodes unvisited in UDGraph */
             memset(isvisited, 0, sizeof isvisited);
-            if (update_min_augmenting_path_in_UDbipar(UDGraph, nodex[xcount], isvisited, node_weight, slack))
+            if (update_min_augmenting_path_in_bipartite(UDGraph, nodex[xcount], isvisited, node_weight, slack))
             {
                 perf_matching->line_num++;
                 break;
@@ -268,7 +268,7 @@ static int64_t* get_max_node_weight(const struct UDGraph_info *UDGraph)
     return node_weight;
 }
 
-static _Bool update_max_augmenting_path_in_UDbipar(const struct UDGraph_info *UDGraph,
+static _Bool update_max_augmenting_path_in_bipartite(const struct UDGraph_info *UDGraph,
 int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 {
     isvisited[x_node] = 1;
@@ -288,7 +288,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
                 if (y_match_line != NULL)
                     y_match = (y_match_line->i_node != y_node) ? y_match_line->i_node : y_match_line->j_node;
                 /* find new match x node of y node node and recur itself until y node doesn't have match x node */
-                if (y_match_line == NULL || update_max_augmenting_path_in_UDbipar(UDGraph, y_match, isvisited, node_weight, slack))
+                if (y_match_line == NULL || update_max_augmenting_path_in_bipartite(UDGraph, y_match, isvisited, node_weight, slack))
                 {
                     /* if y node has match x node, let match line unmarked */
                     if (y_match_line != NULL)
@@ -313,7 +313,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
 }
 
 /* the worst complexity of Kuhn Munkres algorithm is O(n^3) */
-struct matching* max_Kuhn_Munkres_algorithm_in_UDbipar(const struct UDGraph_info *UDGraph)
+struct matching* max_Kuhn_Munkres_algorithm_in_bipartite(const struct UDGraph_info *UDGraph)
 {
     if (judge_bipartite(UDGraph) != -1)
     {
@@ -331,7 +331,7 @@ struct matching* max_Kuhn_Munkres_algorithm_in_UDbipar(const struct UDGraph_info
         {
             /* reset all nodes unvisited in UDGraph */
             memset(isvisited, 0, sizeof(isvisited));
-            if (update_max_augmenting_path_in_UDbipar(UDGraph, nodex[xcount], isvisited, node_weight, slack))
+            if (update_max_augmenting_path_in_bipartite(UDGraph, nodex[xcount], isvisited, node_weight, slack))
             {
                 perf_matching->line_num++;
                 break;
@@ -436,15 +436,12 @@ int disjt_set[], int spouse[], int color_set[], int pre_nodeid[], int64_t slack[
 }
 
 _Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph,
-int disjt_set[], int spouse[], int64_t node_weight[])
+int node_id, int disjt_set[], int spouse[], int64_t node_weight[])
 {
-    int color_set[x_num]; int64_t slack[x_num];
-    memset(color_set, -1, sizeof color_set), memset(slack, -1, sizeof slack);
-    int pre_nodeid[NODE_NUM];
-    for (size_t xcount = 0; xcount < x_num; xcount++)
-        if (disjt_set[xcount] == xcount && spouse[xcount] == -1)
-            pre_nodeid[xcount] = color_set[xcount] = 0, enqueue_nodes_in_odd_cycle(xcount);
+    int color_set[NODE_NUM] = {-1}; int64_t slack[NODE_NUM] = {INT64_MAX};
+    int pre_nodeid[NODE_NUM] = {-1};
     if (front == rear) return 0;
+    enqueue(node_id);
     while (1)
     {
         while (front != rear)
@@ -485,7 +482,7 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     if (odd_cycle_num == 0)
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
-        return max_Kuhn_Munkres_algorithm_in_UDbipar(UDGraph);
+        return max_Kuhn_Munkres_algorithm_in_bipartite(UDGraph);
     }
     else
     {
