@@ -454,7 +454,8 @@ int node_id, int disjt_set[], int spouse[], int64_t node_weight[])
                     int adj_id = (adj_line->i_node != queue[front]) ? adj_line->i_node : adj_line->j_node;
                     if (disjt_set[adj_id] != disjt_set[queue[front]])
                     {
-                        if (node_weight[queue[front]] + node_weight[adj_id] != adj_line->weight)
+                        if (node_weight[queue[front]] + node_weight[adj_id] != 2 * adj_line->weight)
+                            if (!slack[disjt_set[adj_id]] || )
                         else if (color_nodes_or_contract_or_augmenting_path_for_a_line(adj_line, disjt_set, spouse, color_set, pre_nodeid, slack))
                             return 1;
                     }
@@ -477,8 +478,8 @@ struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
     __init_odd_cycle(odd_cycle, NODE_NUM);
     x_num = NODE_NUM;
     for (int v = 0; v < NODE_NUM; v++)
-    {
-    }
+        if (spouse[v] == -1)
+            find_a_max_weight_matching_in_UDGraph(UDGraph, v, disjt_set, spouse, node_weight);
     if (odd_cycle_num == 0)
     {
         fputs("The undirected graph doesn't have an odd cycle.\n", stderr);
