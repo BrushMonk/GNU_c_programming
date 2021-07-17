@@ -59,32 +59,32 @@ static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
         i->parent = NULL;
     /* sort binomial trees in the degree of root */
     heap->head = (cur1->degree < cur2->degree) ? cur1 : cur2;
+    *i = (struct binomial_node){0};
     while (cur1 != NULL && cur2 != NULL)
     {
         if (cur1->degree < cur2->degree)
         {
-            i = cur1;
-            i = i->sibling;
+            i->sibling = cur1;
             cur1 = cur1->sibling;
         }
         else
         {
-            i = cur2;
-            i = i->sibling;
+            i->sibling = cur2;
             cur2 = cur2->sibling;
         }
+        i = i->sibling;
     }
     while (cur1 != NULL)
     {
-        i = cur1;
-        i = i->sibling;
+        i->sibling = cur1;
         cur1 = cur1->sibling;
+        i = i->sibling;
     }
     while (cur2 != NULL)
     {
-        i = cur2;
-        i = i->sibling;
+        i->sibling = cur2;
         cur2 = cur2->sibling;
+        i = i->sibling;
     }
     /* merge binomial trees from head of binomial_heap */
     for (i = heap->head; i->sibling != NULL;)
@@ -99,6 +99,7 @@ static struct tree_node *extract_min_binomial_node(struct binomial_heap *heap)
     return min->node;
 }
 
+/* worst complexity of inserting a node in binomial heap is O(log n) */
 static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct tree_node *const cand)
 {
     struct binomial_node *new_node = (struct binomial_node *)malloc(sizeof(struct binomial_node));
@@ -110,7 +111,7 @@ static void insert_a_node_in_binomial_heap(struct binomial_heap *heap, struct tr
     /* add new node in first of heap and unite binomial trees one by one */
     struct binomial_node *cur, *next_of_cur;
     for (cur = new_node; cur->sibling != NULL;)
-    /* worst comlexity of inserting a node in binomial heap is O(log n) */
+    /* worst complexity of inserting a node in binomial heap is O(log n) */
     {
         next_of_cur = cur->sibling;
         if (next_of_cur->sibling != NULL &&
