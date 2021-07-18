@@ -409,9 +409,9 @@ int timestamp[], int disjt_set[], int spouse[], int pre_nodeid[])
             if (timestamp[node_id1] == init_time)
                 return node_id1;
             timestamp[node_id1] = init_time;
-            if (spouse[node_id1] == -1)
-                node_id1 = -1;
-            else node_id1 = disjt_set[pre_nodeid[spouse[node_id1]]];
+            node_id1 = disjt_set[spouse[node_id1]];
+            if (node_id1 == -1)
+                node_id1 = disjt_set[pre_nodeid[node_id1]]];
         }
         int tmp_id = node_id1;
         node_id1 = node_id2, node_id2 = tmp_id;
@@ -439,7 +439,7 @@ _Bool find_a_max_weight_matching_in_UDGraph(const struct UDGraph_info *UDGraph,
 int node_id, int disjt_set[], int spouse[], int64_t node_weight[])
 {
     int color_set[NODE_NUM] = {-1}; int64_t slack[NODE_NUM] = {INT64_MAX};
-    int pre_nodeid[NODE_NUM] = {-1};
+    int pre_nodeid[NODE_NUM] = {-1}; front = rear = 0;
     if (front == rear) return 0;
     enqueue(node_id);
     while (1)
