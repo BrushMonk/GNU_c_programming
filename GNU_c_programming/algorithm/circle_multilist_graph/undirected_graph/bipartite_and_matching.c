@@ -84,6 +84,7 @@ static struct matching* get_all_matched_lines_in_UDGraph(const struct UDGraph_in
             {
                 __matching->matched_line[e++] = cur;
                 __matching->weight_sum += cur->weight;
+                cur->ismarked = 0;
                 isvisited[cur->i_node] = isvisited[cur->j_node] = 1;
             }
         }
@@ -360,6 +361,8 @@ struct matching* max_Kuhn_Munkres_algorithm_in_bipartite(const struct UDGraph_in
     return perf_matching;
 }
 
+/*
+
 static _Atomic(size_t) odd_cycle_num[NODE_NUM] = {1};
 int *volatile odd_cycle[NODE_NUM] = {NULL};
 #define __init_odd_cycle(odd_cycle, n) \
@@ -472,9 +475,9 @@ int node_id, int disjt_set[], int spouse[], int64_t node_weight[])
 
 struct matching* max_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDGraph)
 {
-    int64_t *node_weight = get_max_node_weight(UDGraph);
+    int64_t max_weight;
     struct matching *perf_matching; *perf_matching = (struct matching){0};
-    /* the spouse node for every node id */
+    // the spouse node for every node id
     int spouse[NODE_NUM] = {-1};
     int disjt_set[NODE_NUM];
     __init_disjoint_set(disjt_set, NODE_NUM);
@@ -498,3 +501,5 @@ struct matching* min_blossom_algorithm_in_UDGraph(const struct UDGraph_info *UDG
 {
     int64_t *node_weight = get_min_node_weight(UDGraph);
 }
+
+*/
