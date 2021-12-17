@@ -122,7 +122,7 @@ static _Bool update_augmenting_path_in_UWbipar(const struct UDGraph_info *UDGrap
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find an augmenting path.
     Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
@@ -197,7 +197,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find an augmenting path.
     Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
@@ -307,7 +307,7 @@ int x_node, _Bool isvisited[], int64_t node_weight[], int64_t slack[])
         /* if we can't find augmenting path from current y node, try another y node and repeat it. */
         adj_line = (adj_line->i_node == x_node) ? adj_line->i_next : adj_line->j_next;
     }
-    /* if every adjacency node of x in alternating path is matched, we are unable to find a augmenting path.
+    /* if every adjacency node of x in alternating path is matched, we are unable to find an augmenting path.
     Therefore this path is the maximum alternating path from current x node.
     Then we jump out of this recursion. */
     return 0;
