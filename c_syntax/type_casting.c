@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-static void comparison(int64_t x, uint64_t benchmark)
+static void compare_signed_and_unsigned(int64_t x, uint64_t benchmark)
 /* when comparing unsigned type and signed type, */
 /* computer first convert signed type into unsigned type in binary, */
 /* i.e, signed n is negative, n goes 2^32+n, */
@@ -23,9 +23,9 @@ int main(void)
     "c equals %" PRId64".\n"
     "benchmark equals %" PRIu64".\n",
     a, b, c, benchmark);
-    printf("a "); comparison(a, benchmark);
-    printf("b "); comparison(b, benchmark);
-    printf("c "); comparison(c, benchmark);
+    printf("a "); compare_signed_and_unsigned(a, benchmark);
+    printf("b "); compare_signed_and_unsigned(b, benchmark);
+    printf("c "); compare_signed_and_unsigned(c, benchmark);
     printf("a-benchmark==%" PRId64".\nb-benchmark==%" PRId64".\nc-benchmark==%" PRId64".\n",
     a - benchmark, b - benchmark, c - benchmark);
     /* when calculating unsigned type and signed type, */
