@@ -11,4 +11,4 @@ if $k\geq 2$, we can get ${\rm Josephus}(1,k)=1$, and:<br>
 $${\rm Josephus}(n-1,k)=\begin{cases}
 {\rm Josephus}(n,k)+n-k & \text{if }{\rm Josephus}(n,k)\leq k\\
 {\rm Josephus}(n,k)-k & \text{if }{\rm Josephus}(n,k)>k \end{cases}$$
-$${\rm Josephus}(n,k)=({\rm Josephus}(n-1,k)k+1)\bmod n+1
+$${\rm Josephus}(n,k)=({\rm Josephus}(n-1,k)k+1)\bmod n+1$$
